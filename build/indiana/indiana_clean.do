@@ -9,8 +9,8 @@ global monthsinayear = 12
 *local start_month 	= 4
 local start_year 	= 2010
 local start_month 	= 5
-local end_year 		= 2019
-local end_month		= 10
+local end_year 		= 2020
+local end_month		= 3
 
 
 forvalues year = `start_year'(1)`end_year' {

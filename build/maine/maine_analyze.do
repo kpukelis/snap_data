@@ -16,7 +16,7 @@ local background_color			white
 local bar_color 				blue
 local baroutline_color 			black
 local baroutline_size 			medium
-local start_graph				ym(2014,1) 
+local start_graph				ym(2005,1) 
 local ytitle_size 				small
 
 *********************************************
@@ -30,7 +30,7 @@ label var snap_cases "SNAP households"
 label var snap_individuals "SNAP persons"
 label var snap_issuance "SNAP issuance"
 
-/*
+
 foreach outcome in snap_cases snap_individuals snap_issuance {
 
 	// graph
@@ -43,7 +43,7 @@ foreach outcome in snap_cases snap_individuals snap_issuance {
 	graph export "${dir_graphs}/`outcome'_raw.png", replace as(png)
 
 }
-*/
+
 ****************************************************************
 foreach outcome in snap_cases snap_individuals snap_issuance {
 
@@ -85,7 +85,7 @@ label var snap_issuance "SNAP issuance"
 		freq ///
 		xtitle(`"Percentage drop (`outcome')"') ///
 		ytitle(`"Counties"') ///
-		title(`"maine: percentage dropped between 2013m12-2015m1 by county"') ///
+		title(`"maine: percentage dropped between 2014m12-2015m1 by county"') ///
 		caption(`"Vertical line at state average."') ///
 		graphregion(fcolor(`background_color'))
 	graph export "${dir_graphs}/`outcome'_dropped_county_hist.png", replace as(png)
@@ -109,10 +109,5 @@ foreach outcome in snap_cases snap_individuals snap_issuance {
 }
 save "${dir_data}/drop_county_level.dta", replace 
 
-KEEP GOING HERE
 
-check
-
-
-check
 

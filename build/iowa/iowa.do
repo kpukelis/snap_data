@@ -5,7 +5,7 @@ global dir_graphs				"${dir_root}/graphs"
 
 **new format**
 local ym_start 					= ym(2016,7)
-local ym_end 					= ym(2019,9)
+local ym_end 					= ym(2020,3)
 
 ********************************************************************
 // STATE TOTALS 
