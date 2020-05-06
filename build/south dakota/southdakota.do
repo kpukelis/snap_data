@@ -6,7 +6,7 @@ global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
 local ym_start					= ym(2013,1)
-local ym_end 					= ym(2019,10)
+local ym_end 					= ym(2020,3)
 local prefix_2013 				"websnap"
 local prefix_2014 				"websnap"
 local prefix_2015 				"snap_"
@@ -14,6 +14,7 @@ local prefix_2016 				"snap_"
 local prefix_2017 				"snap_"
 local prefix_2018 				"snap_"
 local prefix_2019 				"snap_"
+local prefix_2020 				"snap_"
 local suffix_2013 				""
 local suffix_2014 				"_1"
 local suffix_2015 				""
@@ -21,6 +22,7 @@ local suffix_2016 				"_1"
 local suffix_2017 				"_2"
 local suffix_2018 				"_3"
 local suffix_2019 				"_4"
+local suffix_2020 				""
 
 ***************************************************************
 
@@ -72,27 +74,27 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	if `month' == 12 {
 		local monthname = "dec"
 	}
-	
 
 	// import 
 	import excel using "${dir_root}/excel/`year'/`prefix_`year''`monthname'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
 	dropmiss, force
 	dropmiss, obs force
-	drop in 1
-	drop in 1
-	drop in 1
-	drop in 1
-	drop in 1
-	drop if supplementalnutritionassistanc == "Supplemental Nutrition Assistance Program Data"
-	drop if supplementalnutritionassistanc == "Households Participating"
-	drop if strpos(supplementalnutritionassistanc,"Average Monthly Benefit per Household is")
-	drop if strpos(supplementalnutritionassistanc,"`year' Data")
-	drop if supplementalnutritionassistanc == "County"
-	drop if b == "Totals"
-	drop if supplementalnutritionassistanc == "a) Data not shown to avoid disclosure of information for particular individuals"
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	while !strpos(v1,"State Totals") & _n == 1 {
+		drop in 1
+	}
+	assert strpos(v1,"State Totals") if _n == 1
+	drop if v1 == "Supplemental Nutrition Assistance Program Data"
+	drop if v1 == "Households Participating"
+	drop if strpos(v1,"Average Monthly Benefit per Household is")
+	drop if strpos(v1,"`year' Data")
+	drop if v1 == "County"
+	drop if v2 == "Totals"
+	drop if v1 == "a) Data not shown to avoid disclosure of information for particular individuals"
 
 	// determine number of variables
-	if `ym' != ym(2016,7) {
+	if !inlist(`ym',ym(2016,7),ym(2019,12)) {
 		describe, varlist
 		assert r(k) == 9 | r(k) == 10
 		if r(k) == 9 & `ym' < ym(2017,1) {

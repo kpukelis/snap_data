@@ -5,10 +5,10 @@ global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/s
 global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
-local files 					July2017 Oct2017 Apr2019 Oct2019
+local files 					July2017 Oct2017 Apr2019 Oct2019 Mar2020
 
 local ym_start					= ym(2016,7)
-local ym_end 					= ym(2019,10)
+local ym_end 					= ym(2020,3)
 
 ***************************************************************
 
@@ -19,11 +19,12 @@ foreach file of local files {
 		display in red "`sheet'"
 
 		// import 
-		import excel using "${dir_root}/pdfs/MA_TANF_GA_SNAP_`file'.xlsx", sheet("`sheet'") /*firstrow*/ case(lower) allstring clear
+		import excel using "${dir_root}/pdfs/needed/MA_TANF_GA_SNAP_`file'.xlsx", sheet("`sheet'") /*firstrow*/ case(lower) allstring clear
 		dropmiss, force obs
 
 		// rename variables
 		foreach v of varlist _all {
+			qui replace `v' = ustrregexra(`v',"20","2020") if _n == 1 & strpos(`v',"20") == 5
 			qui replace `v' = ustrregexra(`v',"04","2004") if _n == 1
 			qui replace `v' = ustrregexra(`v',"05","2005") if _n == 1
 			qui replace `v' = ustrregexra(`v',"06","2006") if _n == 1
@@ -40,7 +41,6 @@ foreach file of local files {
 			qui replace `v' = ustrregexra(`v',"17","2017") if _n == 1
 			qui replace `v' = ustrregexra(`v',"18","2018") if _n == 1
 			qui replace `v' = ustrregexra(`v',"19","2019") if _n == 1
-*			qui replace `v' = ustrregexra(`v',"20","2020") if _n == 1
 			qui replace `v' = ustrregexra(`v',"Jan","_01") if _n == 1
 			qui replace `v' = ustrregexra(`v',"Feb","_02") if _n == 1
 			qui replace `v' = ustrregexra(`v',"Mar","_03") if _n == 1

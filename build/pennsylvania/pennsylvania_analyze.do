@@ -35,7 +35,7 @@ save "${dir_root}/pennsylvania_waivers.dta", replace
 
 *********************************************
 // statewide graphs 
-/*
+
 use "${dir_root}/pennsylvania.dta", clear
 keep if county == "state total"
 
@@ -62,7 +62,7 @@ foreach outcome in individuals issuance {
 	graph export "${dir_graphs}/`outcome'_raw.png", replace as(png)
 
 }
-*/
+
 ****************************************************************
 // split by waiver status fixed for a particular year throughout the graph
 

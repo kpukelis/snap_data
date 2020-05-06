@@ -5,11 +5,8 @@ global dir_graphs				"${dir_root}/graphs"
 local ym_start 					= ym(2015,3)
 local ym_end 					= ym(2020,3)
 
-**KP: snap not properly imported for ym(2019,4)
-**KP: 2019m6 snap is 2018m7-2019m6, medicaid is 2018m6-2019m5, so double check if numbers match up
-
 *********************************************************************
-/*
+
 forvalues ym = `ym_start'(1)`ym_end' {
 
 	display in red "year and month `ym'"
@@ -295,28 +292,18 @@ forvalues ym = `ym_start'(1)`ym_end' {
 // drop duplicates
 duplicates drop
 
-// order and sort 
-order ym 
-sort ym 
-
-// save 
-save "${dir_data}/nebraska.dta", replace 
-*/
-****************************
-
-use "${dir_data}/nebraska.dta", clear
-
 // get rid of more duplicates 
-*preserve
+preserve
 keep ym medicaid_enrol_total medicaid_enrol_children_families medicaid_enrol_aged_disabled
 duplicates drop 
 drop if missing(medicaid_enrol_total) & missing(medicaid_enrol_children_families) & missing(medicaid_enrol_aged_disabled)
-
-
-br if inrange(ym,ym(2016,6),ym(2016,8))
-check 
-KEEP GOING HERE
-
+drop if ym == ym(2016,7) & medicaid_enrol_aged_disabled == 67216 // manual drop
+drop if ym == ym(2017,10) & medicaid_enrol_children_families == 17626 // manual drop
+drop if ym == ym(2019,5) & medicaid_enrol_total == 240741 & medicaid_enrol_children_families == 171157 & medicaid_enrol_aged_disabled == 69584 // manual drop
+drop if ym == ym(2019,5) & medicaid_enrol_aged_disabled == 69586 // manual drop
+drop if ym == ym(2018,10) & medicaid_enrol_total == 234745 // manual drop
+capture assert medicaid_enrol_total == medicaid_enrol_aged_disabled + medicaid_enrol_children_families 
+**KP: note that there are a couple of not perfect sums here
 tempfile medicaid_final
 save `medicaid_final'
 restore
@@ -333,10 +320,11 @@ restore
 use `snap_final', clear
 merge 1:1 ym using `medicaid_final', assert(3) nogen
 
+// order and sort 
+order ym 
+sort ym 
 
+// save 
+save "${dir_data}/nebraska.dta", replace 
 
-**KP: make sure just one of each month
-**KP: keep going to figure out where multiples are coming from and which ones are correct
-
-tab ym 
 

@@ -97,7 +97,7 @@ label var adults "SNAP adults"
 label var children "SNAP children"
 label var issuance "SNAP issuance"
 
-/*
+
 foreach outcome in households persons adults children issuance {
 
 	// graph
@@ -110,7 +110,7 @@ foreach outcome in households persons adults children issuance {
 	graph export "${dir_graphs}/`outcome'_raw.png", replace as(png)
 
 }
-*/
+
 *********************************************
 // statewide graphs - split by whether or not the county had a waiver in 2015
 
