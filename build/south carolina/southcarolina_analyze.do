@@ -32,7 +32,7 @@ label var households "SNAP households"
 label var persons "SNAP persons"
 label var issuance "SNAP issuance"
 
-/*
+
 foreach outcome in households persons issuance {
 
 	// graph
@@ -46,7 +46,7 @@ foreach outcome in households persons issuance {
 	graph export "${dir_graphs}/`outcome'_raw.png", replace as(png)
 
 }
-*/
+
 ****************************************************************
 foreach outcome in households persons issuance {
 

@@ -6,7 +6,7 @@ global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
 local ym_start					= ym(2008,3)
-local ym_end 					= ym(2019,10)
+local ym_end 					= ym(2020,4)
 local prefix_2008 				"fs-"
 local prefix_2009 				"fs-"
 local prefix_2010 				"fs-"
@@ -19,6 +19,7 @@ local prefix_2016 				"fs-"
 local prefix_2017 				"fs_"
 local prefix_2018 				"fs_"
 local prefix_2019 				"fs_"
+local prefix_2020 				"fs_"
 local middle_2008 				""
 local middle_2009 				""
 local middle_2010 				""
@@ -43,6 +44,7 @@ local suffix_2016 				""
 local suffix_2017 				""
 local suffix_2018 				""
 local suffix_2019 				""
+local suffix_2020				""
 local yearname_2008				"08"
 local yearname_2009				"09"
 local yearname_2010				"10"
@@ -55,6 +57,7 @@ local yearname_2016				"16"
 local yearname_2017				"2017"
 local yearname_2018				"2018"
 local yearname_2019				"2019"
+local yearname_2020 			"2020"
 
 ***************************************************************
 
