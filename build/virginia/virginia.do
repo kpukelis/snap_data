@@ -210,6 +210,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 }
 
+// destring fips
+destring fips, replace
+
+// standardize county vs. region name 
+replace county = region if missing(county) & (inlist(region,"region","northern","eastern","central","rockingham/harrisonburg","statewide","western","piedmont") | inlist(region,"henry/martinsville","chesterfield/colonial heights","fairfax county/fairfax/falls church","alleghany/covington","rockbridge/buena vista/lexington","greensville/emporia","augusta/staunton/waynesboro","york/poquoson"))
+replace region = "" if county == region & (inlist(region,"region","northern","eastern","central","rockingham/harrisonburg","statewide","western","piedmont") | inlist(region,"henry/martinsville","chesterfield/colonial heights","fairfax county/fairfax/falls church","alleghany/covington","rockbridge/buena vista/lexington","greensville/emporia","augusta/staunton/waynesboro","york/poquoson"))
+
 // clean up county names 
 // Note: between 2006m9-2007m1, they used 6 regions instead of 5: e1, e2, n1, n2, w1, w2
 replace county = "alleghany/covington" if county != "alleghany/covington" & strpos(county,"alleghany") & strpos(county,"covington")
@@ -219,7 +226,7 @@ replace county = "colonial heights" if county == "colonial hgts."
 replace county = "central" if county == "cr"
 replace county = "eastern" if county == "er"
 replace county = "northern" if county == "nr"
-replace county = "northern" if county == "pr" & ym(2007,2) // one typo
+replace county = "northern" if county == "pr" & ym == ym(2007,2) // one typo
 replace county = "piedmont" if county == "pr"
 replace county = "western" if county == "wr"
 *bedford county/city
@@ -232,18 +239,27 @@ replace county = "western" if county == "wr"
 *rockingham/harrisonburg
 *staunton/augusta
 
+// drop if no data 
+#delimit ;
+drop if
+households_pa == 0 &
+households_npa == 0 &
+households == 0 &
+persons_pa == 0 &
+persons_npa == 0 &
+persons == 0 &
+issuance_pa == 0 &
+issuance_npa == 0 &
+issuance == 0
+;
+#delimit cr
+
 // order and sort 
 order county fips ym 
 sort fips ym 
 
 // save 
 save "${dir_data}/virginia.dta", replace
-
-**KP: not quite a balanced panel, still need to work through this
-
-
-tab ym 
-tab county
 
 
 
