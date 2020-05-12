@@ -3,7 +3,7 @@ global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
 local ym_start 					= ym(2015,3)
-local ym_end 					= ym(2020,3)
+local ym_end 					= ym(2020,4)
 
 *********************************************************************
 
@@ -163,7 +163,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			if inlist(`ym',ym(2017,4),ym(2017,5),ym(2018,1)) {
 				assert r(k) == 14
 			}
-			else if inlist(`ym',ym(2018,11),ym(2020,2)) {
+			else if inlist(`ym',ym(2018,11),ym(2020,2),ym(2020,4)) {
 				assert r(k) == 15
 			}
 			else if inlist(`ym',ym(2020,3)) {
@@ -245,7 +245,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 				if inlist(`ym',ym(2017,4),ym(2017,5),ym(2018,1),ym(2020,2)) {
 					// has one extra month of data in medicaid but not snap
 				}
-				else if inlist(`ym',ym(2018,11)) {
+				else if inlist(`ym',ym(2018,11),ym(2020,4)) {
 					// has 2 extra months of data in medicaid but not snap
 				}
 				else if inlist(`ym',ym(2020,3)) {

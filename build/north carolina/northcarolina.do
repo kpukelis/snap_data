@@ -6,14 +6,14 @@ global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
 local datasets 					cases apps abawds workcases workapps
-local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-03-2020"
+local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-04-2020"
 local file_apps 				"FNS-Applications-By-County-By-Month-thru-12-2017-rev4-17-2018 (1)"
 local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-03-2020"
 local file_workcases			"Work-First-Cases-Participants-Counts-by-County-thru-03-2020"
 local file_workapps 			"Work-First-Applications-By-Month-thru-12-2017 (1)"
 
 local ym_start_cases			= ym(2006,7)
-local ym_end_cases				= ym(2020,3)
+local ym_end_cases				= ym(2020,4)
 local ym_start_apps				= ym(2007,4)
 local ym_end_apps				= ym(2017,12)
 local ym_start_abawds			= ym(2017,4)
@@ -56,7 +56,7 @@ foreach dataset of local datasets {
 			}
 			gen ym = `ym'
 			format ym %tm
-			if inlist(`ym',ym(2018,2),ym(2018,3),ym(2018,4)) | inrange(`ym',ym(2018,8),ym(2020,3)) {
+			if inlist(`ym',ym(2018,2),ym(2018,3),ym(2018,4)) | inrange(`ym',ym(2018,8),ym(2020,4)) {
 				rename countyname county
 			}
 			replace county = trim(county)
