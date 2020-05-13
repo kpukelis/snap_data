@@ -84,7 +84,7 @@ bysort ym: assert _N == 1
 sum ym
 assert r(min) <= `ym_start'
 assert r(max) == `ym_end'
-save "${dir_data}/iowa_state.dta", replace 
+save "${dir_data}/iowa.dta", replace 
 
 
 ********************************************************************

@@ -10,7 +10,7 @@ local beginning_clock1 			= ym(2015,7) - 0.5
 local expected_clock1 			= `beginning_clock1' + 3 + 1
 local beginning_clock2 			= ym(2018,7) - 0.5
 local expected_clock2 			= `beginning_clock2' + 3 + 1
-local outcomes 					snap_impact_prop_emp // snap_inelig tanf_inelig total_issuance total_hhs total_recip avg_per_hh avg_per_recip snap_impact tanf_impact snap_emp tanf_emp
+local outcomes 					snap_impact_prop_emp snap_inelig tanf_inelig total_issuance total_hhs total_recip avg_per_hh avg_per_recip snap_impact tanf_impact snap_emp tanf_emp
 local outcomes_resid			total_issuance // total_recip // total_hhs // snap_inelig
 local snap_inelig_after 		= ym(2015,7)
 local snap_inelig_lines 		expected // options are beginning expected
@@ -48,7 +48,7 @@ local ytitle_size 				small
 *****************************************************************************
 
 // load data 
-use "${dir_data}/indiana_snap.dta", clear
+use "${dir_data}/indiana.dta", clear
 
 
 // new variable: IMPACT employed divided by IMPACT total caseload 

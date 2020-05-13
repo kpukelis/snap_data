@@ -19,7 +19,7 @@ local ytitle_size 				small
 *********************************************
 // statewide graphs 
 
-use "${dir_root}/iowa_state.dta", clear
+use "${dir_root}/iowa.dta", clear
 
 **KP: move this elsewhere later
 label var _totalhouseholds "SNAP households"

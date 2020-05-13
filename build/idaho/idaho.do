@@ -6,7 +6,7 @@ global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
 local ym_start	 				= ym(2009,11) 
-local ym_end 					= ym(2019,10)
+local ym_end 					= ym(2020,3)
 
 ************************************************************
 
@@ -70,5 +70,5 @@ sort county ym
 
 // save 
 save "${dir_data}/idaho.dta", replace 
-check
+
 

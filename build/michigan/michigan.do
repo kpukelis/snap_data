@@ -9,7 +9,7 @@ local _2009_length 				= 36
 local _2012_length 				= 28
 local _2014_length 				= 27
 local _2016_length 				= 30
-local _2018_length 				= 30 // **KP: note that this could change as more data gets added for 2020
+local _2018_length 				= 31 // **KP: note that this could change as more data gets added for 2020
 local first_county 				Alcona
 #delimit ;
 local counties 					
@@ -271,8 +271,6 @@ save "${dir_data}/michigan.dta", replace
 
 
 
-
-. 
 
 
 	
