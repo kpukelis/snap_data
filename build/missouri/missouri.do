@@ -5,8 +5,7 @@ global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/s
 global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
-*local ym_start	 				= ym(2008,10) 
-local ym_start	 				= ym(2014,8) 
+local ym_start	 				= ym(2008,10) 
 local ym_end 					= ym(2020,3)
 local suffix_2008 				""
 local suffix_2009 				""
@@ -35,10 +34,10 @@ local yearname_2018				"18"
 local yearname_2019				"19"
 local yearname_2020 			"20"
 
-*KEEP GOING CLEANING PAGE BY PAGE (1 THROUGH 9)
-
+*KEEP GOING CLEANING PAGE BY PAGE (1 THROUGH 9)page 1 is done
+// ym(2019,7) that's when the page splitting gets weird, which caused me to comment out the strpos lines
 ************************************************************
-
+/*
 forvalues ym = `ym_start'(1)`ym_end' {
 
 	// for file names
@@ -53,7 +52,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red  "`year' `month'" 
 
 	// import 
-	if `year' >= 2011 {
+	if `year' >= 2011 & !inlist(`year',2020) {
 		import excel using "${dir_root}/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 	else {
@@ -75,14 +74,17 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	qui sum obsnum if strpos(v1,"APPLICATIONS RECEIVED")
 	local batch_start_1 = `r(min)'
 	*qui sum obsnum if strpos(v1,"NW REGION") & strpos(v2,"ANDREW")
-	if inrange(`ym',ym(2008,10),ym(2009,2)) | inrange(`ym',ym(2010,10),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) | inlist(`ym',ym(2014,8),ym(2020,3)) {
-		qui sum obsnum if strpos(v5,"# APPS") & strpos(v5,"RECEIVED")
+	if inrange(`ym',ym(2008,10),ym(2009,2)) | inrange(`ym',ym(2010,10),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) | inrange(`ym',ym(2014,8),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2020,3)) {
+		qui sum obsnum if /*strpos(v5,"# APPS") &*/ strpos(v5,"RECEIVED")
 	}
 	else if inrange(`ym',ym(2009,3),ym(2010,9)) | inlist(`ym',ym(2014,5),ym(2014,7)) {
-		qui sum obsnum if strpos(v4,"# APPS") & strpos(v4,"RECEIVED")
+		qui sum obsnum if /*strpos(v4,"# APPS") &*/ strpos(v4,"RECEIVED")
 	}
 	else if inlist(`ym',ym(2012,3),ym(2013,12)) {
-		qui sum obsnum if strpos(v6,"# APPS") & strpos(v6,"RECEIVED")
+		qui sum obsnum if /*strpos(v6,"# APPS") &*/ strpos(v6,"RECEIVED")
+	}
+	else if inlist(`ym',ym(2018,5)) {
+		qui sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
 	}
 	assert r(N) == 2
 	local batch_start_2 = `r(min)'
@@ -91,14 +93,14 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	local batch_start_3 = `r(min)'
 	local batch_start_3 = `r(max)'
 *	qui sum obsnum if strpos(v1,"NW REGION") & strpos(v3,"ANDREW")
-	if inrange(`ym',ym(2008,10),ym(2010,9)) | inrange(`ym',ym(2011,9),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2012,8)) | inlist(`ym',ym(2014,5)) | inrange(`ym',ym(2014,7),ym(2020,3)) {
-		qui sum obsnum if strpos(v6,"EXPEDITED") & strpos(v6,"APPLICATIONS")
+	if inrange(`ym',ym(2008,10),ym(2010,9)) | inrange(`ym',ym(2011,9),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2012,8)) | inlist(`ym',ym(2014,5)) | inrange(`ym',ym(2014,7),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2020,3)) {
+		qui sum obsnum if /*strpos(v6,"EXPEDITED") &*/ strpos(v6,"APPLICATIONS")
 	}
-	else if inrange(`ym',ym(2010,10),ym(2011,8)) | inlist(`ym',ym(2012,3),ym(2012,9)) | inrange(`ym',ym(2012,10),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) {
-		qui sum obsnum if strpos(v7,"EXPEDITED") & strpos(v7,"APPLICATIONS")
+	else if inrange(`ym',ym(2010,10),ym(2011,8)) | inlist(`ym',ym(2012,3),ym(2012,9)) | inrange(`ym',ym(2012,10),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6),ym(2018,5)) {
+		qui sum obsnum if /*strpos(v7,"EXPEDITED") &*/ strpos(v7,"APPLICATIONS")
 	}
 	else if inlist(`ym',ym(2013,12)) {
-		qui sum obsnum if strpos(v8,"EXPEDITED") & strpos(v8,"APPLICATIONS")	
+		qui sum obsnum if /*strpos(v8,"EXPEDITED") &*/ strpos(v8,"APPLICATIONS")	
 	}
 	assert r(N) == 2
 	local batch_start_4 = `r(min)'
@@ -114,16 +116,19 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	local batch_start_7 = `r(min)'
 	local batch_start_7 = `r(max)'
 *	qui sum obsnum if strpos(v1,"SE REGION") & strpos(v2,"IRON")
-	if inrange(`ym',ym(2008,10),ym(2012,2)) | inlist(`ym',ym(2013,12)) | inrange(`ym',ym(2014,8),ym(2020,3)) {
-		qui sum obsnum if strpos(v5,"TOTAL HOUSEHOLDS")
+	if inrange(`ym',ym(2008,10),ym(2012,2)) | inlist(`ym',ym(2013,12)) | inrange(`ym',ym(2014,8),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2018,9)) {
+		qui sum obsnum if strpos(v5,"HOUSEHOLDS") /*strpos(v5,"TOTAL HOUSEHOLDS") */
+		local total_households_var v5
 	}
-	else if inrange(`ym',ym(2012,3),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) {
-		qui sum obsnum if strpos(v6,"TOTAL HOUSEHOLDS")
+	else if inrange(`ym',ym(2012,3),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6),ym(2018,5)) {
+		qui sum obsnum if strpos(v6,"HOUSEHOLDS") /*strpos(v6,"TOTAL HOUSEHOLDS") */
+		local total_households_var v6
 	}
-	else if inlist(`ym',ym(2014,5),ym(2014,7)) {
-		qui sum obsnum if strpos(v4,"TOTAL HOUSEHOLDS")	
+	else if inlist(`ym',ym(2014,5),ym(2014,7)) | inrange(`ym',ym(2018,10),ym(2020,3)) {
+		qui sum obsnum if strpos(v4,"HOUSEHOLDS") /*strpos(v4,"TOTAL HOUSEHOLDS") */	
+		local total_households_var v4
 	}
-	if `ym' < ym(2014,8) {
+	if `ym' < ym(2014,8) | inrange(`ym',ym(2018,10),ym(2020,3)) {
 		assert r(N) == 2
 		local batch_start_8 = `r(min)'
 		local batch_start_9 = `r(max)'
@@ -132,12 +137,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		local num_pages = 9
 	}
 	else {
-KEEP GOING HERE
 		assert r(N) == 4
 		local batch_start_8 = `r(min)'
-		local batch_start_9 = 
-		local batch_start_10 = 
 		local batch_start_11 = `r(max)'
+		sum obsnum if strpos(`total_households_var',"TOTAL HOUSEHOLDS") & !inlist(obsnum,`batch_start_8',`batch_start_11')
+		assert r(N) == 2
+		local batch_start_9 = `r(min)'
+		local batch_start_10 = `r(max)'
 		sum obsnum
 		local batch_start_12 = `r(max)'
 		local num_pages = 11
@@ -146,9 +152,16 @@ KEEP GOING HERE
 
 	// manual drop 
 	drop if v1 == "DSS MONTHLY MANAGEMENT REPORT / PAGE 153"
+	drop if v1 == "DSS MONTHLY MANAGEMENT REPORT / PAGE 159"
+	drop if v1 == "TABLE 26" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if v1 == "FOOD STAMP APPLICATIONS" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if v1 == "JULY 2019" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if v1 == "AUGUST 2019" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if v1 == "SEPTEMBER 2019" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if v1 == "OCTOBER 2019" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 
 	// keep a particular page of data
-*	forvalues n = 1(1)9 {
+*	forvalues n = 1(1)`num_pages' {
 local n = 1
 		local nplus1 = `n' + 1
 
@@ -167,46 +180,98 @@ local n = 1
 
 		// assert shape 
 		if `n' == 1 {
-			assert r(k) == 8
-			assert r(N) == 12
 
-			// transpose data, including new variable names first 
-			gen varname = ""
-			replace varname = "apps_received" 		if strpos(v1,"APPLICATIONS RECEIVED")
-			replace varname = "apps_approved" 		if strpos(v1,"APPLICATIONS APPROVED")
-			replace varname = "apps_rejected" 		if strpos(v1,"APPLICATIONS REJECTED")
-			replace varname = "apps_expedited" 		if strpos(v1,"APPLICATIONS EXPEDITED")
-			replace varname = "households" 			if strpos(v1,"HOUSEHOLDS RECEIVING")
-			replace varname = "households_pa" 		if strpos(v1,"PUBLIC ASSISTANCE") & _n == 6
-			replace varname = "households_npa" 		if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 7
-			replace varname = "persons" 			if strpos(v1,"PERSONS RECEIVING")
-			replace varname = "persons_pa" 			if strpos(v1,"PUBLIC ASSISTANCE") & _n == 9
-			replace varname = "persons_npa" 		if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 10
-			replace varname = "issuance" 			if strpos(v1,"TOTAL BENEFITS ISSUED")
-			replace varname = "avg_benefits" 		if strpos(v1,"AVERAGE VALUE OF BENEFITS")
-			order varname
-			drop v1 
-			sxpose, clear firstnames
+			if inlist(`ym',ym(2015,4),ym(2015,5),ym(2017,11),ym(2017,12)) | inrange(`ym',ym(2019,7),ym(2019,10)) {
 
-			// continue to reshape, trim 
-			describe, varlist 
-			assert r(k) == 12
-			assert r(N) == 7
-			keep if _n <= 4 // other numbers are percentage changes
-			gen ym = .
-			replace ym = `ym'      if _n == 1
-			replace ym = `ym' - 1  if _n == 2
-			replace ym = `ym' - 2  if _n == 3
-			replace ym = `ym' - 12 if _n == 4
-			format ym %tm 
-
-			// split one more variable 
-			split avg_benefits, parse("$")
-			drop avg_benefits1 
-			rename avg_benefits2 avg_benefits_perhousehold
-			rename avg_benefits3 avg_benefits_perperson
-			drop avg_benefits
-
+				drop if v1 == "TOTAL BENEFITS ISSUED" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+				replace v1 = "TOTAL BENEFITS ISSUED" if missing(v1) & !missing(v2) & !missing(v3) & !missing(v5) & !missing(v6) & !missing(v7) & !missing(v8) //strpos(v2,"104276166")
+				drop if v1 == "AVERAGE VALUE OF BENEFITS"
+				capture drop if strpos(v4,"TOTAL") & v15 == "AVERAGE"
+				
+				dropmiss, force 
+				dropmiss, obs force 
+				describe, varlist 
+				rename (`r(varlist)') (v#), addnumber
+				assert r(k) == 8
+				assert r(N) == 13
+	
+				// transpose data, including new variable names first 
+				gen varname = ""
+				replace varname = "apps_received" 				if strpos(v1,"APPLICATIONS RECEIVED")
+				replace varname = "apps_approved" 				if strpos(v1,"APPLICATIONS APPROVED")
+				replace varname = "apps_rejected" 				if strpos(v1,"APPLICATIONS REJECTED")
+				replace varname = "apps_expedited" 				if strpos(v1,"APPLICATIONS EXPEDITED")
+				replace varname = "households" 					if strpos(v1,"HOUSEHOLDS RECEIVING")
+				replace varname = "households_pa" 				if strpos(v1,"PUBLIC ASSISTANCE") & _n == 6
+				replace varname = "households_npa" 				if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 7
+				replace varname = "persons" 					if strpos(v1,"PERSONS RECEIVING")
+				replace varname = "persons_pa" 					if strpos(v1,"PUBLIC ASSISTANCE") & _n == 9
+				replace varname = "persons_npa" 				if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 10
+				replace varname = "issuance" 					if strpos(v1,"TOTAL BENEFITS ISSUED")
+				replace varname = "avg_benefits_perhousehold" 	if strpos(v1,"PER HOUSEHOLD") // strpos(v1,"AVERAGE VALUE OF BENEFITS")
+				replace varname = "avg_benefits_perperson" 		if strpos(v1,"PER PERSON") // strpos(v1,"AVERAGE VALUE OF BENEFITS")
+				order varname
+				drop v1 
+				sxpose, clear firstnames
+	
+				// continue to reshape, trim 
+				describe, varlist 
+				assert r(k) == 13
+				assert r(N) == 7
+			
+				keep if _n <= 4 // other numbers are percentage changes
+				gen ym = .
+				replace ym = `ym'      if _n == 1
+				replace ym = `ym' - 1  if _n == 2
+				replace ym = `ym' - 2  if _n == 3
+				replace ym = `ym' - 12 if _n == 4
+				format ym %tm 
+		
+			}
+			
+			else {
+				assert r(k) == 8
+				assert r(N) == 12
+	
+				// transpose data, including new variable names first 
+				gen varname = ""
+				replace varname = "apps_received" 		if strpos(v1,"APPLICATIONS RECEIVED")
+				replace varname = "apps_approved" 		if strpos(v1,"APPLICATIONS APPROVED")
+				replace varname = "apps_rejected" 		if strpos(v1,"APPLICATIONS REJECTED")
+				replace varname = "apps_expedited" 		if strpos(v1,"APPLICATIONS EXPEDITED")
+				replace varname = "households" 			if strpos(v1,"HOUSEHOLDS RECEIVING")
+				replace varname = "households_pa" 		if strpos(v1,"PUBLIC ASSISTANCE") & _n == 6
+				replace varname = "households_npa" 		if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 7
+				replace varname = "persons" 			if strpos(v1,"PERSONS RECEIVING")
+				replace varname = "persons_pa" 			if strpos(v1,"PUBLIC ASSISTANCE") & _n == 9
+				replace varname = "persons_npa" 		if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 10
+				replace varname = "issuance" 			if strpos(v1,"TOTAL BENEFITS ISSUED")
+				replace varname = "avg_benefits" 		if strpos(v1,"AVERAGE VALUE OF BENEFITS")
+				order varname
+				drop v1 
+				sxpose, clear firstnames
+	
+				// continue to reshape, trim 
+				describe, varlist 
+				assert r(k) == 12
+				assert r(N) == 7
+				keep if _n <= 4 // other numbers are percentage changes
+				gen ym = .
+				replace ym = `ym'      if _n == 1
+				replace ym = `ym' - 1  if _n == 2
+				replace ym = `ym' - 2  if _n == 3
+				replace ym = `ym' - 12 if _n == 4
+				format ym %tm 
+	
+				// split one more variable 
+				split avg_benefits, parse("$")
+				drop avg_benefits1 
+				rename avg_benefits2 avg_benefits_perhousehold
+				rename avg_benefits3 avg_benefits_perperson
+				drop avg_benefits
+	
+			}
+			
 			// destring 
 			foreach var in apps_received apps_approved apps_rejected apps_expedited households households_pa households_npa persons persons_pa persons_npa issuance avg_benefits_perhousehold avg_benefits_perperson {
 				destring `var', replace 
@@ -218,8 +283,8 @@ local n = 1
 			sort ym 
 
 			// save 
-			tempfile _`ym'
-			save `_`ym''
+			tempfile _`ym'_page`n'
+			save `_`ym'_page`n''
 			
 
 *		}
@@ -227,7 +292,59 @@ local n = 1
 	}
 
 }
-check
 
-KEEP GOING HERE
-cleaning with by page
+
+***************************************************
+forvalues ym = `ym_start'(1)`ym_end' {
+	*forvalues n = 1(1)`num_pages' {
+		if `ym' == `ym_start' {
+			use `_`ym'_page`n'', clear
+		}
+		else {
+			append using `_`ym'_page`n''
+		}	
+	*}
+}
+
+**TEMPORARY; later, save all pages together
+save "${dir_data}/missouri_page`n'.dta", replace
+
+check
+*/
+******************
+***************
+************
+local n = 1
+use "${dir_data}/missouri_page`n'.dta", clear
+
+// drop duplicates
+duplicates drop
+duplicates tag ym, gen(dup)
+br if dup == 1
+bysort ym (persons): gen dup2 = _n 
+
+*twoway connected persons ym, xline(585) xline(596)
+// NOTE: persons started to be counted differently in 2008m10. The retrospective observations in 2007 through 2009m9 are not comparable to other data, as seen in the graph.
+// these data should be dropped 
+replace persons 				= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
+replace persons_npa 			= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
+replace persons_pa 				= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
+replace avg_benefits_perperson 	= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
+drop dup dup2
+duplicates tag ym, gen(dup)
+drop if dup == 1 & missing(persons) // drop duplicate months data 
+drop dup 
+
+// manually fix some duplicates
+drop if ym == ym(2019,2) & households == 21323 // this household count is completely off
+drop if ym == ym(2012,11) & apps_rejected == 15401 // one number off
+drop if ym == ym(2010,1) & apps_approved == 57281 // one number off
+
+// check again
+duplicates tag ym, gen(dup)
+assert dup == 0
+drop dup
+
+**TEMPORARY
+save "${dir_data}/missouri_page`n'.dta", replace
+
