@@ -5,7 +5,8 @@ global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/s
 global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
-local ym_start	 				= ym(2008,10) 
+*local ym_start	 				= ym(2008,10) 
+local ym_start	 				= ym(2014,8) 
 local ym_end 					= ym(2020,3)
 local suffix_2008 				""
 local suffix_2009 				""
@@ -34,8 +35,7 @@ local yearname_2018				"18"
 local yearname_2019				"19"
 local yearname_2020 			"20"
 
-KEEP GOING CLEANING PAGE BY PAGE (1 THROUGH 9)
-STILL ON PAGE 1
+*KEEP GOING CLEANING PAGE BY PAGE (1 THROUGH 9)
 
 ************************************************************
 
@@ -53,7 +53,12 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red  "`year' `month'" 
 
 	// import 
-	import excel using "${dir_root}/excel/`year'/`month'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
+	if `year' >= 2011 {
+		import excel using "${dir_root}/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
+	}
+	else {
+		import excel using "${dir_root}/excel/`year'/`month'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
+	}
 
 	// initial cleanup
 	dropmiss, force 
@@ -70,7 +75,15 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	qui sum obsnum if strpos(v1,"APPLICATIONS RECEIVED")
 	local batch_start_1 = `r(min)'
 	*qui sum obsnum if strpos(v1,"NW REGION") & strpos(v2,"ANDREW")
-	qui sum obsnum if strpos(v5,"# APPS") & strpos(v5,"RECEIVED")
+	if inrange(`ym',ym(2008,10),ym(2009,2)) | inrange(`ym',ym(2010,10),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) | inlist(`ym',ym(2014,8),ym(2020,3)) {
+		qui sum obsnum if strpos(v5,"# APPS") & strpos(v5,"RECEIVED")
+	}
+	else if inrange(`ym',ym(2009,3),ym(2010,9)) | inlist(`ym',ym(2014,5),ym(2014,7)) {
+		qui sum obsnum if strpos(v4,"# APPS") & strpos(v4,"RECEIVED")
+	}
+	else if inlist(`ym',ym(2012,3),ym(2013,12)) {
+		qui sum obsnum if strpos(v6,"# APPS") & strpos(v6,"RECEIVED")
+	}
 	assert r(N) == 2
 	local batch_start_2 = `r(min)'
 *	qui sum obsnum if strpos(v1,"SE REGION") & strpos(v2,"IRON")
@@ -78,7 +91,15 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	local batch_start_3 = `r(min)'
 	local batch_start_3 = `r(max)'
 *	qui sum obsnum if strpos(v1,"NW REGION") & strpos(v3,"ANDREW")
-	qui sum obsnum if strpos(v6,"EXPEDITED") & strpos(v6,"APPLICATIONS")
+	if inrange(`ym',ym(2008,10),ym(2010,9)) | inrange(`ym',ym(2011,9),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2012,8)) | inlist(`ym',ym(2014,5)) | inrange(`ym',ym(2014,7),ym(2020,3)) {
+		qui sum obsnum if strpos(v6,"EXPEDITED") & strpos(v6,"APPLICATIONS")
+	}
+	else if inrange(`ym',ym(2010,10),ym(2011,8)) | inlist(`ym',ym(2012,3),ym(2012,9)) | inrange(`ym',ym(2012,10),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) {
+		qui sum obsnum if strpos(v7,"EXPEDITED") & strpos(v7,"APPLICATIONS")
+	}
+	else if inlist(`ym',ym(2013,12)) {
+		qui sum obsnum if strpos(v8,"EXPEDITED") & strpos(v8,"APPLICATIONS")	
+	}
 	assert r(N) == 2
 	local batch_start_4 = `r(min)'
 *	qui sum obsnum if strpos(v1,"SE REGION") & strpos(v3,"IRON")
@@ -93,12 +114,38 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	local batch_start_7 = `r(min)'
 	local batch_start_7 = `r(max)'
 *	qui sum obsnum if strpos(v1,"SE REGION") & strpos(v2,"IRON")
-	qui sum obsnum if strpos(v5,"TOTAL HOUSEHOLDS")
-	assert r(N) == 2
-	local batch_start_8 = `r(min)'
-	local batch_start_9 = `r(max)'
-	sum obsnum
-	local batch_start_10 = `r(max)'
+	if inrange(`ym',ym(2008,10),ym(2012,2)) | inlist(`ym',ym(2013,12)) | inrange(`ym',ym(2014,8),ym(2020,3)) {
+		qui sum obsnum if strpos(v5,"TOTAL HOUSEHOLDS")
+	}
+	else if inrange(`ym',ym(2012,3),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) {
+		qui sum obsnum if strpos(v6,"TOTAL HOUSEHOLDS")
+	}
+	else if inlist(`ym',ym(2014,5),ym(2014,7)) {
+		qui sum obsnum if strpos(v4,"TOTAL HOUSEHOLDS")	
+	}
+	if `ym' < ym(2014,8) {
+		assert r(N) == 2
+		local batch_start_8 = `r(min)'
+		local batch_start_9 = `r(max)'
+		sum obsnum
+		local batch_start_10 = `r(max)'
+		local num_pages = 9
+	}
+	else {
+KEEP GOING HERE
+		assert r(N) == 4
+		local batch_start_8 = `r(min)'
+		local batch_start_9 = 
+		local batch_start_10 = 
+		local batch_start_11 = `r(max)'
+		sum obsnum
+		local batch_start_12 = `r(max)'
+		local num_pages = 11
+	}
+
+
+	// manual drop 
+	drop if v1 == "DSS MONTHLY MANAGEMENT REPORT / PAGE 153"
 
 	// keep a particular page of data
 *	forvalues n = 1(1)9 {
