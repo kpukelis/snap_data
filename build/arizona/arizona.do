@@ -5,9 +5,8 @@ global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/s
 global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
-*local ym_start	 				= ym(2006,4)
-local ym_start	 				= ym(2015,1) 
-local ym_end 					= ym(2019,10)
+local ym_start	 				= ym(2006,4)
+local ym_end 					= ym(2020,3)
 
 ************************************************************
 
@@ -28,7 +27,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display "`year'"
 
 	// import 
-	else if inrange(`ym',ym(2008,1),ym(2008,12)) {
+	else if inrange(`ym',ym(2006,4),ym(2008,12)) {
 		import delimited using "${dir_root}/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2009,1),ym(2009,12)) {
@@ -43,10 +42,16 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else {
 		import delimited using "${dir_root}/csvs/tabula-dbme-statistical_bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear		
 	}
+check
+	// drop headers
+	while !strpos(v2,"HOUSEHOLDS") {
+		drop in 1
+	}
 	dropmiss, force
 	count if missing(v1)
-	assert r(N) == 2
+	assert r(N) == 1
 	replace v1 = "county" if missing(v1)
+check
 
 	// turn first row into variable names 
 	foreach var of varlist * {
@@ -112,6 +117,12 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		append using `_`ym''
 	}
 }
+
+// order and sort 
+order county ym households persons adults children issuancehousehold issuanceperson totalissuance
+sort county ym 
+
+// save 
 save "${dir_root}/arizona.dta", replace
 
 
