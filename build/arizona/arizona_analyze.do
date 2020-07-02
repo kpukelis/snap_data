@@ -16,8 +16,9 @@ local background_color			white
 local bar_color 				blue
 local baroutline_color 			black
 local baroutline_size 			medium
-local start_graph				ym(2015,1)
+local start_graph				ym(2010,1)
 local ytitle_size 				small
+local dot_size 					vsmall
 
 *********************************************
 
@@ -29,15 +30,16 @@ gen waiver2016 = 0
 replace waiver2016 = 1 if inlist(county,"mohave","lapaz","yuma","coconino","navajo","apache","gila","pinal","santacruz") | inlist(county,"graham","greenlee","cochise")
 unique county if waiver2016 == 1 // should be 12
 save "${dir_root}/arizona.dta", replace 
+check
 */
-
 *********************************************
 // statewide graphs 
 
 use "${dir_root}/arizona.dta", clear
-drop if county == "total"
-bysort ym: assert _N == 15
-collapse (sum) households persons adults children totalissuance (mean) issuancehousehold issuanceperson, by(ym)
+*drop if county == "total"
+*bysort ym: assert _N == 15
+*collapse (sum) households persons adults children totalissuance (mean) issuancehousehold issuanceperson, by(ym)
+keep if county == "total"
 
 **KP: move this elsewhere later
 label var households "SNAP households"
@@ -53,6 +55,7 @@ foreach outcome in households persons adults children totalissuance issuancehous
 	// graph
 	twoway connected `outcome' ym if ym >= `start_graph', ///
 		xline(`expected_clock1') xline(`expected_clock2') ///
+		msize(`dot_size') ///
 		xtitle(`""') ///
 		title(`""') ///
 		caption(`"Vertical lines at expected effect."') ///
@@ -61,7 +64,7 @@ foreach outcome in households persons adults children totalissuance issuancehous
 
 }
 */
-
+/*
 ** RESIDUALIZED GRAPHS 
 gen month = month(dofm(ym))
 gen year = year(dofm(ym))
@@ -69,7 +72,7 @@ gen year = year(dofm(ym))
 foreach outcome in households persons adults /*children*/ totalissuance issuancehousehold issuanceperson {
 
 	// get residuals 
-	regress `outcome' children
+	regress `outcome' children month year 
 	local Rsquared = round(e(r2),0.001)
 	predict hat_`outcome'
 	gen `outcome'_resid = `outcome' - hat_`outcome'
@@ -79,8 +82,9 @@ foreach outcome in households persons adults /*children*/ totalissuance issuance
 	label var `outcome'_resid `"Residual - `lbl'"' 
 
 	// graph 
-	twoway connected `outcome'_resid ym, ///
+	twoway connected `outcome'_resid ym if ym >= `start_graph', ///
 		xline(`expected_clock1') xline(`expected_clock2') ///
+		msize(`dot_size') ///
 		xtitle(`""') ///
 		ytitle(, size(`ytitle_size')) ///
 		title(`""') ///
@@ -90,9 +94,9 @@ foreach outcome in households persons adults /*children*/ totalissuance issuance
 
 }
 
-check
+*/
 ********************************************
-// statewide graphs - split by whether or not the county had a waiver in 2015
+// statewide graphs - split by whether or not the county had a waiver in 2016
 
 use "${dir_root}/arizona.dta", clear 
 drop if county == "total"
@@ -111,8 +115,8 @@ label var issuanceperson "SNAP average issuance per recipient"
 foreach outcome in households persons adults children totalissuance issuancehousehold issuanceperson {
 
 	// graph
-	twoway (connected `outcome' ym if ym >= `start_graph' & waiver2016 == 0, yaxis(1)) ///
-		   (connected `outcome' ym if ym >= `start_graph' & waiver2016 == 1, yaxis(2) ///
+	twoway (connected `outcome' ym if ym >= `start_graph' & waiver2016 == 0, yaxis(1) msize(`dot_size')) ///
+		   (connected `outcome' ym if ym >= `start_graph' & waiver2016 == 1, yaxis(2) msize(`dot_size') ///
 		legend(label(1 "No county waiver (left axis)") label(2 "County waiver (right axis)") region(lstyle(none))) ///
 		xline(`expected_clock1') xline(`expected_clock2') ///
 		xtitle(`""') ///
