@@ -3,13 +3,13 @@ global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/s
 global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
-
-*local year_start 					= year(1996,1)
 local year_start 					= 2008
 local year_end 						= 2020
 
 ********************************************************************
 /*
+
+// county level data 2008-2020
 forvalues year = `year_start'(1)`year_end' {
 
 	dis in red "`year'"
@@ -1112,5 +1112,129 @@ sort county ym
 
 // save 
 save "${dir_data}/maryland.dta", replace 
-check
+*/
 
+********************************************************************
+// STATE LEVEL DATA 2008-2020
+
+// collapse to get totals
+use "${dir_data}/maryland.dta", clear
+keep county ym snap_households snap_recipients snap_npa_recipients snap_pa_recipients
+rename snap_households households
+rename snap_recipients persons
+rename snap_npa_recipients persons_npa
+rename snap_pa_recipients persons_pa
+collapse (sum) households persons persons_npa persons_pa, by(ym)
+tempfile late_state
+save `late_state'
+
+// STATE LEVEL DATA 1996-2005
+
+// import data 
+import excel "${dir_data}/csvs/Statistical Reports - Archive - cases.xlsx", allstring case(lower) clear
+
+// initial cleanup
+dropmiss, force 
+dropmiss, obs force 
+describe, varlist 
+rename (`r(varlist)') (v#), addnumber
+
+// lowercase everything 
+foreach v of varlist _all {
+	replace `v' = strlower(`v')
+	replace `v' = ustrregexra(`v',"\/","")
+	replace `v' = ustrregexra(`v',"\\","")
+}
+
+// mark original order of observations
+gen obsnum = _n
+
+// drop title rows 
+drop if v1 == "program caseloads"
+
+// rename vars 
+describe, varlist
+assert `r(k)' == 14
+rename v1 varname 
+rename v2 m1 
+rename v3 m2
+rename v4 m3 
+rename v5 m4 
+rename v6 m5 
+rename v7 m6 
+rename v8 m7 
+rename v9 m8 
+rename v10 m9 
+rename v11 m10 
+rename v12 m11 
+rename v13 m12
+
+// clean up varname a bit 
+replace varname = ustrregexra(varname," - ","_")
+replace varname = ustrregexra(varname," ","")
+
+// mark year 
+bysort varname (obsnum): gen year = _n + 1995
+
+// assert this was done properly
+levelsof varname, local(varnames)
+foreach varname of local varnames {
+	qui sum year if varname == "`varname'"
+	assert `r(min)' == 1996
+	assert `r(max)' == 2005
+}
+drop obsnum 
+
+// reshape
+reshape long m, i(varname year) j(month)
+rename m value 
+
+// destring value 
+destring value, replace 
+confirm numeric variable value
+
+// ym 
+gen ym = ym(year,month)
+format ym %tm 
+drop year month 
+
+// reshape again
+rename value _
+reshape wide _, i(ym) j(varname) string
+
+// rename snap variables 
+**KP: not sure what the difference between cert and part is 
+rename _fsnpa_hholdcert households_npa_cert
+rename _fsnpa_hholdpart households_npa
+rename _fsnpa_indvdpart persons_npa
+rename _fspa_hholdcert 	households_pa_cert
+rename _fspa_hholdpart 	households_pa
+rename _fspa_indvdpart 	persons_pa
+rename _fstotal_issued	issuance
+**KP: need to rename non SNAP variables to match county-level data 
+
+// generate total households and persons
+gen households_cert = households_npa_cert + households_pa_cert
+gen households = households_npa + households_pa
+gen persons = persons_npa + persons_pa
+
+// order and sort 
+order ym households persons issuance households_npa households_pa households_npa_cert households_pa_cert persons_npa persons_pa
+sort ym
+
+// save this early data 
+tempfile early_state
+save `early_state'
+
+***************************************
+// append early and late data 
+use `early_state', clear 
+append using `late_state'
+
+// order and sort 
+order ym households persons issuance households_npa households_pa households_npa_cert households_pa_cert persons_npa persons_pa
+sort ym
+
+// save 
+save "${dir_data}/maryland_state.dta", replace
+check
