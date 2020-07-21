@@ -8,7 +8,6 @@ local year_end 						= 2020
 
 ********************************************************************
 /*
-
 // county level data 2008-2020
 forvalues year = `year_start'(1)`year_end' {
 
@@ -89,8 +88,8 @@ foreach num of local obsnum_withincounty_nums {
 	else if `year' == 2016 {
 		assert r(k) == 15 | r(k) == 14 | r(k) == 6
  	}
- 	else if `year' == 2020 {
- 		assert r(k) == 6
+	else if `year' == 2020 {
+		assert r(k) == 13
  	}
  	else {
 		assert r(k) == 15 | r(k) == 14
@@ -101,6 +100,9 @@ foreach num of local obsnum_withincounty_nums {
 	}
 	if r(k) == 14 {
 		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 _`yearminus1'_10 _`yearminus1'_11 _`yearminus1'_12 _`year'_01 _`year'_02 _`year'_03 _`year'_04 _`year'_05 _`year'_06 obsnum)
+	}
+	if r(k) == 13 {
+		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 _`yearminus1'_10 _`yearminus1'_11 _`yearminus1'_12 _`year'_01 _`year'_02 _`year'_03 _`year'_04 average obsnum)
 	}
 	if r(k) == 12 {
 		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 _`yearminus1'_10 _`yearminus1'_11 _`yearminus1'_12 _`year'_01 _`year'_02 _`year'_03 average obsnum)
@@ -114,7 +116,9 @@ foreach num of local obsnum_withincounty_nums {
 		replace _2013_02 = "521666.28" if _2013_02 == "521.666.28" & county == "montgomery"
 	}
 	foreach v of varlist _????_?? {
+		replace `v' = ustrregexra(`v',"tbd","")
 		destring `v', replace
+		confirm numeric variable `v'
 	}
 	// make string type shorter
 	gen county_copy = county
@@ -1091,17 +1095,16 @@ foreach num of local obsnum_withincounty_nums {
 	*tempfile _`year'
 	*save `_`year''
 	save "${dir_data}/maryland_fy`year'.dta", replace
+
 }
 */
 
 **************************************************
 forvalues year = `year_start'(1)`year_end' {
 	if `year' == `year_start' {
-		*use `_`year'', clear
 		use "${dir_data}/maryland_fy`year'.dta", clear 
 	}
 	else {
-		*append using `_`year''
 		append using "${dir_data}/maryland_fy`year'.dta"
 	}
 }
@@ -1237,4 +1240,4 @@ sort ym
 
 // save 
 save "${dir_data}/maryland_state.dta", replace
-check
+
