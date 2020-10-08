@@ -1,0 +1,21 @@
+find -name '*.zip' -exec sh -c 'unzip -d "${1%.*}" "$1"' _ {} \;
+Archive:  ./2014/binder.zip
+  inflating: ./2014/binder/Document Cloud/rsaug14r.pdf_short.xlsx
+  inflating: ./2014/binder/Document Cloud/rsdec14r.pdf_short.xlsx
+  inflating: ./2014/binder/Document Cloud/rsjul14r.pdf_short.xlsx
+  inflating: ./2014/binder/Document Cloud/rsnov14r.pdf_short.xlsx
+  inflating: ./2014/binder/Document Cloud/rsoct14r.pdf_short.xlsx
+  inflating: ./2014/binder/Document Cloud/rssep14r.pdf_short.xlsx
+Archive:  ./2015/binder.zip
+  inflating: ./2015/binder/Document Cloud/rsapr15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsaug15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsdec15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsfeb15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsjan15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsjul15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsjun15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsmar15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsmay15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsnov15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rsoct15r.pdf_short.xlsx
+  inflating: ./2015/binder/Document Cloud/rssep15r.pdf_short.xlsx

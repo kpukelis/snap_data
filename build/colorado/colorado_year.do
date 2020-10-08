@@ -5,8 +5,8 @@ global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/s
 global dir_data 				"${dir_root}"
 global dir_graphs				"${dir_root}/graphs"
 
-local year_start = 10
-local year_end = 20
+local year_start 				= 10
+local year_end 					= 20
 
 **************************************************************************
 
