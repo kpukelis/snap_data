@@ -1,6 +1,4 @@
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/georgia"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// georgia.do 
 
 local year_start 				= 2010
 local year_end 					= 2019

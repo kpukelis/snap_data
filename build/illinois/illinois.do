@@ -1,14 +1,12 @@
 // illinois.do
-// imports households and persons from excel sheets
+// imports households and individuals from excel sheets
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/illinois"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+**KP: need to change name of sheet
 
 *local year_start				2010
 local year_start				2015
 local year_end 					2019
-local sheets 					persons households
+local sheets 					individuals households
 
 ***************************************************************
 
@@ -150,7 +148,7 @@ forvalues year = `year_start'(1)`year_end' {
 	display in red "`year'"
 	foreach sheet of local sheets {
 		display in red "`sheet'"
-		if "`sheet'" == "persons" {
+		if "`sheet'" == "individuals" {
 			use ``year'_`sheet'', clear
 		}
 		else {

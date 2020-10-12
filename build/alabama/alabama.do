@@ -1,9 +1,5 @@
 // alabama.do
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/alabama"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local ym_start	 				= ym(2001,1)
 local ym_end 					= ym(2020,4)
 
@@ -101,13 +97,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	assert r(k) == 6
 	rename v1 county 
 	rename v2 households
-	rename v3 persons_pa
-	rename v4 persons_npa 
-	rename v5 persons 
+	rename v3 individuals_pa
+	rename v4 individuals_npa 
+	rename v5 individuals 
 	rename v6 issuance
 
 	// destring
-	foreach v in households persons issuance persons_npa persons_pa {
+	foreach v in households individuals issuance individuals_npa individuals_pa {
 		destring `v', replace
 		confirm numeric variable `v'
 	}
@@ -125,7 +121,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	format ym %tm
 
 	// order and sort 
-	order county ym households persons issuance persons_npa persons_pa
+	order county ym households individuals issuance individuals_npa individuals_pa
 	sort county ym 
 	
 	// save 
@@ -145,10 +141,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 }
 
 // order and sort 
-	order county ym households persons issuance persons_npa persons_pa
-	sort county ym 
+order county ym households individuals issuance individuals_npa individuals_pa
+sort county ym 
 
 // save 
 save "${dir_data}/alabama.dta", replace 
-
-tab county 

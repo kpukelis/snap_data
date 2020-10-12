@@ -1,13 +1,9 @@
 // florida.do 
 // Kelsey Pukelis
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/florida"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 ********************************************************************
 
-foreach outcome in clients households issuance {
+foreach outcome in individuals households issuance {
 
 	// create a string for the outcome
 	local outcome_string = "`outcome'"
@@ -20,7 +16,7 @@ foreach outcome in clients households issuance {
 	format ym %tm
 	
 	// manual fixes
-	if "`outcome'" == "clients" {
+	if "`outcome'" == "individuals" {
 		replace glades = . if glades == 3 & year == 1993
 	}
 
@@ -53,8 +49,8 @@ local county_merge_vars "county ym"
 local state_merge_vars "ym"
 
 foreach level in county state {
-	foreach outcome in clients households issuance {
-		if "`outcome'" == "clients" {
+	foreach outcome in individuals households issuance {
+		if "`outcome'" == "individuals" {
 			use "${dir_data}/clean/`outcome'_`level'_level.dta", replace
 		}
 		else {

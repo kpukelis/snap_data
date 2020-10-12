@@ -1,6 +1,4 @@
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/louisiana"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// louisiana_state.do 
 
 local year_start_part1			= 1987 
 local year_end_part1			= 2006
@@ -47,9 +45,9 @@ forvalues year = `year_start_part1'(1)`year_end_part1' {
 	assert r(k) == 7
 	rename v1 monthname
 	rename v2 households
-	rename v3 recipients 
-	rename v4 avg_recips_per_hh
-	rename v5 benefits 
+	rename v3 individuals 
+	rename v4 avg_indiv_per_hh
+	rename v5 issuance 
 	rename v6 avg_payment 
 	rename v7 hh_increase_decrease
 	drop hh_increase_decrease
@@ -83,7 +81,7 @@ forvalues year = `year_start_part1'(1)`year_end_part1' {
 	drop year month
 
 	// destring variables 
-	foreach var in households recipients avg_recips_per_hh benefits avg_payment {
+	foreach var in households individuals avg_indiv_per_hh issuance avg_payment {
 		destring `var', replace
 	}
 
@@ -157,9 +155,9 @@ forvalues year = `year_start_part2'(1)`year_end_part2' {
 	assert r(k) == 9
 	rename v1 monthname
 	rename v2 households
-	rename v3 recipients 
-	rename v4 avg_recips_per_hh
-	rename v5 benefits 
+	rename v3 individuals 
+	rename v4 avg_indiv_per_hh
+	rename v5 issuance 
 	rename v6 avg_payment 
 	rename v7 hh_increase_decrease
 	rename v8 hh_with_earnedinc
@@ -195,7 +193,7 @@ forvalues year = `year_start_part2'(1)`year_end_part2' {
 	drop year month
 
 	// destring variables 
-	foreach var in households recipients avg_recips_per_hh benefits avg_payment hh_with_earnedinc avg_earnedinc_per_hh {
+	foreach var in households individuals avg_indiv_per_hh issuance avg_payment hh_with_earnedinc avg_earnedinc_per_hh {
 		
 		// destring
 		replace `var' = ustrregexra(`var',"PENDING","")

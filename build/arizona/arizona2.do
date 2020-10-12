@@ -1,12 +1,8 @@
 // arizona.do
 // imports cases and clients from csvs
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/arizona"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
-*local ym_start	 				= ym(2006,4)
-local ym_start 					= ym(2008,1)
+local ym_start	 				= ym(2006,4)
+*local ym_start 					= ym(2008,1)
 local ym_end 					= ym(2009,12)
 
 ************************************************************
@@ -83,27 +79,27 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	assert r(k) == 5 | r(k) == 6 | r(k) == 7
 	if r(k) == 5 {
 		split couponallotissuancehousehold, parse(" ")
-		rename couponallotissuancehousehold1 totalissuance
+		rename couponallotissuancehousehold1 issuance
 		rename couponallotissuancehousehold2 issuancehousehold
 		drop couponallotissuancehousehold
 	}
 	if r(k) == 7 {
 		split householdspersons, parse(" ")
 		rename householdspersons1 households
-		rename householdspersons2 persons
+		rename householdspersons2 individuals
 		drop householdspersons
 	}
 	qui describe 
 	assert r(k) == 6 | r(k) == 8
 	capture rename allotperson issuanceperson
-	capture rename couponissuance totalissuance
+	capture rename couponissuance issuance
 	capture rename allothousehold issuancehousehold
 	capture rename household issuancehousehold
 	capture rename person issuanceperson
-	capture rename issuance totalissuance
+	capture rename issuance issuance
 
 	// destring
-	foreach v in households persons totalissuance issuancehousehold issuanceperson {
+	foreach v in households individuals issuance issuancehousehold issuanceperson {
 		replace `v' = ustrregexra(`v',",","")
 		replace `v' = ustrregexra(`v',"$","")
 		destring `v', replace ignore("$")

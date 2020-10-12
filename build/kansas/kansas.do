@@ -1,23 +1,7 @@
+// kansas.do 
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/kansas"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
-/*
-local beginning_clock1 			= ym(2013,10) - 0.5
-local expected_clock1 			= `beginning_clock1' + 3 + 1
-local beginning_clock2 			= ym(2016,10) - 0.5
-local expected_clock2 			= `beginning_clock2' + 3 + 1
-local outcome					clients	
-local background_color			white
-local bar_color 				blue
-local baroutline_color 			black
-local baroutline_size 			medium
-local start_graph				ym(2009,1)
-*/
-
-*local year_start 				= 2011 // this should be starting year, but adobe was having a hard time converting
-local year_start 				= 2012
+*local year_start 			= 2011 // this should be starting year, but adobe was having a hard time converting
+local year_start 			= 2012
 local year_end 				= 2020
 
 ********************************************************************
@@ -215,7 +199,7 @@ if r(k) == 18 {
 		qui describe, varlist		
 		assert r(k) == 13
 
-		local variable_names `"tanf_households tanf_adults tanf_children tanf_persons snap_households snap_adults snap_children snap_persons childcare_households childcare_children"'
+		local variable_names `"tanf_households tanf_adults tanf_children tanf_persons households adults children individuals childcare_households childcare_children"'
 
 		// rename variables 
 		qui describe, varlist
@@ -479,7 +463,7 @@ if r(k) == 41 {
 		qui describe, varlist		
 		assert r(k) == 13
 
-		local variable_names `"tanf_households tanf_adults tanf_children tanf_persons snap_households snap_adults snap_children snap_persons childcare_households childcare_children"'
+		local variable_names `"tanf_households tanf_adults tanf_children tanf_persons households adults children individuals childcare_households childcare_children"'
 
 		// rename variables 
 		qui describe, varlist
@@ -504,10 +488,10 @@ if r(k) == 41 {
 
 qui describe, varlist
 if r(k) == 17 {
-	local variable_names `"tanf_households tanf_adults tanf_children tanf_persons ga_households ga_adults ga_children ga_persons snap_households snap_adults snap_children snap_persons childcare_households childcare_children"'
+	local variable_names `"tanf_households tanf_adults tanf_children tanf_persons ga_households ga_adults ga_children ga_persons households adults children individuals childcare_households childcare_children"'
 }
 else if r(k) == 13 {
-	local variable_names `"tanf_households tanf_adults tanf_children tanf_persons snap_households snap_adults snap_children snap_persons childcare_households childcare_children"'
+	local variable_names `"tanf_households tanf_adults tanf_children tanf_persons households adults children individuals childcare_households childcare_children"'
 }
 
 // rename variables 

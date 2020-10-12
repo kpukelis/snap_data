@@ -2,10 +2,6 @@
 // imports cases and clients from csvs
 // Note: 2012m10 greenlee data missing from pdf
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/arizona"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local ym_start	 				= ym(2006,4)
 local ym_end 					= ym(2020,3)
 
@@ -104,8 +100,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		assert r(k) == 6
 		rename v1 county 
 		rename v2 households
-		rename v3 persons
-		rename v4 totalissuance
+		rename v3 individuals
+		rename v4 issuance
 		rename v5 issuancehousehold
 		rename v6 issuanceperson
 		drop in 1
@@ -116,10 +112,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		assert r(k) == 8
 		rename v1 county 
 		rename v2 households
-		rename v3 persons
+		rename v3 individuals
 		rename v4 adults
 		rename v5 children
-		rename v6 totalissuance
+		rename v6 issuance
 		rename v7 issuancehousehold
 		rename v8 issuanceperson
 		drop in 1
@@ -153,10 +149,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	if inrange(`ym',ym(2009,12),ym(2020,3)) {
 		assert r(k) == 7 | r(k) == 8
 		if r(k) == 7 {
-			split childrentotalissuance, parse("$")
-			rename childrentotalissuance1 children
-			rename childrentotalissuance2 totalissuance
-			drop childrentotalissuance
+			split childrenissuance, parse("$")
+			rename childrenissuance1 children
+			rename childrenissuance2 issuance
+			drop childrenissuance
 		}
 		qui describe 
 		assert r(k) == 8
@@ -179,7 +175,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// destring
-	foreach v in households persons adults children totalissuance issuancehousehold issuanceperson {
+	foreach v in households individuals adults children issuance issuancehousehold issuanceperson {
 		capture confirm variable `v'
 		if !_rc {
 			replace `v' = ustrregexra(`v',",","")
@@ -230,7 +226,7 @@ drop if inlist(county,"central","southern","northern")
 drop if inlist(county,"district i","district ii","district iii","district iv","district v","district vi")
 
 // order and sort 
-order county ym households persons adults children issuancehousehold issuanceperson totalissuance
+order county ym households individuals adults children issuancehousehold issuanceperson issuance
 sort county ym 
 
 // save 

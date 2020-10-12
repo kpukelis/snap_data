@@ -1,10 +1,6 @@
 // california.do 
 // Kelsey Pukelis
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/california"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local year_short_list			/*10 14*/ 16 17 18 19
 
 **************************************************************************
@@ -79,22 +75,22 @@ check
 	capture rename countyname					county 
 	rename issuanceamount 						issuance 
 	capture rename casecount 					households
-	capture rename clientcount 					persons
+	capture rename clientcount 					individuals
 	capture rename countofcases 				households 
-	capture rename countofclients 				persons
+	capture rename countofclients 				individuals
 	capture rename countofdistinctcases 		households 
-	capture rename countofdistinctclients 		persons
+	capture rename countofdistinctclients 		individuals
 	capture rename countofnpacases 				households_npa
-	capture rename countofnpaclients 			persons_npa
+	capture rename countofnpaclients 			individuals_npa
 	capture rename countofpacases 				households_pa 
-	capture rename countofpaclients 			persons_pa
+	capture rename countofpaclients 			individuals_pa
 	capture rename nonpublicassistancecases 	households_npa
-	capture rename nonpublicassistanceclients 	persons_npa
+	capture rename nonpublicassistanceclients 	individuals_npa
 	capture rename publicassistancecases 		households_pa 
-	capture rename publicassistanceclients 		persons_pa
+	capture rename publicassistanceclients 		individuals_pa
 
 	// destring
-	foreach v in households persons issuance households_npa households_pa persons_npa persons_pa {
+	foreach v in households individuals issuance households_npa households_pa individuals_npa individuals_pa {
 		destring `v', replace
 		confirm numeric variable `v'
 	}
@@ -127,7 +123,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 }
 
 // order and sort 
-order county ym issuance households persons households_npa persons_npa households_pa persons_pa
+order county ym issuance households individuals households_npa individuals_npa households_pa individuals_pa
 sort county ym 
 
 // save 

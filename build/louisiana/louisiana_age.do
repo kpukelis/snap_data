@@ -1,6 +1,4 @@
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/louisiana"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// louisiana_age.do 
 
 local year_start				= 2011
 local year_end					= 2019
@@ -24,7 +22,7 @@ forvalues year = `year_start'(1)`year_end' {
 	display in red "`year'"
 
 	if `year' == 2019 {
-		local month_num_end = 9 // **KP: change when more data is added
+		local month_num_end = 9 // change when more data is added
 	}
 	else {
 		local month_num_end = 12
@@ -66,7 +64,7 @@ forvalues year = `year_start'(1)`year_end' {
 		rename v1 county 
 		rename v2 children
 		rename v3 adults
-		rename v4 recipients 
+		rename v4 individuals 
 	
 		// drop non data 
 		replace county = trim(county)
@@ -98,7 +96,7 @@ forvalues year = `year_start'(1)`year_end' {
 		drop year month withincounty_obsnum obsnum
 	
 		// destring 
-		foreach var in children adults recipients {
+		foreach var in children adults individuals {
 	
 			// destring
 			destring `var', replace
@@ -170,7 +168,7 @@ forvalues year = `year_start'(1)`year_end' {
 			rename v1 county 
 			rename v2 children
 			rename v3 adults
-			rename v4 recipients 
+			rename v4 individuals 
 
 			// drop non data 
 			replace county = trim(county)
@@ -187,7 +185,7 @@ forvalues year = `year_start'(1)`year_end' {
   			drop if strpos(county,"region 7") // alexandria
   			drop if strpos(county,"region 8") // shreveport
     		drop if strpos(county,"region 9") // monroe
-    		drop if strpos(county,"snap recipients by children and adults")
+    		drop if strpos(county,"snap individuals by children and adults")
     		drop if strpos(county,"parish")
 
     		// mark where data is a parish or not (there are also state totals and region totals)
@@ -209,7 +207,7 @@ forvalues year = `year_start'(1)`year_end' {
 			drop year month 
 	
 			// destring 
-			foreach var in children adults recipients {
+			foreach var in children adults individuals {
 		
 				// destring
 				destring `var', replace

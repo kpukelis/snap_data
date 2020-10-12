@@ -1,9 +1,4 @@
 // maine.do
-// imports cases and clients from csvs
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/maine"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
 
 local ym_start	 				= ym(2005,1)
 local ym_end 					= ym(2020,4)
@@ -141,7 +136,6 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		local counties androscoggin aroostook aroostook unknown cumberland franklin hancock kennebec knox lincoln oxford penobscot piscataquis sagadahoc somerset waldo washington york 
 		foreach county of local counties {
 		
-
 			// preserve 
 			preserve 
 
@@ -157,8 +151,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			assert r(N) == 1
 			replace v1 = "`county'"
 			qui describe, varlist 
-			rename (`r(varlist)') (county rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits snap_cases snap_individuals snap_issuance aspire_participants all_uniqueindiv all_uniquecases obsnum)
-			foreach v in rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits snap_cases snap_individuals snap_issuance aspire_participants all_uniqueindiv all_uniquecases {
+			rename (`r(varlist)') (county rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits households individuals issuance aspire_participants all_uniqueindiv all_uniquecases obsnum)
+			foreach v in rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits households individuals issuance aspire_participants all_uniqueindiv all_uniquecases {
 				destring `v', replace
 			}
 
@@ -197,8 +191,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		assert r(k) == 14
 		assert r(N) == 18
 		qui describe, varlist 
-		rename (`r(varlist)') (county rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits snap_cases snap_individuals snap_issuance aspire_participants all_uniqueindiv all_uniquecases obsnum)
-		foreach v in rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits snap_cases snap_individuals snap_issuance aspire_participants all_uniqueindiv all_uniquecases {
+		rename (`r(varlist)') (county rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits households individuals issuance aspire_participants all_uniqueindiv all_uniquecases obsnum)
+		foreach v in rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits households individuals issuance aspire_participants all_uniqueindiv all_uniquecases {
 			destring `v', replace
 		}
 		replace county = "total" if county == "final totals"

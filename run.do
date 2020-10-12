@@ -9,12 +9,13 @@ set more off
 cls
 
 // directories and file names
-global dir_root "C:/Users/Kelsey/Google Drive/Harvard/research/time_limits"
-global dir_code "C:/Users/kbp2w/Documents/GitHub/snap_data"
-global dir_graphs "C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/graphs"
+global dir_root 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits"
+global dir_code 		"C:/Users/kbp2w/Documents/GitHub/snap_data"
+global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/graphs"
 
 // run globals
 *do "${dir_code}/0_utility/globals.do"
+global monthsinayear 	= 12
 
 // switches
 local switch_install 	= 0

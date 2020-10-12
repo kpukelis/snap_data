@@ -1,10 +1,6 @@
 // idaho.do
 // imports cases and clients from csvs
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/idaho"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local ym_start	 				= ym(2009,11) 
 local ym_end 					= ym(2020,3)
 
@@ -32,11 +28,11 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	// clean 
 	rename a county
 	rename ofpopulationonbenefit percpop_snap
-	rename participants persons
+	rename participants individuals
 	replace county = trim(county)
 	replace county = strlower(county)
 	destring percpop_snap, replace 
-	destring persons, replace
+	destring individuals, replace
 
 	// date 
 	gen ym = `ym'

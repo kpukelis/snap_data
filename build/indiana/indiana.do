@@ -1,10 +1,6 @@
 // cleaning extracted Indiana data
 // Kelsey Pukelis
 
-global dir_data "C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/indiana/raw_csvs"
-
-global monthsinayear = 12
-
 *local start_year 	= 2005
 *local start_month 	= 4
 local start_year 	= 2010
@@ -134,9 +130,9 @@ forvalues year = `start_year'(1)`end_year' {
 			label var v15 "Total number of adults ineligible due to employment"
 			label var v16 "Number of TANF adults ineligible due to employment"
 			label var v17 "Number of SNAP adults ineligible due to employment"
-			rename v1 total_issuance
-			rename v2 total_hhs
-			rename v3 total_recip
+			rename v1 issuance
+			rename v2 households
+			rename v3 individuals
 			rename v4 avg_per_hh
 			rename v5 avg_per_recip
 			rename v6 ffy_cum_pos_errate

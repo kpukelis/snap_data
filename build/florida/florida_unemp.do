@@ -2,10 +2,6 @@
 // Kelsey Pukelis
 // build BLS county-level unemployment statistics, retrived from BLS website using the series ID's below
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/florida"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local num_counties 				= 68 // includes statewide average
 
 /*

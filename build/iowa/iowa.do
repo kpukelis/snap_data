@@ -1,7 +1,4 @@
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/iowa"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// iowa.do 
 
 **new format**
 local ym_start 					= ym(2016,7)

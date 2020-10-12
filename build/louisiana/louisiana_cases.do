@@ -1,6 +1,4 @@
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/louisiana"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// louisiana_cases.do 
 
 local year_start				= 2000 
 local year_end					= 2019
@@ -24,7 +22,7 @@ forvalues year = `year_start'(1)`year_end' {
 	display in red "`year'"
 
 	if `year' == 2019 {
-		local month_num_end = 9 // **KP: change when more data is added
+		local month_num_end = 9 // change when more data is added
 	}
 	else {
 		local month_num_end = 12
@@ -325,7 +323,7 @@ forvalues year = `year_start'(1)`year_end' {
 
 		// reshape 
 		reshape long m, i(countycode county county_marker)
-		rename m cases 
+		rename m households 
 		rename _j month 
 
 		// date 
@@ -337,7 +335,7 @@ forvalues year = `year_start'(1)`year_end' {
 		drop year month 
 	
 		// order and sort 
-		order countycode county county_marker ym cases 
+		order countycode county county_marker ym households 
 		sort county ym 		
 
 		// save 
@@ -362,7 +360,7 @@ forvalues year = `year_start'(1)`year_end' {
 	} 
 
 	// order and sort 
-	order countycode county county_marker ym cases 
+	order countycode county county_marker ym households 
 	sort county ym 	
 
 	// save 

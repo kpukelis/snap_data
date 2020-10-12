@@ -1,14 +1,10 @@
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/arkansas"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
+// arkansas.do 
 
 local year_start 				= 2008
 local year_end 					= 2019
 
 ********************************************************************
-/*
+
 forvalues year = `year_start'(1)`year_end' {
 	if inlist(`year',2019) {
 		local month_start = 1
@@ -194,8 +190,8 @@ forvalues month = `month_start'(1)`month_end' {
 		descr, varlist
 		if `num' == 1 {
 			assert r(k) == 4
-			rename (`r(varlist)') (county households persons issuance)
-			foreach v in households	persons	issuance {
+			rename (`r(varlist)') (county households individuals issuance)
+			foreach v in households	individuals	issuance {
 				destring `v', replace
 			}
 		}

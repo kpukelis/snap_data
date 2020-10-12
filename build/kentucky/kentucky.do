@@ -1,9 +1,4 @@
 // kentucky.do
-// imports cases and clients from excel sheets
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/kentucky"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
 
 local ym_start 					= ym(2005,1)
 local ym_end 					= ym(2020,3)
@@ -14,7 +9,7 @@ local ym_end 					= ym(2020,3)
 import excel "${dir_data}/excel/kentucky_data.xlsx", allstring clear 
 drop in 1
 rename A monthyear 
-rename B recipients
+rename B individuals
 
 // date 
 split monthyear, parse(" ")
@@ -42,11 +37,11 @@ format ym %tm
 drop monthyear monthname year month 
 
 // destring
-destring recipients, replace
-confirm numeric variable recipients
+destring individuals, replace
+confirm numeric variable individuals
 
 // order and sort 
-order ym recipients
+order ym individuals
 sort ym 
 
 // save 
