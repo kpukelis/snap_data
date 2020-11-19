@@ -24,168 +24,139 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red "`year'"
 
 	// import 
-	else if inrange(`ym',ym(2006,4),ym(2008,12)) {
-		import delimited using "${dir_root}/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+	if inrange(`ym',ym(2006,4),ym(2008,12)) {
+		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
-	else if inrange(`ym',ym(2009,1),ym(2014,12)) {
-		import delimited using "${dir_root}/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+	else if inrange(`ym',ym(2009,1),ym(2009,12)) {
+		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+	}
+	else if inrange(`ym',ym(2010,1),ym(2014,12)) {
+		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2015,1),ym(2017,12)) {
-		import delimited using "${dir_root}/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,12)) {
-		import delimited using "${dir_root}/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else {
-		import delimited using "${dir_root}/csvs/tabula-dbme-statistical_bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear		
+		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme-statistical_bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear		
 	}
-
-	// initial cleanup
-	dropmiss, force 
-	dropmiss, obs force 
-	describe, varlist 
-	rename (`r(varlist)') (v#), addnumber
-
-	// drop headers
-	while !strpos(v2,"HOUSEHOLDS") & !strpos(v2,"households") & !strpos(v2,"Households") {
+	dropmiss, force
+	egen nmcount = rownonmiss(_all), strok
+	drop if nmcount == 0
+	drop nmcount
+	count if missing(v1)
+	assert r(N) == 4 | r(N) == 3 | r(N) == 2
+	if r(N) == 4 {
+		drop in 1
 		drop in 1
 	}
-	*drop if v6 == "Household" & v7 == "Person"
-	dropmiss, force
-	count if missing(v1)
-	assert r(N) == 1 | r(N) == 2
+	if r(N) == 3 {
+		drop in 1
+	}
+	if r(N) == 2 {
+	}
 	replace v1 = "county" if missing(v1)
 
-	// split variables 
-	if inrange(`ym',ym(2006,9),ym(2006,12)) | inlist(`ym',ym(2007,2)) | inrange(`ym',ym(2007,9),ym(2008,2)) {
-		replace v4 = trim(v4)
-		split v4, parse(" ")
-		drop v4 
-		rename v5 v6 
-		rename v41 v4 
-		rename v42 v5 
-		order v1 v2 v3 v4 v5 v6 
-	}
-	if inlist(`ym',ym(2009,12)) {
-		replace v2 = trim(v2)
-		split v2, parse(" ")
-		drop v2 
-		order v1 v21 v22
-		describe, varlist 
-		rename (`r(varlist)') (v#), addnumber
-	}
-	if inlist(`ym',ym(2010,1),ym(2010,8),ym(2010,10),ym(2011,1),ym(2011,2),ym(2011,8),ym(2011,10),ym(2011,12),ym(2012,9)) | inrange(`ym',ym(2012,1),ym(2012,3)) | inrange(`ym',ym(2016,9),ym(2020,3)) {
-		replace v5 = trim(v5)
-		split v5, parse(" ")
-		order v51 v52, after(v5)
-		drop v5 
-		describe, varlist 
-		rename (`r(varlist)') (v#), addnumber		
-	}
-	if inlist(`ym',ym(2010,2),ym(2010,9),ym(2010,11),ym(2010,12),ym(2011,9),ym(2011,11)) {
-		replace v4 = trim(v4)
-		split v4, parse(" ")
-		order v41 v42 v43, after(v4)
-		drop v4 
-		describe, varlist 
-		rename (`r(varlist)') (v#), addnumber		
-	}
-	if inrange(`ym',ym(2016,9),ym(2020,3)) {
-		drop v9
-	}
-
 	// turn first row into variable names 
-	if inrange(`ym',ym(2006,4),ym(2009,11)) {
-		describe, varlist
-		assert r(k) == 6
-		rename v1 county 
-		rename v2 households
-		rename v3 individuals
-		rename v4 issuance
-		rename v5 issuancehousehold
-		rename v6 issuanceperson
-		drop in 1
-		replace county = strlower(county)
+	foreach var of varlist * {
+		replace `var' = "`=`var'[1]'" + " " + "`=`var'[2]'" if _n == 1
+		replace `var' = strlower(`var')
+		replace `var' = ustrregexra(`var',"-","") if _n == 1
+		replace `var' = ustrregexra(`var',"/","") if _n == 1
+		replace `var' = ustrregexra(`var'," ","") if _n == 1
+		replace `var' = ustrregexra(`var',"\.","") if _n == 1
+		replace `var' = trim(`var')
+		label variable `var' "`=`var'[1]'"
+		rename `var' `=`var'[1]'
 	}
-	else if inrange(`ym',ym(2009,12),ym(2020,3)) {
-		describe, varlist 
-		assert r(k) == 8
-		rename v1 county 
-		rename v2 households
-		rename v3 individuals
-		rename v4 adults
-		rename v5 children
-		rename v6 issuance
-		rename v7 issuancehousehold
-		rename v8 issuanceperson
-		drop in 1
-		if inrange(`ym',ym(2012,10),ym(2020,3)) & !inlist(`ym',ym(2014,8)) {
-			drop in 1
-		}
-		replace county = strlower(county)
-	}
-	else {
-		foreach var of varlist * {
-			replace `var' = "`=`var'[1]'" + " " + "`=`var'[2]'" if _n == 1
-			replace `var' = strlower(`var')
-			replace `var' = ustrregexra(`var',"-","") if _n == 1
-			replace `var' = ustrregexra(`var',"/","") if _n == 1
-			replace `var' = ustrregexra(`var'," ","") if _n == 1
-			replace `var' = trim(`var')
-			label variable `var' "`=`var'[1]'"
-			rename `var' `=`var'[1]'
-		}
-		rename countycounty county 
-		drop in 1
-		drop in 1
-	}
+	rename countycounty county 
+	drop in 1
+	drop in 1
 
 	// clean up county names
-	drop if county == "total"
-	replace county = "total" if inlist(county,"grand total","arizona")
+	replace county = "grand total" if county == "arizona"
+	drop if strpos(county,"district")
 
 	// number of variables 
 	qui describe
-	if inrange(`ym',ym(2009,12),ym(2020,3)) {
-		assert r(k) == 7 | r(k) == 8
-		if r(k) == 7 {
-			split childrenissuance, parse("$")
-			rename childrenissuance1 children
-			rename childrenissuance2 issuance
-			drop childrenissuance
+	assert r(k) == 5 | r(k) == 6 | r(k) == 7 | r(k) == 8
+	if r(k) == 5 {
+		split couponallotissuancehousehold, parse(" ")
+		rename couponallotissuancehousehold1 issuance
+		rename couponallotissuancehousehold2 issuancehousehold
+		drop couponallotissuancehousehold
+	}
+	if r(k) == 6 {
+		capture rename paymentsadultschildrenissuance couponadultschildrenissuance
+		capture confirm variable couponadultschildrenissuance
+		if !_rc {
+			dis "exists"
+			split couponadultschildrenissuance, parse(" ")
+			rename couponadultschildrenissuance1 adults
+			rename couponadultschildrenissuance2 children
+			rename couponadultschildrenissuance3 issuance
+			drop couponadultschildrenissuance
+		}	
+	}
+	if r(k) == 7 {
+		capture confirm variable householdspersons
+		if !_rc {
+			dis "exists"
+			split householdspersons, parse(" ")
+			rename householdspersons1 households
+			rename householdspersons2 individuals
+			drop householdspersons
 		}
-		qui describe 
-		assert r(k) == 8
+		capture rename paymentschildrenissuance couponchildrenissuance
+		capture rename childrentotalissuance couponchildrenissuance
+		capture confirm variable couponchildrenissuance
+		if !_rc {
+			dis "exists"
+			split couponchildrenissuance, parse(" ")
+			rename couponchildrenissuance1 children
+			rename couponchildrenissuance2 issuance
+			drop couponchildrenissuance
+		}
 	}
-	else if inrange(`ym',ym(2006,4),ym(2009,11)) {
-		assert r(k) == 6 
+	qui describe 
+	assert r(k) == 6 | r(k) == 8
+	capture rename allotperson issuanceperson
+	capture rename couponissuance issuance
+	capture rename allothousehold issuancehousehold
+	if `ym' < ym(2010,8) {
+		capture rename household issuancehousehold
+		capture rename person issuanceperson
 	}
-
-	// manual fixes 
-	if inlist(`ym',ym(2012,9)) {
-		replace issuanceperson = trim(issuanceperson)
-		replace issuanceperson = "122.54" if strpos(issuanceperson,"122") & strpos(issuanceperson,"54")
-		replace issuanceperson = "124.52" if strpos(issuanceperson,"124") & strpos(issuanceperson,"52")
-		replace issuanceperson = "123.98" if strpos(issuanceperson,"123") & strpos(issuanceperson,"98")
-		replace issuanceperson = "129.39" if strpos(issuanceperson,"129") & strpos(issuanceperson,"39")
-		replace issuanceperson = "128.25" if strpos(issuanceperson,"128") & strpos(issuanceperson,"25")
-		replace issuanceperson = "124.58" if strpos(issuanceperson,"124") & strpos(issuanceperson,"58")
-		replace issuanceperson = "125.52" if strpos(issuanceperson,"125") & strpos(issuanceperson,"52")
-		replace issuanceperson = "120.23" if strpos(issuanceperson,"120") & strpos(issuanceperson,"23")
-	}
+	capture rename issuance issuance
+	capture rename persons individuals
+	capture rename paymthousehold issuancehousehold
+	capture rename paymtperson issuanceperson
+	capture rename paymentsissuance issuance
+	capture rename totalpaymentsissuance issuance
+	capture rename averagepaymenthousehold issuancehousehold
+	capture rename averagepaymentperson issuanceperson
+	capture rename paymenthousehold issuancehousehold
+	capture rename paymentperson issuanceperson
+	capture rename totalissuance issuance
 
 	// destring
-	foreach v in households individuals adults children issuance issuancehousehold issuanceperson {
-		capture confirm variable `v'
-		if !_rc {
-			replace `v' = ustrregexra(`v',",","")
-			replace `v' = ustrregexra(`v',"$","")
-			destring `v', replace ignore("$")
-			confirm numeric variable `v'
+	foreach v in households individuals issuance issuancehousehold issuanceperson {
+		replace `v' = trim(`v')
+		replace `v' = ustrregexra(`v',",","")
+		replace `v' = ustrregexra(`v',"$","")
+		if `ym' == ym(2012,9) & "`v'" == "issuanceperson" {
+			replace `v' = ustrregexra(`v'," ",".")
 		}
-		else {
-			display "`v' does not exist"
-		}
+		destring `v', replace ignore("$")
+		confirm numeric variable `v'
+	}
+
+	foreach v in adults children { 
+		capture replace `v' = ustrregexra(`v',",","")
+		capture replace `v' = ustrregexra(`v',"$","")
+		capture destring `v', replace ignore("$")
 	}
 
 	// ym 
@@ -198,6 +169,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 }
 
+// append 
 forvalues ym = `ym_start'(1)`ym_end' {
 	if `ym' == `ym_start' {
 		use `_`ym'', clear
@@ -221,16 +193,20 @@ drop if county == "nul nul" & inlist(ym,ym(2019,4),ym(2019,5))
 
 // drop region totals 
 drop if inlist(county,"central","southern","northern")
+drop if inlist(county,"total")
 
 // drop district totals 
 drop if inlist(county,"district i","district ii","district iii","district iv","district v","district vi")
+
+// rename total 
+replace county = "total" if county == "grand total"
 
 // order and sort 
 order county ym households individuals adults children issuancehousehold issuanceperson issuance
 sort county ym 
 
 // save 
-save "${dir_root}/arizona.dta", replace
+save "${dir_root}/state_data/arizona/arizona.dta", replace
 
 
 

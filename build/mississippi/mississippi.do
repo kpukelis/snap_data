@@ -1,8 +1,5 @@
 // mississippi.do
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/mississippi"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// Kelsey Pukelis
 
 local ym_start	 				= ym(2014,7)
 local ym_end 					= ym(2020,4)
@@ -62,16 +59,16 @@ if !inlist(`ym',ym(2017,8),ym(2018,7),ym(2019,10),ym(2019,11)) {
 
 	// import 
 	if inrange(`ym',ym(2014,7),ym(2015,12)) {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/rs`monthname'`year_short'r.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/mississippi/excel/`year'/binder/Document Cloud/rs`monthname'`year_short'r.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2016,1),ym(2017,12)) {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/`monthname'`year'MonthlyStatisticalReport.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/mississippi/excel/`year'/binder/Document Cloud/`monthname'`year'MonthlyStatisticalReport.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2018,1),ym(2019,12)) {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/mississippi/excel/`year'/binder/Document Cloud/`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/`monthname'`year_short'.MSR_.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/mississippi/excel/`year'/binder/Document Cloud/`monthname'`year_short'.MSR_.pdf_short.xlsx", case(lower) allstring clear
 	}
 	
 	// initial cleanup
@@ -149,12 +146,12 @@ if !inlist(`ym',ym(2017,8),ym(2018,7),ym(2019,10),ym(2019,11)) {
 	dropmiss, force 
 	rename numberbenefitvalue 		issuance
 	rename numberhouseholds 		households
-	rename numberpersons 			persons
+	rename numberpersons 			individuals
 	rename avg_benefithouseholds 	avg_benefit_households
-	rename avg_benefitpersons 		avg_benefit_persons
+	rename avg_benefitpersons 		avg_benefit_individuals
 
 	// destring 
-	foreach var in issuance households persons avg_benefit_households avg_benefit_persons {
+	foreach var in issuance households individuals avg_benefit_households avg_benefit_individuals {
  		capture confirm variable `var'
 		if !_rc {
 			replace `var' = ustrregexra(`var'," ","")
@@ -169,7 +166,7 @@ if !inlist(`ym',ym(2017,8),ym(2018,7),ym(2019,10),ym(2019,11)) {
 	}
 
 	// order and sort 
-	order ym households persons issuance avg_benefit_households avg_benefit_persons
+	order ym households individuals issuance avg_benefit_households avg_benefit_individuals
 	sort ym 
 
 	// save 
@@ -192,10 +189,10 @@ if !inlist(`ym',ym(2017,8),ym(2018,7),ym(2019,10),ym(2019,11)) {
 }
 
 // order and sort 
-order ym households persons issuance avg_benefit_households avg_benefit_persons
+order ym households individuals issuance avg_benefit_households avg_benefit_individuals
 sort ym 
 
 // save 
-save "${dir_data}/mississippi.dta", replace 
+save "${dir_root}/state_data/mississippi/mississippi.dta", replace 
 
 **KP: 2019m2 probably too low due to gov shutdown

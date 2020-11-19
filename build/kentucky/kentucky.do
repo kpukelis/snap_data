@@ -6,7 +6,7 @@ local ym_end 					= ym(2020,3)
 *******************************************************
 
 // import 
-import excel "${dir_data}/excel/kentucky_data.xlsx", allstring clear 
+import excel "${dir_root}/state_data/kentucky/excel/kentucky_data.xlsx", allstring clear 
 drop in 1
 rename A monthyear 
 rename B individuals
@@ -45,6 +45,6 @@ order ym individuals
 sort ym 
 
 // save 
-save "${dir_data}/kentucky.dta", replace 
+save "${dir_root}/state_data/kentucky/kentucky.dta", replace 
 
 

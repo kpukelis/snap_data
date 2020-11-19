@@ -3,7 +3,7 @@
 
 #delimit ;
 local states
-	alabama			 // not completed (fixed individual)
+//	alabama			 // not completed (fixed individual)
 // 	alaska			 fixed statewide 
 	arizona			
 	arkansas			
@@ -12,7 +12,7 @@ local states
 	connecticut		 // not completed (fixed individual)
 // 	delaware		 rolling clock
 	florida			
-	georgia			
+	georgia			 
 	hawaii			 // not completed (rolling clock)
 	idaho			
 	illinois			
@@ -62,8 +62,56 @@ local states
 
 foreach state of local states {
 	
-	use "${dir_data}/`state'.dta", clear
-	keep if county == "state total"
+	// state total already in the data 
+	if inlist("`state'","arizona","arkansas","colorado","iowa","kansas","louisiana","maine","maryland","minnesota","montana") {
+		use "${dir_root}/state_data/`state'/`state'.dta", clear
+		keep if county == "total"
+		drop county 
+		gen state = "`state'"
+		tempfile `state'
+		save ``state''
+	}
+	// data is already only state-month level
+	**KP: missouri will move when updated
+	else if inlist("`state'","georgia","indiana","kentucky","mississippi","missouri","nebraska") {
+		use "${dir_root}/state_data/`state'/`state'.dta", clear
+		gen state = "`state'"
+		tempfile `state'
+		save ``state''
+	}
+	// need to collapse to get state total
+	else if inlist("`state'","florida","idaho","massachusetts","michigan") {
+		use "${dir_root}/state_data/`state'/`state'.dta", clear 
+		gen state = "`state'" 
+		describe, varlist
+
+		// collapse each var 
+		foreach v in individuals households issuance adults children {
+			capture confirm variable `v' 
+			!_rc {
+				collapse (sum) `v', by(state ym)
+			}
+			else {
+				keep state ym 
+				duplicates drop
+				gen `v' = .
+			}
+			tempfile `v'
+			save ``v''
+		}
+		// merge 
+		foreach v in individuals households issuance adults children {
+			if "`v'" == "individuals" {
+				use ``v'', clear
+			}
+			else {
+				merge 1:1 state ym using ``v'', assert(3) nogen
+			}
+		}
+		tempfile `state'
+		save ``state''
+	}
+
 
 	check
 

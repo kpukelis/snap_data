@@ -1,7 +1,6 @@
 // kansas.do 
 
-*local year_start 			= 2011 // this should be starting year, but adobe was having a hard time converting
-local year_start 			= 2012
+local year_start 			= 2011
 local year_end 				= 2020
 
 ********************************************************************
@@ -10,7 +9,7 @@ forvalues year = `year_start'(1)`year_end' {
 	dis in red "`year'"
 
 	// import data 
-	import excel "${dir_data}/csvs/SFY`year'_CntyCaseload_Rpt.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/state_data/kansas/csvs/SFY`year'_CntyCaseload_Rpt.xlsx", allstring case(lower) clear
 	dropmiss, force
 	foreach v of varlist _all {
 		replace `v' = trim(`v')
@@ -573,6 +572,6 @@ order county region ym
 sort county ym 
 
 // save 
-save "${dir_root}/kansas.dta", replace
+save "${dir_root}/state_data/kansas/kansas.dta", replace
 
-check
+

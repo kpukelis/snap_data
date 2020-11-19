@@ -3,20 +3,20 @@
 
 ********************************************************************
 
-foreach outcome in individuals households issuance {
+foreach outcome in clients households issuance {
 
 	// create a string for the outcome
 	local outcome_string = "`outcome'"
 
 	// import data 
-	import excel "${dir_data}/build/florida_county_level.xlsx", sheet("`outcome'_long") firstrow case(lower) clear
+	import excel "${dir_root}/state_data/florida/build/florida_county_level.xlsx", sheet("`outcome'_long") firstrow case(lower) clear
 	
 	// a bit of cleaning
 	gen ym = ym(year, month)
 	format ym %tm
-	
+
 	// manual fixes
-	if "`outcome'" == "individuals" {
+	if "`outcome'" == "clients" {
 		replace glades = . if glades == 3 & year == 1993
 	}
 
@@ -30,14 +30,15 @@ foreach outcome in individuals households issuance {
 	reshape	long _, i(ym) j(county) string
 	rename _ `outcome_string'
 	label var `outcome_string' "SNAP `outcome_string'"
+	drop year month
 	
 	// save 
-	save "${dir_data}/clean/`outcome'_county_level.dta", replace
+	save "${dir_root}/state_data/florida/clean/`outcome'_county_level.dta", replace
 	
 	// collapse to total, for now
 	collapse (sum) `outcome', by(ym)
 	label var `outcome' "SNAP `outcome'"
-	save "${dir_data}/clean/`outcome'_state_level.dta", replace
+	save "${dir_root}/state_data/florida/clean/`outcome'_state_level.dta", replace
 
 }
 
@@ -49,12 +50,12 @@ local county_merge_vars "county ym"
 local state_merge_vars "ym"
 
 foreach level in county state {
-	foreach outcome in individuals households issuance {
-		if "`outcome'" == "individuals" {
-			use "${dir_data}/clean/`outcome'_`level'_level.dta", replace
+	foreach outcome in clients households issuance {
+		if "`outcome'" == "clients" {
+			use "${dir_root}/state_data/florida/clean/`outcome'_`level'_level.dta", replace
 		}
 		else {
-			merge 1:1 ``level'_merge_vars' using "${dir_data}/clean/`outcome'_`level'_level.dta"
+			merge 1:1 ``level'_merge_vars' using "${dir_root}/state_data/florida/clean/`outcome'_`level'_level.dta"
 			if "`outcome'" == "issuance" {
 				assert _m == 3 if ym >= ym(2002,1)
 				drop _m
@@ -65,9 +66,10 @@ foreach level in county state {
 			}
 		}
 	}
-	save "${dir_data}/clean/florida_`level'_level.dta", replace
+	rename clients individuals
+	save "${dir_root}/state_data/florida/clean/florida_`level'_level.dta", replace
 }
 
 // save with standard name
-use "${dir_data}/clean/florida_county_level.dta", clear
-save "${dir_data}/clean/florida.dta", replace 
+use "${dir_root}/state_data/florida/clean/florida_county_level.dta", clear
+save "${dir_root}/state_data/florida/clean/florida.dta", replace 

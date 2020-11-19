@@ -1,6 +1,5 @@
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/nebraska"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// nebraska.do 
+// Kelsey Pukelis
 
 local ym_start 					= ym(2015,3)
 local ym_end 					= ym(2020,4)
@@ -68,7 +67,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// import 
-	import excel using "${dir_root}/excel/`year'/`monthname' `year'.xlsx", allstring firstrow case(lower) clear
+	import excel using "${dir_root}/state_data/nebraska/excel/`year'/`monthname' `year'.xlsx", allstring firstrow case(lower) clear
 	
 	// initial cleanup
 	dropmiss, force 
@@ -121,8 +120,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			// transpose data, including new variable names first 
 			gen varname = ""
 			replace varname = "monthyear" 			if strpos(v1,"Economic Assistance Enrollment")
-			replace varname = "snap_households" 	if strpos(v1,"SNAP (food stamp) Households")
-			replace varname = "snap_individuals" 	if strpos(v1,"SNAP (food stamp) Individuals") 
+			replace varname = "households" 	if strpos(v1,"SNAP (food stamp) Households")
+			replace varname = "individuals" 	if strpos(v1,"SNAP (food stamp) Individuals") 
 			replace varname = "adc_families" 		if strpos(v1,"Aid to Dependent (ADC) families") 
 			replace varname = "ccsubsidy_children" 	if strpos(v1,"Children in Child Care Subsidy") 
 			order varname
@@ -130,7 +129,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			sxpose, clear firstnames
 
 			// destring
-			foreach var in snap_households snap_individuals adc_families ccsubsidy_children {
+			foreach var in households individuals adc_families ccsubsidy_children {
 
 				// destring 
 				destring `var', replace ignore("*")
@@ -308,11 +307,11 @@ tempfile medicaid_final
 save `medicaid_final'
 restore
 preserve
-keep ym snap_households snap_individuals adc_families ccsubsidy_children
+keep ym households individuals adc_families ccsubsidy_children
 duplicates drop 
-drop if missing(snap_households) & missing(snap_individuals) & missing(adc_families) & missing(ccsubsidy_children)
+drop if missing(households) & missing(individuals) & missing(adc_families) & missing(ccsubsidy_children)
 drop if ym == ym(2018,6) & missing(adc_families) // manual drop 
-drop if ym == ym(2019,6) & snap_individuals == 159963 // was mislabeled and is really just a copy of 2019m5 data 
+drop if ym == ym(2019,6) & individuals == 159963 // was mislabeled and is really just a copy of 2019m5 data 
 tempfile snap_final
 save `snap_final'
 restore
@@ -325,6 +324,6 @@ order ym
 sort ym 
 
 // save 
-save "${dir_data}/nebraska.dta", replace 
+save "${dir_root}/state_data/nebraska/nebraska.dta", replace 
 
 

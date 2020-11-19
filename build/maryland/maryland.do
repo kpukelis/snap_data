@@ -1,13 +1,11 @@
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/maryland"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// maryland.do 
+// Kelsey Pukelis
 
 local year_start 					= 2008
 local year_end 						= 2020
 
 ********************************************************************
-/*
+
 // county level data 2008-2020
 forvalues year = `year_start'(1)`year_end' {
 
@@ -15,7 +13,7 @@ forvalues year = `year_start'(1)`year_end' {
 	local yearminus1	= `year' - 1
 
 	// import data 
-	import excel "${dir_data}/csvs/`year'-All-Program-Monthly-Statistical-Report.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/state_data/maryland/csvs/`year'-All-Program-Monthly-Statistical-Report.xlsx", allstring case(lower) clear
 	dropmiss, force
 	foreach v of varlist _all {
 		replace `v' = trim(`v')
@@ -1094,7 +1092,7 @@ foreach num of local obsnum_withincounty_nums {
 	}
 	*tempfile _`year'
 	*save `_`year''
-	save "${dir_data}/maryland_fy`year'.dta", replace
+	save "${dir_root}/state_data/maryland/maryland_fy`year'.dta", replace
 
 }
 */
@@ -1102,10 +1100,10 @@ foreach num of local obsnum_withincounty_nums {
 **************************************************
 forvalues year = `year_start'(1)`year_end' {
 	if `year' == `year_start' {
-		use "${dir_data}/maryland_fy`year'.dta", clear 
+		use "${dir_root}/state_data/maryland/maryland_fy`year'.dta", clear 
 	}
 	else {
-		append using "${dir_data}/maryland_fy`year'.dta"
+		append using "${dir_root}/state_data/maryland/maryland_fy`year'.dta"
 	}
 }
 
@@ -1114,27 +1112,27 @@ order county ym
 sort county ym 
 
 // save 
-save "${dir_data}/maryland.dta", replace 
-*/
+tempfile county_level
+save `county_level'
 
 ********************************************************************
 // STATE LEVEL DATA 2008-2020
 
 // collapse to get totals
-use "${dir_data}/maryland.dta", clear
+use "${dir_root}/state_data/maryland/maryland.dta", clear
 keep county ym snap_households snap_recipients snap_npa_recipients snap_pa_recipients
 rename snap_households households
-rename snap_recipients persons
-rename snap_npa_recipients persons_npa
-rename snap_pa_recipients persons_pa
-collapse (sum) households persons persons_npa persons_pa, by(ym)
+rename snap_recipients individuals
+rename snap_npa_recipients individuals_npa
+rename snap_pa_recipients individuals_pa
+collapse (sum) households individuals individuals_npa individuals_pa, by(ym)
 tempfile late_state
 save `late_state'
 
 // STATE LEVEL DATA 1996-2005
 
 // import data 
-import excel "${dir_data}/csvs/Statistical Reports - Archive - cases.xlsx", allstring case(lower) clear
+import excel "${dir_root}/state_data/maryland/csvs/Statistical Reports - Archive - cases.xlsx", allstring case(lower) clear
 
 // initial cleanup
 dropmiss, force 
@@ -1209,20 +1207,20 @@ reshape wide _, i(ym) j(varname) string
 **KP: not sure what the difference between cert and part is 
 rename _fsnpa_hholdcert households_npa_cert
 rename _fsnpa_hholdpart households_npa
-rename _fsnpa_indvdpart persons_npa
+rename _fsnpa_indvdpart individuals_npa
 rename _fspa_hholdcert 	households_pa_cert
 rename _fspa_hholdpart 	households_pa
-rename _fspa_indvdpart 	persons_pa
+rename _fspa_indvdpart 	individuals_pa
 rename _fstotal_issued	issuance
 **KP: need to rename non SNAP variables to match county-level data 
 
-// generate total households and persons
+// generate total households and individuals
 gen households_cert = households_npa_cert + households_pa_cert
 gen households = households_npa + households_pa
-gen persons = persons_npa + persons_pa
+gen individuals = individuals_npa + individuals_pa
 
 // order and sort 
-order ym households persons issuance households_npa households_pa households_npa_cert households_pa_cert persons_npa persons_pa
+order ym households individuals issuance households_npa households_pa households_npa_cert households_pa_cert individuals_npa individuals_pa
 sort ym
 
 // save this early data 
@@ -1234,10 +1232,27 @@ save `early_state'
 use `early_state', clear 
 append using `late_state'
 
+// county 
+gen county = "total"
+
 // order and sort 
-order ym households persons issuance households_npa households_pa households_npa_cert households_pa_cert persons_npa persons_pa
-sort ym
+order county ym households individuals issuance households_npa households_pa households_npa_cert households_pa_cert individuals_npa individuals_pa
+sort county ym
 
 // save 
-save "${dir_data}/maryland_state.dta", replace
+tempfile state_level
+save `state_level'
+
+***********************************************************
+
+// combine data
+use `county_level', clear 
+append using `state_level'
+
+// order and sort 
+order county ym households individuals issuance households_npa households_pa households_npa_cert households_pa_cert individuals_npa individuals_pa
+sort county ym
+
+// save 
+save "${dir_root}/state_data/maryland/maryland.dta", replace 
 

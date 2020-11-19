@@ -1,11 +1,6 @@
 // montana.do
-// imports cases and clients from csvs
+// Kelsey Pukelis
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/montana"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
-*local ym_start	 				= ym(2012,7)
 local ym_start	 				= ym(2012,7) 
 local ym_end 					= ym(2017,7)
 
@@ -151,7 +146,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display "`year'"
 
 	// import 
-	import delimited using "${dir_root}/csvs/tabula-`year'-`month'.csv", delimiters(",") case(lower) stringcols(_all) clear
+	import delimited using "${dir_root}/state_data/montana/csvs/tabula-`year'-`month'.csv", delimiters(",") case(lower) stringcols(_all) clear
 
 	// mark observation with Powell county
 	replace v1 = trim(v1)
@@ -197,11 +192,11 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 		// rename vars 
 		qui describe, varlist 	
-		rename (`r(varlist)') (county cases recips pa npa issuance issuance_percase issuance_perrecip)
+		rename (`r(varlist)') (county households individuals households_pa households_npa issuance issuance_percase issuance_perrecip)
 
 		// clean 
 		replace county = strlower(county)
-		destring cases recips pa npa issuance issuance_percase	issuance_perrecip, replace ignore("$")
+		destring households individuals households_pa households_npa issuance issuance_percase	issuance_perrecip, replace ignore("$")
 
 	}
 	else {
@@ -209,11 +204,11 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 		// rename vars 
 		qui describe, varlist 	
-		rename (`r(varlist)') (county cases recips issuance issuance_percase issuance_perrecip)
+		rename (`r(varlist)') (county households individuals issuance issuance_percase issuance_perrecip)
 
 		// clean 
 		replace county = strlower(county)
-		destring cases recips issuance issuance_percase	issuance_perrecip, replace ignore("$")
+		destring households individuals issuance issuance_percase	issuance_perrecip, replace ignore("$")
 
 	}
 
@@ -258,12 +253,12 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 		// rename vars 
 		qui describe, varlist 	
-		rename (`r(varlist)') (county cases recips pa npa issuance issuance_percase issuance_perrecip)
+		rename (`r(varlist)') (county households individuals households_pa households_npa issuance issuance_percase issuance_perrecip)
 
 		// clean 
 		replace county = strlower(county)
 		replace county = "total" if strpos(county,"total")
-		destring cases recips pa npa issuance issuance_percase	issuance_perrecip, replace ignore("$")
+		destring households individuals households_pa households_npa issuance issuance_percase	issuance_perrecip, replace ignore("$")
 
 	}
 	else {
@@ -271,12 +266,12 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 		// rename vars 
 		qui describe, varlist 	
-		rename (`r(varlist)') (county cases recips issuance issuance_percase issuance_perrecip)
+		rename (`r(varlist)') (county households individuals issuance issuance_percase issuance_perrecip)
 
 		// clean 
 		replace county = strlower(county)
 		replace county = "total" if strpos(county,"total")
-		destring cases recips issuance issuance_percase	issuance_perrecip, replace ignore("$")
+		destring households individuals issuance issuance_percase	issuance_perrecip, replace ignore("$")
 
 	}
 
@@ -306,4 +301,4 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		append using `_`ym''
 	}
 }
-save "${dir_root}/montana.dta", replace
+save "${dir_root}/state_data/montana/montana.dta", replace

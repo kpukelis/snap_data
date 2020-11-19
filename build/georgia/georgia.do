@@ -11,7 +11,7 @@ if !inlist(`year',2013,2014) {
 	display in red "year `year'"
 
 	// import 
-	import excel using "${dir_root}/excel/state/Desc Data_`year'.xlsx", allstring case(lower) clear
+	import excel using "${dir_root}/state_data/georgia/excel/state/Desc Data_`year'.xlsx", allstring case(lower) clear
 
 	// initial cleanup
 	dropmiss, force 
@@ -114,6 +114,6 @@ order ym individuals
 sort ym 
 
 // save 
-save "${dir_data}/georgia.dta", replace 
+save "${dir_root}/state_data/georgia/georgia.dta", replace 
 
 

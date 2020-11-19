@@ -1,10 +1,6 @@
 // arizona_analyze.do
 // imports cases and clients from csvs
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/arizona"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 *local beginning_clock1 			= ym(2016,1) - 0.5
 local beginning_clock1 			= ym(2005,12) - 0.5
 local expected_clock1 			= `beginning_clock1' + 3 + 1

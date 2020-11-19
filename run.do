@@ -1,3 +1,5 @@
+// run.do 
+// Kelsey Pukelis
 
 // preamble
 clear all
@@ -10,7 +12,7 @@ cls
 
 // directories and file names
 global dir_root 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits"
-global dir_code 		"C:/Users/kbp2w/Documents/GitHub/snap_data"
+global dir_code 		"C:/Users/Kelsey/Documents/GitHub/snap_data"
 global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/graphs"
 
 // run globals
@@ -33,24 +35,24 @@ local florida			= 0
 local georgia			= 0
 local hawaii			= 0 // not completed (rolling clock)
 local idaho				= 0
-local illinois			= 0
-local indiana			= 0
-local iowa				= 0
+local illinois			= 0 // **KP: NEEDS MORE WORK 2020-11-14 office vs. county level
+local indiana			= 0 // **KP: can go back further cleaning indiana data 
+local iowa				= 0 // **KP: can go back further cleaning iowa data 
 local kansas			= 0
 local kentucky			= 0
 local louisiana			= 0
-local maine				= 0
+local maine				= 0 
 local maryland			= 0
-local massachusetts		= 0
-local michigan			= 0
-local minnesota			= 0
-local mississippi		= 0
-local missouri			= 0
-local montana			= 0
-local nebraska			= 0
+local massachusetts		= 0 
+local michigan			= 0 
+local minnesota			= 0 
+local mississippi		= 0 
+local missouri			= 0 // **KP: right now only state level, come back to clean county-level 
+local montana			= 0 
+local nebraska			= 0 
 // local nevada			= 0 fixed individual
 // local newhampshire	= 0 fixed individual
-local newjersey			= 0
+local newjersey			= 1 // keep going here 
 local newmexico			= 0
 local newyork			= 0
 local northcarolina		= 0
@@ -76,7 +78,7 @@ local wisconsin 		= 0
 ***********************************************
 
 // install special Stata packages
-if `switch_install' {
+if `switch_install' == 1 {
 *	ssc install egenmore
 }
 
@@ -84,13 +86,13 @@ if `switch_install' {
 #delimit ;
 foreach step in 
 	alabama
-// 	alaska
+/* 	alaska*/
 	arizona
 	arkansas
 	california
 	colorado
 	connecticut
-// 	delaware
+/* 	delaware*/
 	florida
 	georgia
 	hawaii
@@ -110,8 +112,8 @@ foreach step in
 	missouri
 	montana
 	nebraska
-// 	nevada
-// 	newhampshire
+/* 	nevada*/
+/* 	newhampshire*/
 	newjersey
 	newmexico
 	newyork
@@ -121,22 +123,22 @@ foreach step in
 	oklahoma
 	oregon
 	pennsylvania
-// 	rhodeisland
+/* 	rhodeisland*/
 	southcarolina
 	southdakota
 	tennessee
 	texas
-// 	utah
+/* 	utah*/
 	vermont
 	virginia
 	washington
-// 	westvirginia
+/* 	westvirginia*/
 	wisconsin
-// 	wyoming
-// 	districtofcolumbia
+/* 	wyoming*/
+/* 	districtofcolumbia*/
 	{ ;
-		if ``step'' { ;
-			do "${dir_code}/build/`step'" ;
+		if ``step'' == 1 { ;
+			do "${dir_code}/build/`step'/`step'.do" ;
 		} ;
 	} ;
 #delimit cr 

@@ -82,46 +82,46 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inrange(`ym',ym(2005,1),ym(2007,12)) {
-		import excel using "${dir_root}/csvs/`year'/`monthname'-`year'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/`monthname'-`year'.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2008,1),ym(2008,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-`monthname'_1.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_1.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2009,1),ym(2009,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-`monthname'_2.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_2.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2010,1),ym(2010,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-`monthname'_3.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_3.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2011,1),ym(2011,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-`monthname'_4.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_4.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2012,1),ym(2012,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-`monthname'_5.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_5.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2013,1),ym(2013,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-`monthname'_6.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_6.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2014,1),ym(2014,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-`monthname'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2015,1),ym(2015,12)) {
-		import excel using "${dir_root}/csvs/`year'/GeoDist_`monthname'2015.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/GeoDist_`monthname'2015.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2016,1),ym(2016,12)) {
-		import excel using "${dir_root}/csvs/`year'/GeoDistrib_`monthname'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/GeoDistrib_`monthname'.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2017,1),ym(2017,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-distribution-`monthname'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-distribution-`monthname'.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-distribution-`monthname'_1.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-distribution-`monthname'_1.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2019,1),ym(2019,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-distribution-`monthname'_2.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-distribution-`monthname'_2.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2020,1),ym(2020,12)) {
-		import excel using "${dir_root}/csvs/`year'/geo-distribution-`monthname'_3.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-distribution-`monthname'_3.xlsx", case(lower) allstring clear
 	}
 	dropmiss, force
 	qui describe, varlist
@@ -235,11 +235,26 @@ gen county_new = county
 drop county 
 rename county_new county 
 
+// generate state data for 2005 by collapsing and append back in
+preserve 
+keep if inrange(ym,ym(2005,1),ym(2006,6))
+drop if county == "total"
+collapse (sum) rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits households individuals issuance aspire_participants all_uniqueindiv all_uniquecases, by(ym)
+gen county = "total"
+tempfile _2005
+save `_2005'
+restore
+append using `_2005'
+bysort county ym: drop if _n == 2 & inrange(ym,ym(2005,1),ym(2006,6))
+
+// assert order of data
+bysort county ym: assert _N == 1
+
 // sort and order 
 order county ym 
 sort county ym 
 
 // save 
-save "${dir_data}/maine.dta", replace	
+save "${dir_root}/state_data/maine/maine.dta", replace 
 
 

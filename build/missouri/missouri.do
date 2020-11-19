@@ -1,10 +1,6 @@
 // missouri.do
 // imports cases and clients from csvs
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/missouri"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local ym_start	 				= ym(2008,10) 
 local ym_end 					= ym(2020,3)
 local suffix_2008 				""
@@ -37,7 +33,7 @@ local yearname_2020 			"20"
 *KEEP GOING CLEANING PAGE BY PAGE (1 THROUGH 9)page 1 is done
 // ym(2019,7) that's when the page splitting gets weird, which caused me to comment out the strpos lines
 ************************************************************
-/*
+
 forvalues ym = `ym_start'(1)`ym_end' {
 
 	// for file names
@@ -53,10 +49,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if `year' >= 2011 & !inlist(`year',2020) {
-		import excel using "${dir_root}/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/missouri/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 	else {
-		import excel using "${dir_root}/excel/`year'/`month'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/missouri/excel/`year'/`month'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 
 	// initial cleanup
@@ -204,9 +200,9 @@ local n = 1
 				replace varname = "households" 					if strpos(v1,"HOUSEHOLDS RECEIVING")
 				replace varname = "households_pa" 				if strpos(v1,"PUBLIC ASSISTANCE") & _n == 6
 				replace varname = "households_npa" 				if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 7
-				replace varname = "persons" 					if strpos(v1,"PERSONS RECEIVING")
-				replace varname = "persons_pa" 					if strpos(v1,"PUBLIC ASSISTANCE") & _n == 9
-				replace varname = "persons_npa" 				if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 10
+				replace varname = "individuals" 					if strpos(v1,"PERSONS RECEIVING")
+				replace varname = "individuals_pa" 					if strpos(v1,"PUBLIC ASSISTANCE") & _n == 9
+				replace varname = "individuals_npa" 				if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 10
 				replace varname = "issuance" 					if strpos(v1,"TOTAL BENEFITS ISSUED")
 				replace varname = "avg_benefits_perhousehold" 	if strpos(v1,"PER HOUSEHOLD") // strpos(v1,"AVERAGE VALUE OF BENEFITS")
 				replace varname = "avg_benefits_perperson" 		if strpos(v1,"PER PERSON") // strpos(v1,"AVERAGE VALUE OF BENEFITS")
@@ -242,9 +238,9 @@ local n = 1
 				replace varname = "households" 			if strpos(v1,"HOUSEHOLDS RECEIVING")
 				replace varname = "households_pa" 		if strpos(v1,"PUBLIC ASSISTANCE") & _n == 6
 				replace varname = "households_npa" 		if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 7
-				replace varname = "persons" 			if strpos(v1,"PERSONS RECEIVING")
-				replace varname = "persons_pa" 			if strpos(v1,"PUBLIC ASSISTANCE") & _n == 9
-				replace varname = "persons_npa" 		if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 10
+				replace varname = "individuals" 			if strpos(v1,"PERSONS RECEIVING")
+				replace varname = "individuals_pa" 			if strpos(v1,"PUBLIC ASSISTANCE") & _n == 9
+				replace varname = "individuals_npa" 		if strpos(v1,"NON-PUBLIC ASSISTANCE") & _n == 10
 				replace varname = "issuance" 			if strpos(v1,"TOTAL BENEFITS ISSUED")
 				replace varname = "avg_benefits" 		if strpos(v1,"AVERAGE VALUE OF BENEFITS")
 				order varname
@@ -273,7 +269,7 @@ local n = 1
 			}
 			
 			// destring 
-			foreach var in apps_received apps_approved apps_rejected apps_expedited households households_pa households_npa persons persons_pa persons_npa issuance avg_benefits_perhousehold avg_benefits_perperson {
+			foreach var in apps_received apps_approved apps_rejected apps_expedited households households_pa households_npa individuals individuals_pa individuals_npa issuance avg_benefits_perhousehold avg_benefits_perperson {
 				destring `var', replace 
 				confirm numeric variable `var'
 			}
@@ -307,7 +303,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 }
 
 **TEMPORARY; later, save all pages together
-save "${dir_data}/missouri_page`n'.dta", replace
+save "${dir_root}/state_data/missouri/missouri_page`n'.dta", replace
 
 check
 */
@@ -315,24 +311,24 @@ check
 ***************
 ************
 local n = 1
-use "${dir_data}/missouri_page`n'.dta", clear
+use "${dir_root}/state_data/missouri/missouri_page`n'.dta", clear
 
 // drop duplicates
 duplicates drop
 duplicates tag ym, gen(dup)
 br if dup == 1
-bysort ym (persons): gen dup2 = _n 
+bysort ym (individuals): gen dup2 = _n 
 
-*twoway connected persons ym, xline(585) xline(596)
-// NOTE: persons started to be counted differently in 2008m10. The retrospective observations in 2007 through 2009m9 are not comparable to other data, as seen in the graph.
+*twoway connected individuals ym, xline(585) xline(596)
+// NOTE: individuals started to be counted differently in 2008m10. The retrospective observations in 2007 through 2009m9 are not comparable to other data, as seen in the graph.
 // these data should be dropped 
-replace persons 				= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
-replace persons_npa 			= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
-replace persons_pa 				= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
+replace individuals 				= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
+replace individuals_npa 			= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
+replace individuals_pa 				= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
 replace avg_benefits_perperson 	= . if inrange(ym,ym(2007,10),ym(2008,9)) | (inrange(ym,ym(2008,10),ym(2009,9)) & dup2 == 2)
 drop dup dup2
 duplicates tag ym, gen(dup)
-drop if dup == 1 & missing(persons) // drop duplicate months data 
+drop if dup == 1 & missing(individuals) // drop duplicate months data 
 drop dup 
 
 // manually fix some duplicates
@@ -346,5 +342,10 @@ assert dup == 0
 drop dup
 
 **TEMPORARY
-save "${dir_data}/missouri_page`n'.dta", replace
+save "${dir_root}/state_data/missouri/missouri_page`n'.dta", replace
+
+
+// save just state level data for now 
+use "${dir_root}/state_data/missouri/missouri_page1.dta", clear
+save "${dir_root}/state_data/missouri/missouri.dta", replace
 

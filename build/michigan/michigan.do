@@ -1,7 +1,5 @@
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/michigan"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// michigan.do 
+// Kelsey Pukelis
 
 local first_year 				= 2009
 local years 					2009 2012 2014 2016 2018
@@ -108,7 +106,7 @@ foreach year of local years {
 	dis in red "`year'"
 	
 	// import data 
-	import excel "${dir_data}/excel/DHS-Trend_Table_24_269236_7_`year'.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/state_data/michigan/excel/DHS-Trend_Table_24_269236_7_`year'.xlsx", allstring case(lower) clear
 
 	// initial cleanup
 	dropmiss, force 
@@ -159,8 +157,8 @@ foreach year of local years {
 
 		// rename variables 
 		rename v1 monthyear 
-		rename v2 cases 
-		rename v3 recipients 
+		rename v2 households 
+		rename v3 individuals 
 		rename v4 adults 
 		rename v5 children 
 		rename v6 issuance 
@@ -202,7 +200,7 @@ foreach year of local years {
 		gen county = "`county'"
 
 		// destring 
-		foreach var in cases recipients adults children issuance avg_pay_per_case avg_pay_per_person avg_recip_per_case {
+		foreach var in households individuals adults children issuance avg_pay_per_case avg_pay_per_person avg_recip_per_case {
 
 			// destring 
 			destring `var', replace 
@@ -257,7 +255,7 @@ foreach year of local years {
 }
 
 // change name for total column
-replace county = "Total" if county == "State"
+replace county = "total" if county == "State"
 
 // drop duplicates
 duplicates drop 
@@ -267,7 +265,7 @@ order county ym
 sort county ym 
 
 // save 
-save "${dir_data}/michigan.dta", replace 
+save "${dir_root}/state_data/michigan/michigan.dta", replace 
 
 
 

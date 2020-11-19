@@ -1,6 +1,5 @@
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/minnesota"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// minnesota.do 
+// Kelsey Pukelis
 
 local year_start 				= 2014
 local year_end 					= 2020
@@ -59,7 +58,7 @@ forvalues year = `year_start'(1)`year_end' {
 		}
 
 		// import 
-		import excel using "${dir_root}/`file_`year''", sheet("`monthname'") case(lower) allstring clear
+		import excel using "${dir_root}/state_data/minnesota/`file_`year''", sheet("`monthname'") case(lower) allstring clear
 	
 		// initial cleanup
 		dropmiss, force 
@@ -89,13 +88,13 @@ forvalues year = `year_start'(1)`year_end' {
 		assert r(k) == 5
 		rename v1 county_num 
 		rename v2 county 
-		rename v3 cases
-		rename v4 recipients
+		rename v3 households
+		rename v4 individuals
 		rename v5 issuance
 		drop in 1 
 
 		// destring 
-		foreach var in county_num cases recipients issuance {
+		foreach var in county_num households individuals issuance {
 			replace `var' = subinstr(`var', "`=char(9)'", " ", .)
 			replace `var' = subinstr(`var', "`=char(13)'", " ", .)
 			replace `var' = subinstr(`var', "`=char(14)'", " ", .)
@@ -146,8 +145,8 @@ assert dup == 0
 drop dup 
 
 // order 
-order county county_num ym cases recipients issuance
+order county county_num ym households individuals issuance
 sort county ym 
 
 // save
-save "${dir_root}/minnesota.dta", replace
+save "${dir_root}/state_data/minnesota/minnesota.dta", replace

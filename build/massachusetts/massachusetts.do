@@ -1,10 +1,6 @@
 // massachusetts.do
 // imports households and persons from excel sheets
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/massachusetts"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 // NOTE: these are filenames, but date on the name of the file is 3 months ahead of the data represented in the file itself. 
 // E.g. file with name March 2020 contains data for December 2019
 local ym_start					= ym(2017,11)
@@ -77,13 +73,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		display in red "`sheet'"
 		
 		if inlist("`sheet'","AU_SNAP","SNAP_AU's") {
-			local varname cases 
+			local varname households 
 		}
 		else if inlist("`sheet'","SNAP_RECIPIENTS") {
-			local varname recipients
+			local varname individuals
 		}
 		// import 
-		import excel "${dir_data}/excel/`year'/FINAL_ZIPCODE_`monthname'_`year'.xlsx", sheet("`sheet'") allstring clear 
+		import excel "${dir_root}/state_data/massachusetts/excel/`year'/FINAL_ZIPCODE_`monthname'_`year'.xlsx", sheet("`sheet'") allstring clear 
 
 		// initial cleanup
 		dropmiss, force 
@@ -171,13 +167,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// merge across sheets
-	foreach varname in cases recipients {
-		if "`varname'" == "cases" {
+	foreach varname in households individuals {
+		if "`varname'" == "households" {
 			use `_`varname'', clear
 		}
 		else {
 			merge 1:1 zipcode city using `_`varname''
-			assert _m == 3 | _m == 2 // because of censoring, some zipcodes are only included in recipients but not cases
+			assert _m == 3 | _m == 2 // because of censoring, some zipcodes are only included in individuals but not households
 			drop _m
 		}
 	}
@@ -204,7 +200,7 @@ order zipcode city ym
 sort zipcode ym 
 
 // save 
-save "${dir_data}/massachusetts.dta", replace
+save "${dir_root}/state_data/massachusetts/massachusetts.dta", replace
 
 tab ym 
 tab zipcode
