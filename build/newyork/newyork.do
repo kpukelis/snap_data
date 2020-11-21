@@ -1,9 +1,5 @@
 // newyork.do
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/newyork"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local ym_start	 				= ym(2001,1)
 local ym_end 					= ym(2020,4)
 
@@ -52,16 +48,16 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inrange(`ym',ym(2001,1),ym(2004,12)) {
-		import excel using "${dir_root}/excel/`year'/stats`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/newyork/excel/`year'/stats`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2005,1),ym(2005,12)) {
-		import excel using "${dir_root}/excel/`year'/STATS`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/newyork/excel/`year'/STATS`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2006,1),ym(2006,12)) {
-		import excel using "${dir_root}/excel/`year'/STATS_`monthname'`year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/newyork/excel/`year'/STATS_`monthname'`year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else {
-		import excel using "${dir_root}/excel/`year'/`year'-`monthname'-stats.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/newyork/excel/`year'/`year'-`monthname'-stats.pdf_short.xlsx", case(lower) allstring clear
 	}
 
 	// initial cleanup
@@ -123,17 +119,17 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	// rename vars 
 	rename v1 county 
 	rename v2 households
-	rename v3 persons
+	rename v3 individuals
 	rename v4 issuance 
 	rename v5 households_temp
-	rename v6 persons_temp
+	rename v6 individuals_temp
 	rename v7 issuance_temp
 	rename v8 households_nontemp
-	rename v9 persons_nontemp
+	rename v9 individuals_nontemp
 	rename v10 issuance_nontemp
 	
 	// destring 
-	foreach var in households persons issuance households_temp persons_temp issuance_temp households_nontemp persons_nontemp issuance_nontemp {
+	foreach var in households individuals issuance households_temp individuals_temp issuance_temp households_nontemp individuals_nontemp issuance_nontemp {
  		capture confirm variable `var'
 		if !_rc {
 			replace `var' = ustrregexra(`var'," ","")
@@ -155,11 +151,11 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// assert everything adds up 
 	assert households_temp + households_nontemp == households
-	assert persons_temp + persons_nontemp == persons
+	assert individuals_temp + individuals_nontemp == individuals
 	assert issuance_temp + issuance_nontemp == issuance
 
 	// order and sort 
-	order county ym households persons issuance households_temp persons_temp issuance_temp households_nontemp persons_nontemp issuance_nontemp
+	order county ym households individuals issuance households_temp individuals_temp issuance_temp households_nontemp individuals_nontemp issuance_nontemp
 	sort county ym 
 
 	// save 
@@ -178,17 +174,20 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 }
 
+// county name 
+replace county = "total" if county == "new york state"
+
 // order and sort 
-order county ym households persons issuance households_temp persons_temp issuance_temp households_nontemp persons_nontemp issuance_nontemp
+order county ym households individuals issuance households_temp individuals_temp issuance_temp households_nontemp individuals_nontemp issuance_nontemp
 sort county ym 
 
 // save 
-save "${dir_data}/newyork.dta", replace 
+save "${dir_root}/state_data/newyork/newyork.dta", replace 
 
 tab county 
 
 	assert households_temp + households_nontemp == households
-	assert persons_temp + persons_nontemp == persons
+	assert individuals_temp + individuals_nontemp == individuals
 	assert issuance_temp + issuance_nontemp == issuance
 
 

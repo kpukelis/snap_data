@@ -1,8 +1,5 @@
 // ohio.do
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/ohio"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// Kelsey Pukelis
 
 local ym_start	 				= ym(2002,6)
 local ym_end 					= ym(2020,4)
@@ -53,22 +50,22 @@ if `ym' != ym(2018,9) {
 
 	// import 
 	if inrange(`ym',ym(2002,6),ym(2006,12)) {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/`monthname'`year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/`monthname'`year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2007,1),ym(2016,12)) {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/PAMS`year'-`monthname'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/PAMS`year'-`monthname'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2017,1),ym(2017,12)) {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/PAMS_`monthname'_`year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/PAMS_`monthname'_`year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,12)) {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/Updated PAMS `year'_`monthname'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/Updated PAMS `year'_`monthname'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2019,1),ym(2019,12)) {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/Case Load Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/Case Load Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else {
-		import excel using "${dir_root}/excel/`year'/binder/Document Cloud/Caseload Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/Caseload Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	
 	// initial cleanup
@@ -152,10 +149,10 @@ if `ym' != ym(2018,9) {
 		assert `r(k)' == 10
 		// rename vars 
 		rename v1 county 
-		rename v2 persons_pa
-		rename v3 persons_npa 
-		rename v4 persons
-		rename v5 avg_issuance_persons
+		rename v2 individuals_pa
+		rename v3 individuals_npa 
+		rename v4 individuals
+		rename v5 avg_issuance_individuals
 		rename v6 percchange_prevmonth_person
 		rename v7 households_pa
 		rename v8 households_npa
@@ -166,10 +163,10 @@ if `ym' != ym(2018,9) {
 		assert `r(k)' == 12
 		// rename vars 
 		rename v1 county 
-		rename v2 persons_pa
-		rename v3 persons_npa 
-		rename v4 persons
-		rename v5 avg_issuance_persons
+		rename v2 individuals_pa
+		rename v3 individuals_npa 
+		rename v4 individuals
+		rename v5 avg_issuance_individuals
 		rename v6 percchange_prevmonth_person
 		rename v7 households_pa
 		rename v8 households_npa
@@ -183,7 +180,7 @@ if `ym' != ym(2018,9) {
 		// rename vars 
 		rename v1 county 
 		rename v2 households
-		rename v3 persons
+		rename v3 individuals
 		rename v4 adults
 		rename v5 children
 	}
@@ -193,7 +190,7 @@ if `ym' != ym(2018,9) {
 	capture drop percchange_prevmonth_households
 
 	// destring 
-	foreach var in persons_pa persons_npa persons households_pa households_npa households issuance avg_issuance_persons avg_issuance_households adults children {
+	foreach var in individuals_pa individuals_npa individuals households_pa households_npa households issuance avg_issuance_individuals avg_issuance_households adults children {
  		capture confirm variable `var'
 		if !_rc {
 			replace `var' = ustrregexra(`var'," ","")
@@ -218,7 +215,7 @@ if `ym' != ym(2018,9) {
 	format ym %tm
 
 	// order and sort 
-	order county ym households persons
+	order county ym households individuals
 	sort county ym 
 
 	// save 
@@ -239,17 +236,20 @@ if `ym' != ym(2018,9) {
 }
 }
 
+// replace county 
+replace county = "total" if county == "statewide"
+
 // order and sort 
-order county ym persons_pa persons_npa persons households_pa households_npa households issuance avg_issuance_persons avg_issuance_households adults children
+order county ym individuals_pa individuals_npa individuals households_pa households_npa households issuance avg_issuance_individuals avg_issuance_households adults children
 sort county ym 
 
 // save 
-save "${dir_data}/ohio.dta", replace 
+save "${dir_root}/state_data/ohio/ohio.dta", replace 
 
 // check county
 tab county
 
 // assert everything adds up 
-assert persons_pa + persons_npa == persons if !missing(persons_pa)
+assert individuals_pa + individuals_npa == individuals if !missing(individuals_pa)
 assert households_pa + households_npa == households if !missing(households_pa)
 

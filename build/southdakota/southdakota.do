@@ -1,9 +1,5 @@
 // southdakota.do
-// imports households and persons from excel sheets
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/south dakota"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// imports households and individuals from excel sheets
 
 local ym_start					= ym(2013,1)
 local ym_end 					= ym(2020,3)
@@ -76,7 +72,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// import 
-	import excel using "${dir_root}/excel/`year'/`prefix_`year''`monthname'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
+	import excel using "${dir_root}/state_data/southdakota/excel/`year'/`prefix_`year''`monthname'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
 	dropmiss, force
 	dropmiss, obs force
 	describe, varlist 
@@ -135,10 +131,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	describe, varlist
 	assert r(k) == 5 | r(k) == 6
 	if r(k) == 5 {
-		rename (`r(varlist)') (county households persons adults children)
+		rename (`r(varlist)') (county households individuals adults children)
 	}
 	if r(k) == 6 {
-		rename (`r(varlist)') (county households persons adults children issuance)
+		rename (`r(varlist)') (county households individuals adults children issuance)
 	}
 
 	// clean up county 
@@ -157,7 +153,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else {
 		gen issuance = ""
 	}
-	foreach v in households persons adults children issuance {
+	foreach v in households individuals adults children issuance {
 		replace `v' = "0" if `v' == "a" // "a) Data not shown to avoid disclosure of information for particular individuals"
 		destring `v', replace 
 		confirm numeric variable `v'
@@ -168,7 +164,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	format ym %tm
 
 	// order and sort 
-	order county ym households persons adults children
+	order county ym households individuals adults children
 	sort county ym 
 
 	// save 
@@ -187,11 +183,14 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 }
 
+// replace county
+replace county = "total" if county == "statetotals"
+
 // order and sort 
-order county ym households persons adults children issuance
+order county ym households individuals adults children issuance
 sort county ym 
 
 // save 
-save "${dir_root}/southdakota.dta", replace 
+save "${dir_root}/state_data/southdakota/southdakota.dta", replace 
 
 

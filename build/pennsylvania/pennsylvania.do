@@ -1,10 +1,6 @@
 // pennsylvania.do
 // imports households and persons from excel sheets
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/pennsylvania"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local files 					July2017 Oct2017 Apr2019 Oct2019 Apr2020
 
 local ym_start					= ym(2016,7)
@@ -19,7 +15,7 @@ foreach file of local files {
 		display in red "`sheet'"
 
 		// import 
-		import excel using "${dir_root}/pdfs/needed/MA_TANF_GA_SNAP_`file'.xlsx", sheet("`sheet'") /*firstrow*/ case(lower) allstring clear
+		import excel using "${dir_root}/state_data/pennsylvania/pdfs/needed/MA_TANF_GA_SNAP_`file'.xlsx", sheet("`sheet'") /*firstrow*/ case(lower) allstring clear
 		dropmiss, force obs
 
 		// rename variables
@@ -128,11 +124,14 @@ duplicates tag county ym, gen(dup)
 assert dup == 0
 drop dup
 
+// replace county 
+replace county = "total" if county == "state total"
+
 // order and sort 
 order county ym
 sort county ym
 
 // save
-save "${dir_root}/pennsylvania.dta", replace
+save "${dir_root}/state_data/pennsylvania/pennsylvania.dta", replace
 
 

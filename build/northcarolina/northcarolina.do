@@ -1,10 +1,6 @@
 // north carolina.do
 // imports cases and clients from excel sheets
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/north carolina"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
 local datasets 					cases apps abawds workcases workapps
 local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-04-2020"
 local file_apps 				"FNS-Applications-By-County-By-Month-thru-12-2017-rev4-17-2018 (1)"
@@ -41,7 +37,7 @@ foreach dataset of local datasets {
 		display "`year'"
 		 
 		// import 
-		import excel using "${dir_root}/`file_`dataset''.xlsx", sheet("`year'`month'") firstrow case(lower) clear
+		import excel using "${dir_root}/state_data/northcarolina/`file_`dataset''.xlsx", sheet("`year'`month'") firstrow case(lower) clear
 	
 		// clean a bit 
 		if "`dataset'" == "cases" {
@@ -166,13 +162,13 @@ foreach dataset of local datasets {
 			append using `_`ym''
 		}
 	}
-	save "${dir_root}/northcarolina_`dataset'.dta", replace
+	save "${dir_root}/state_data/northcarolina/northcarolina_`dataset'.dta", replace
 
 }
 **"NOTE:  During January 2014, Work First began to transition into NCFAST.  The data in the first chart represents the case and participant count information from the EIS legacy system, while the data from the second chart represents the data from the NCFAST system. All counties did not transition at the same time, so there may not be data represented from the NCFAST system for each county. Therefore, to calculate the total per county on the summary tab, the case counts were added together from both systems."		
-use "${dir_root}/northcarolina_workcases.dta", clear 
+use "${dir_root}/state_data/northcarolina/northcarolina_workcases.dta", clear 
 collapse (sum) workfirst_cases workfirst_participants, by(county ym)
-save "${dir_root}/northcarolina_workcases.dta", replace
+save "${dir_root}/state_data/northcarolina/northcarolina_workcases.dta", replace
 duplicates report county ym 
 
 ***********************************************************
@@ -180,10 +176,10 @@ duplicates report county ym
 // merge all datasets together
 foreach dataset of local datasets {
 	if "`dataset'" == "cases" {
-		use "${dir_root}/northcarolina_`dataset'.dta", clear
+		use "${dir_root}/state_data/northcarolina/northcarolina_`dataset'.dta", clear
 	}
 	else {
-		merge 1:1 county ym using "${dir_root}/northcarolina_`dataset'.dta"
+		merge 1:1 county ym using "${dir_root}/state_data/northcarolina/northcarolina_`dataset'.dta"
 		assert county == "total" if _m == 2
 		drop _m
 
@@ -192,6 +188,7 @@ foreach dataset of local datasets {
 order county ym 
 sort county ym 
 
+// label
 label var participants "SNAP participants"
 label var cases "SNAP cases"
 label var apps "SNAP applications"
@@ -201,21 +198,10 @@ label var workfirst_cases "Work First cases"
 label var workfirst_participants "Work First participants"
 label var workfirst_apps "Work First applications"
 
-save "${dir_root}/northcarolina.dta", replace 
+// rename 
+rename cases households
+rename participants individuals
 
-**********************************************************
-
-// save statewide totals 
-use "${dir_root}/northcarolina.dta", clear 
-drop if county == "total"
-collapse (sum) cases participants apps abawdsactive abawdsclosed workfirst_cases workfirst_participants workfirst_apps, by(ym)
-label var participants "SNAP participants"
-label var cases "SNAP cases"
-label var apps "SNAP applications"
-label var abawdsactive "ABAWDs - active cases"
-label var abawdsclosed "ABAWDs - closed cases"
-label var workfirst_cases "Work First cases"
-label var workfirst_participants "Work First participants"
-label var workfirst_apps "Work First applications"
-save "${dir_root}/northcarolina_state.dta", replace
+// save 
+save "${dir_root}/state_data/northcarolina/northcarolina.dta", replace 
 

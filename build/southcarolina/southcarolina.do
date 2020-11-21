@@ -1,9 +1,5 @@
 // southcarolina.do
-// imports households and persons from excel sheets
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/south carolina"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// imports households and individuals from excel sheets
 
 local ym_start					= ym(2008,3)
 local ym_end 					= ym(2020,4)
@@ -82,7 +78,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// import 
-	import excel using "${dir_root}/excel/`year'/`prefix_`year''`yearname_`year''`middle_`year''`month'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
+	import excel using "${dir_root}/state_data/southcarolina/excel/`year'/`prefix_`year''`yearname_`year''`middle_`year''`month'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
 	dropmiss, force
 	dropmiss, obs force
 	replace `firstvar' = trim(`firstvar')
@@ -96,8 +92,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	// assert 5 variables
 	describe, varlist
 	assert r(k) == 7 
-	rename (`r(varlist)') (county households persons issuance monthlyavgfy_households monthlyavgfy_persons fytodate_issuance)
-	drop if missing(households) & missing(persons) & missing(issuance) & missing(monthlyavgfy_households) & missing(monthlyavgfy_persons) & missing(fytodate_issuance)
+	rename (`r(varlist)') (county households individuals issuance monthlyavgfy_households monthlyavgfy_individuals fytodate_issuance)
+	drop if missing(households) & missing(individuals) & missing(issuance) & missing(monthlyavgfy_households) & missing(monthlyavgfy_individuals) & missing(fytodate_issuance)
 
 	// clean up county 
 	rename county county_copy
@@ -108,9 +104,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	replace county = ustrregexra(county," ","")
 
 	// clean up variables
-	drop monthlyavgfy_households monthlyavgfy_persons fytodate_issuance
+	drop monthlyavgfy_households monthlyavgfy_individuals fytodate_issuance
 
-	foreach v in households persons issuance {
+	foreach v in households individuals issuance {
 		destring `v', replace 
 		confirm numeric variable `v'
 	}
@@ -120,7 +116,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	format ym %tm
 
 	// order and sort 
-	order county ym households persons issuance
+	order county ym households individuals issuance
 	sort county ym 
 
 	// save 
@@ -140,11 +136,14 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 }
 
+// rename county 
+replace county = "total" if county == "statetotal"
+
 // order and sort 
-order county ym households persons issuance
+order county ym households individuals issuance
 sort county ym 
 
 // save 
-save "${dir_root}/southcarolina.dta", replace 
+save "${dir_root}/state_data/southcarolina/southcarolina.dta", replace 
 
 

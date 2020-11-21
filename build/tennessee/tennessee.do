@@ -1,6 +1,5 @@
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/tennessee"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// tennessee.do 
+// Kelsey Pukelis
 
 local ym_start 					= ym(2011,1)
 local ym_end 					= ym(2020,4)
@@ -82,10 +81,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inlist(`year',2011,2012,2013,2014,2015,2016,2017,2018) {
-		import excel using "${dir_root}/excel/`year'/`prefix_`year''`monthname'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/tennessee/excel/`year'/`prefix_`year''`monthname'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 	else if inlist(`year',2019,2020) {
-		import excel using "${dir_root}/excel/`year'/`yearname_`year''`monthname'`suffix_`year''.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/state_data/tennessee/excel/`year'/`yearname_`year''`monthname'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 
 	// initial cleanup
@@ -105,24 +104,24 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		describe, varlist 
 		assert r(k) == 8
 		rename v1 county1 
-		rename v2 persons1
+		rename v2 individuals1
 		rename v3 households1
 		rename v4 issuance1
 		rename v5 county2
-		rename v6 persons2
+		rename v6 individuals2
 		rename v7 households2
 		rename v8 issuance2
 		gen obsnum = _n
 	
 		// reshape 
-		reshape long county persons households issuance, i(obsnum) j(number)
+		reshape long county individuals households issuance, i(obsnum) j(number)
 		drop obsnum number
 		dropmiss, force 
 		dropmiss, obs force 
-		drop if strpos(county,"TOTAL") & missing(persons) & missing(households) & missing(issuance)
+		drop if strpos(county,"TOTAL") & missing(individuals) & missing(households) & missing(issuance)
 		if inrange(`ym',ym(2014,7),ym(2014,12)) | inrange(`ym',ym(2015,1),ym(2015,12)) {
 			// drop what appears to be an unnecessary column total ym(2014,7)
-			drop if missing(county) & (inlist(persons,"602701","597149","590984","592352","582641","586159","581209","566791","570601") | inlist(persons,"562751","558887","558950","557200","551828","549258","541864"))
+			drop if missing(county) & (inlist(individuals,"602701","597149","590984","592352","582641","586159","581209","566791","570601") | inlist(individuals,"562751","558887","558950","557200","551828","549258","541864"))
 		}
 
 		// assert shape 
@@ -156,15 +155,15 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		describe, varlist 
 		assert r(k) == 7
 		rename v1 county 
-		rename v2 persons1
+		rename v2 individuals1
 		rename v3 households1
 		rename v4 issuance1
-		rename v5 persons2
+		rename v5 individuals2
 		rename v6 households2
 		rename v7 issuance2
 
 		// reshape 
-		reshape long persons households issuance, i(county) j(number)
+		reshape long individuals households issuance, i(county) j(number)
 		dropmiss, force 
 		dropmiss, obs force 
 
@@ -197,18 +196,18 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		describe, varlist 
 		assert r(k) == 10
 		rename v1 county 
-		rename v2 persons1
+		rename v2 individuals1
 		rename v3 households1
 		rename v4 issuance1
-		rename v5 persons2
+		rename v5 individuals2
 		rename v6 households2
 		rename v7 issuance2
-		rename v8 persons3
+		rename v8 individuals3
 		rename v9 households3
 		rename v10 issuance3
 
 		// reshape 
-		reshape long persons households issuance, i(county) j(number)
+		reshape long individuals households issuance, i(county) j(number)
 		dropmiss, force 
 		dropmiss, obs force 
 
@@ -223,7 +222,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// destring 
-	foreach var in persons households issuance {
+	foreach var in individuals households issuance {
 		replace `var' = ustrregexra(`var',"`","")
 		destring `var', replace
 		confirm numeric variable `var'
@@ -275,5 +274,5 @@ order county ym
 sort county ym 
 
 // save
-save "${dir_root}/tennessee.dta", replace
+save "${dir_root}/state_data/tennessee/tennessee.dta", replace
 

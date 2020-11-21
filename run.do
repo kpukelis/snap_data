@@ -13,7 +13,7 @@ cls
 // directories and file names
 global dir_root 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits"
 global dir_code 		"C:/Users/Kelsey/Documents/GitHub/snap_data"
-global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/graphs"
+global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/_graphs"
 
 // run globals
 *do "${dir_code}/0_utility/globals.do"
@@ -22,7 +22,8 @@ global monthsinayear 	= 12
 // switches
 local switch_install 	= 0
 
-// Build state data 
+// Build data 
+local _clocks 			= 0
 local alabama			= 0 // not completed (fixed individual)
 // local alaska			= 0 fixed statewide 
 local arizona			= 0
@@ -52,14 +53,14 @@ local montana			= 0
 local nebraska			= 0 
 // local nevada			= 0 fixed individual
 // local newhampshire	= 0 fixed individual
-local newjersey			= 1 // keep going here 
-local newmexico			= 0
-local newyork			= 0
-local northcarolina		= 0
+local newjersey			= 0
+local newmexico			= 0 
+local newyork			= 0 
+local northcarolina		= 0 
 local northdakota		= 0 // not completed (rolling clock)
 local ohio				= 0
 local oklahoma			= 0 // not completed (fixed individual)
-local oregon			= 0
+local oregon			= 0 // NOT DONE YET
 local pennsylvania		= 0
 // local rhodeisland 	= 0 fixed statewide
 local southcarolina		= 0
@@ -67,13 +68,21 @@ local southdakota 		= 0
 local tennessee 		= 0
 local texas	 			= 0
 // local utah 			= 0
-local vermont 			= 0
+local vermont 			= 0 // handful of data years 
 local virginia 			= 0
 local washington 		= 0 // **not completed (fixed statewide, but yearly)
 // local westvirginia 	= 0 fixed statewide
 local wisconsin 		= 0
 // local wyoming 		= 0 fixed statewide
-// local districtofcolumbia= 0 unlclear clock
+// local districtofcolumbia= 0 unclear clock
+
+**KP: 2020-11-19 illinois missouri oregon left to be done 
+
+// combine 
+local combine_state_ym 	= 0
+
+// analyze
+local analyze_state_ym	= 1
 
 ***********************************************
 
@@ -85,6 +94,7 @@ if `switch_install' == 1 {
 // build data for each state 
 #delimit ;
 foreach step in 
+	_clocks
 	alabama
 /* 	alaska*/
 	arizona
@@ -144,6 +154,25 @@ foreach step in
 #delimit cr 
 
 // combine data
+#delimit ;
+foreach step in 
+	combine_state_ym
+	{ ;
+		if ``step'' == 1 { ;
+			do "${dir_code}/combine/`step'.do" ;
+		} ;
+	} ;
+#delimit cr 
 
+// analyze data
+#delimit ;
+foreach step in 
+	analyze_state_ym
+	{ ;
+		if ``step'' == 1 { ;
+			do "${dir_code}/analyze/`step'.do" ;
+		} ;
+	} ;
+#delimit cr 
 
 ***********************************************

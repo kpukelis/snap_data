@@ -1,8 +1,5 @@
 // newjersey.do
-
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/newjersey"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
+// Kelsey Pukelis
 
 local ym_start	 				= ym(2007,1)
 local ym_end 					= ym(2020,3)
@@ -44,7 +41,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red "`year'"
 
 	// import 
-	import excel using "${dir_root}/excel/`year'/cps_`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+	import excel using "${dir_root}/state_data/newjersey/excel/`year'/cps_`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	
 	// initial cleanup
 	dropmiss, force 
@@ -118,8 +115,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		rename v5 households_percchange
 		rename v6 adults 
 		rename v7 children
-		rename v8 persons
-		rename v9 persons_percchange
+		rename v8 individuals
+		rename v9 individuals_percchange
 		rename v10 age60plus
 		rename v11 peoplewithadisability
 	}
@@ -133,16 +130,16 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		rename v5 households_percchange
 		rename v6 adults 
 		rename v7 children
-		rename v8 persons
-		rename v9 persons_percchange	
+		rename v8 individuals
+		rename v9 individuals_percchange	
 	}
 
 	// drop unnecessary vars 
 	drop households_percchange
-	drop persons_percchange
+	drop individuals_percchange
 
 	// destring 
-	foreach var in households_wfnj_tanf households_otherlowinc households adults children persons age60plus peoplewithadisability {
+	foreach var in households_wfnj_tanf households_otherlowinc households adults children individuals age60plus peoplewithadisability {
  		capture confirm variable `var'
 		if !_rc {
 			replace `var' = ustrregexra(`var'," ","")
@@ -168,7 +165,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	format ym %tm
 
 	// manual fixes
-	capture noisily assert adults + children == persons 
+	capture noisily assert adults + children == individuals 
 		// adults
 		replace adults = 23252 if county == "passaic" & ym == ym(2007,12)
 		replace adults = 10067 if county == "atlantic" & ym == ym(2007,2)
@@ -200,24 +197,24 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace children = 253684 if county == "njtotal" & ym == ym(2009,6)
 		replace children = 648 if county == "hunterdon" & ym == ym(2009,8)
 
-		// persons
-		replace persons = 51736 if county == "passaic" & ym == ym(2007,12)
-		replace persons = 19424 if county == "atlantic" & ym == ym(2007,2)
-		replace persons = 16449 if county == "bergen" & ym == ym(2007,2)
-		replace persons = 16535 if county == "cumberland" & ym == ym(2007,2)
-		replace persons = 15027 if county == "monmouth" & ym == ym(2007,2)
-		replace persons = 16695 if county == "ocean" & ym == ym(2007,2)
-		replace persons = 50994 if county == "passaic" & ym == ym(2007,8)
-		replace persons = 10819 if county == "gloucester" & ym == ym(2008,3)
-		replace persons = 4685 if county == "salem" & ym == ym(2008,3)
-		replace persons = 19728 if county == "middlesex" & ym == ym(2008,7)
-		replace persons = 560038 if county == "njtotal" & ym == ym(2009,10)
-		replace persons = 23535 if county == "mercer" & ym == ym(2009,12)
-		replace persons = 507002 if county == "njtotal" & ym == ym(2009,6)
-		replace persons = 1808 if county == "hunterdon" & ym == ym(2009,8)
+		// individuals
+		replace individuals = 51736 if county == "passaic" & ym == ym(2007,12)
+		replace individuals = 19424 if county == "atlantic" & ym == ym(2007,2)
+		replace individuals = 16449 if county == "bergen" & ym == ym(2007,2)
+		replace individuals = 16535 if county == "cumberland" & ym == ym(2007,2)
+		replace individuals = 15027 if county == "monmouth" & ym == ym(2007,2)
+		replace individuals = 16695 if county == "ocean" & ym == ym(2007,2)
+		replace individuals = 50994 if county == "passaic" & ym == ym(2007,8)
+		replace individuals = 10819 if county == "gloucester" & ym == ym(2008,3)
+		replace individuals = 4685 if county == "salem" & ym == ym(2008,3)
+		replace individuals = 19728 if county == "middlesex" & ym == ym(2008,7)
+		replace individuals = 560038 if county == "njtotal" & ym == ym(2009,10)
+		replace individuals = 23535 if county == "mercer" & ym == ym(2009,12)
+		replace individuals = 507002 if county == "njtotal" & ym == ym(2009,6)
+		replace individuals = 1808 if county == "hunterdon" & ym == ym(2009,8)
 
 		// assert everything adds up 
-		assert adults + children == persons
+		assert adults + children == individuals
 
 	// manual fixes 
 	capture noisily assert households_wfnj_tanf + households_otherlowinc == households
@@ -307,7 +304,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		assert households_wfnj_tanf + households_otherlowinc == households
 
 	// order and sort 
-	order county ym households persons adults children /*age60plus peoplewithadisability*/ households_wfnj_tanf households_otherlowinc
+	order county ym households individuals adults children /*age60plus peoplewithadisability*/ households_wfnj_tanf households_otherlowinc
 	sort county ym 
 
 	// save 
@@ -327,9 +324,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 }
 
 // order and sort 
-order county ym households persons adults children age60plus peoplewithadisability households_wfnj_tanf households_otherlowinc
+order county ym households individuals adults children age60plus peoplewithadisability households_wfnj_tanf households_otherlowinc
 sort county ym 
 
 // save 
-save "${dir_data}/newjersey.dta", replace 
+save "${dir_root}/state_data/newjersey/newjersey.dta", replace 
 

@@ -72,4 +72,4 @@ foreach level in county state {
 
 // save with standard name
 use "${dir_root}/state_data/florida/clean/florida_county_level.dta", clear
-save "${dir_root}/state_data/florida/clean/florida.dta", replace 
+save "${dir_root}/state_data/florida/florida.dta", replace 

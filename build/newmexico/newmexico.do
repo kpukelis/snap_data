@@ -1,13 +1,7 @@
 // newmexico.do 
 // Kelsey Pukelis
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/newmexico"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
-// **KP: data before 2017m4 was not yet digitized properly, so I used tabula to generate csvs of them, which have yet to be cleaned.
 local ym_start 					= ym(2013,1) 
-*local ym_start 					= ym(2017,4)
 local ym_end 					= ym(2020,4)
 
 **************************************************************************
@@ -79,22 +73,22 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 
 	// load data 
 	if inrange(`ym',ym(2013,1),ym(2014,12)) {
-		import delimited "${dir_data}/excel/`year'/tabula-MSR_`monthname'_`year'_data.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
+		import delimited "${dir_root}/state_data/newmexico/excel/`year'/tabula-MSR_`monthname'_`year'_data.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
 	}
 	else if inrange(`ym',ym(2015,1),ym(2017,3)) {
-		import delimited "${dir_data}/excel/`year'/tabula-MSR_`monthname'_`year'.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
+		import delimited "${dir_root}/state_data/newmexico/excel/`year'/tabula-MSR_`monthname'_`year'.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
 	}
 	else if inrange(`ym',ym(2017,4),ym(2017,4)) | (`ym' >= ym(2019,1)) {
-		import excel "${dir_data}/excel/`year'/MSR_`monthname'_`year'.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2017,5),ym(2017,12)) {
-		import excel "${dir_data}/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/state_data/newmexico/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2018,7),ym(2018,12)) {
-		import excel "${dir_data}/excel/`year'/MSR_`monthname'`year'_Final.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/state_data/newmexico/excel/`year'/MSR_`monthname'`year'_Final.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,6)) {
-		import excel "${dir_data}/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/state_data/newmexico/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 
 	// initial cleanup
@@ -122,15 +116,15 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 	else if `ym' >= ym(2014,2) {
 		rename v1 office 
 	}
-	rename v2 cases_yearbefore
-	rename v3 cases_monthbefore
-	rename v4 cases_now 
-	rename v5 cases_percchangeyear
-	rename v6 cases_percchangemonth
+	rename v2 households_yearbefore
+	rename v3 households_monthbefore
+	rename v4 households_now 
+	rename v5 households_percchangeyear
+	rename v6 households_percchangemonth
 	drop in 1
 
 	// drop unnecessary variables 
-	drop cases_percchangeyear cases_percchangemonth
+	drop households_percchangeyear households_percchangemonth
 	if inrange(`ym',ym(2016,1),ym(2016,4)) | inlist(`ym',ym(2014,7),ym(2016,7)) {
 		capture drop v7
 		capture drop v8
@@ -148,12 +142,13 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 	if !_rc {
 		// county lowercase 
 		replace county = strlower(county)
-		replace county = "statewide total" if county == "total"
+		*replace county = "statewide total" if county == "total"
+		replace county = "total" if county == "statewide total"
 		replace county = "centralized units" if county == "centralized units^"
 		replace county = "mckinley" if county == "mckinley*"
 
 		// reshape long 
-		reshape long cases, i(county) j(_time) string 
+		reshape long households, i(county) j(_time) string 
 	}
 
 	// cleaning involving the office var
@@ -176,7 +171,8 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 
 		// office lowercase 
 		replace office = strlower(office)
-		replace office = "statewide total" if office == "total" | office == "1.0% total"
+		*replace office = "statewide total" if office == "total" | office == "1.0% total"
+		replace office = "total" if office == "1.0% total" | office == "statewide total"
 
 		// clean up office 
 		replace office = "centralized units" if office == "centralized units^"
@@ -188,7 +184,7 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 		gen county = office 
 	
 		// reshape long 
-		reshape long cases, i(office) j(_time) string 
+		reshape long households, i(office) j(_time) string 
 
 	}
 
@@ -205,7 +201,7 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 	format source_ym %tm
 
 	// destring 
-	foreach var in cases {
+	foreach var in households {
 		replace `var' = ustrregexra(`var',",","")
 		replace `var' = ustrregexra(`var',"-","")
 		destring `var', replace
@@ -220,7 +216,7 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 		assert `r(N)' == 102
 		
 		// order and sort 
-		order county county ym cases source_ym
+		order county county ym households source_ym
 		sort county ym source_ym
 
 	}
@@ -231,7 +227,7 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 		assert `r(N)' == 111
 	
 		// order and sort 
-		order office county ym cases source_ym
+		order office county ym households source_ym
 		sort office ym source_ym
 	
 	}
@@ -242,7 +238,7 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 		assert `r(N)' == 108
 	
 		// order and sort 
-		order office county ym cases source_ym
+		order office county ym households source_ym
 		sort office ym source_ym
 	
 	}
@@ -269,12 +265,12 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 
 // DUPLICATES 
 
-// drop if cases is missing 
-drop if missing(cases)
+// drop if households is missing 
+drop if missing(households)
 
 // drop exact duplicates
-duplicates drop county ym cases if  inrange(ym,ym(2013,1),ym(2014,1)), force 
-duplicates drop office ym cases if !inrange(ym,ym(2013,1),ym(2014,1)), force 
+duplicates drop county ym households if  inrange(ym,ym(2013,1),ym(2014,1)), force 
+duplicates drop office ym households if !inrange(ym,ym(2013,1),ym(2014,1)), force 
 
 // dropping duplicates, keeping observations that comes from the source ym 
 // duplicates office 
@@ -300,8 +296,8 @@ bysort county ym: gen numobs_county = _N
 assert numobs_county == 1 | numobs_office == 1
 
 // order and sort 
-order office county ym cases 
+order office county ym households 
 sort office county ym 
 
 // save 
-save "${dir_data}/newmexico.dta", replace
+save "${dir_root}/state_data/newmexico/newmexico.dta", replace
