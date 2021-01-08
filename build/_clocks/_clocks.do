@@ -10,14 +10,15 @@ dropmiss, force obs
 drop notes
 drop clockexacttext 
 drop link
+drop state_long
 
 **KP: drop for now, so that there is only one binding 
 drop bindingclockstartyear2 bindingclockstartyear3 bindingclockstartmonth2 bindingclockstartmonth3
 
 // fix state 
-split state, parse("-")
-drop state2 state
-rename state1 state
+*split state, parse("-")
+*drop state2 state
+*rename state1 state
 replace state = trim(state)
 replace state = ustrregexra(state," ","")
 replace state = strlower(state)

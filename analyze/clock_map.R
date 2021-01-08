@@ -7,7 +7,7 @@ library(dplyr)
 library(mapproj)
 
 # load data
-clocks <- read_excel(path = "C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/snap_time_limits.xlsx", sheet = "clocks_only")
+clocks <- read_excel(path = "C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/snap_time_limits (1).xlsx", sheet = "clocks")
 states <- map_data(map = "state")
 
 # merge

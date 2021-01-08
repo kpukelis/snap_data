@@ -11,7 +11,78 @@ local sheets 					`"Cases"' // "Cases" "NA Recipients" "Persons Coded as CH" "Pe
 **KP for some reason having to do with annoying quotes, the sheets loop is not working. 
 
 ***************************************************************
-/*
+
+// import 
+import excel using "${dir_root}/COPIED_Oregon Self-Sufficiency Statewide Data Charts FY 10-11 - FY 17-18 (Partial).xlsx", firstrow case(lower) allstring clear
+		
+// keep only interesting SNAP vars for now
+replace selfsufficiencyprogramcategor = trim(selfsufficiencyprogramcategor)
+keep if inlist(selfsufficiencyprogramcategor,"Statewide Supplemental Nutrition Assistance Program Benefits","Statewide Supplemental Nutrition Assistance Program Households","Statewide Supplemental Nutrition Assistance Program Persons")
+gen varname = ""
+replace varname = "benefits" if strpos(selfsufficiencyprogramcategor,"Benefits")
+replace varname = "households" if strpos(selfsufficiencyprogramcategor,"Households")
+replace varname = "persons" if strpos(selfsufficiencyprogramcategor,"Persons")
+drop selfsufficiencyprogramcategor
+
+// destring vars 
+foreach v of varlist _all {
+	destring `v', replace
+	rename `v' _`v'
+}
+rename _varname varname
+
+// reshape 
+reshape long _, i(varname) j(monYY) string
+reshape wide _, i(monYY) j(varname) string
+rename _benefits benefits
+rename _households households
+rename _persons persons
+label var benefits "SNAP benefits"
+label var households "SNAP households"
+label var persons "SNAP persons"
+
+// date 
+gen month = substr(monYY,1,3)
+replace month = "1" if month == "jan"
+replace month = "2" if month == "feb"
+replace month = "3" if month == "mar"
+replace month = "4" if month == "apr"
+replace month = "5" if month == "may"
+replace month = "6" if month == "jun"
+replace month = "7" if month == "jul"
+replace month = "8" if month == "aug"
+replace month = "9" if month == "sep"
+replace month = "10" if month == "oct"
+replace month = "11" if month == "nov"
+replace month = "12" if month == "dec"
+destring month, replace
+gen year = substr(monYY,4,5)
+destring year, replace
+replace year = 2000 + year
+gen ym = ym(year,month)
+format ym %tm 
+drop year month monYY
+
+// county 
+gen county = "total"
+
+// order and sort
+order county ym benefits households persons
+sort county ym
+
+// save 
+tempfile oregon_state
+save `oregon_state'
+*save "${dir_root}/oregon_state", replace
+
+**********************************************************************************************************************************************
+**********************************************************************************************************************************************
+**********************************************************************************************************************************************
+**********************************************************************************************************************************************
+**********************************************************************************************************************************************
+**********************************************************************************************************************************************
+**********************************************************************************************************************************************
+
 foreach sheet of local sheets {
 	foreach year of local years {
  
@@ -134,6 +205,11 @@ foreach sheet in Allotments Recipients Cases {
 		drop _m
 	}
 }
+
+// append state data 
+append using `oregon_state'
+replace fip
+
 
 // order and sort 
 order fips county ym 

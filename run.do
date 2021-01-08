@@ -44,7 +44,7 @@ local kentucky			= 0
 local louisiana			= 0
 local maine				= 0 
 local maryland			= 0
-local massachusetts		= 0 
+local massachusetts		= 0 // **KP: need to crosswalk zipcode to county
 local michigan			= 0 
 local minnesota			= 0 
 local mississippi		= 0 
@@ -80,9 +80,13 @@ local wisconsin 		= 0
 
 // combine 
 local combine_state_ym 	= 0
+local combine_county_ym	= 1
 
 // analyze
-local analyze_state_ym	= 1
+local analyze_state_ym	= 0
+local event_study_plot 	= 0
+local analyze_arizona 	= 0
+local analyze_kansas 	= 0
 
 ***********************************************
 
@@ -157,6 +161,7 @@ foreach step in
 #delimit ;
 foreach step in 
 	combine_state_ym
+	combine_county_ym
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/combine/`step'.do" ;
@@ -168,6 +173,9 @@ foreach step in
 #delimit ;
 foreach step in 
 	analyze_state_ym
+	event_study_plot
+	analyze_arizona 
+	analyze_kansas
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/analyze/`step'.do" ;

@@ -108,6 +108,79 @@ gen relative_ym = ym - bindingexpected_ym
 // sample of states with a visible first stage 
 keep if !missing(bindingexpected_ym)
 
+
+// RESIDUAL
+
+// generate polynomial terms 
+gen r_1 = relative_ym
+gen z = (r_1 >= 0)
+gen zXr_1 = z*r_1
+forvalues d = 2(1)7 {
+	gen r_`d' = r_1^`d'
+	gen zXr_`d' = z*r_`d'
+}
+
+// generate numeric state var (need it to be numeric to use i. notation)
+encode state, gen(state_num)
+
+// for this regression, limit to where outcome is nonmissing
+keep if !missing(individuals)
+gen log_individuals = log(individuals)
+
+
+// event study plot 
+**KP: expand this range later
+keep if inrange(r_1,-12,12)
+
+regress log_individuals 
+
+
+
+// estimation of discontinuity
+#delimit ;
+qui regress log_individuals z i.state_num 
+						i.state_num#c.r_1 i.state_num#c.zXr_1
+						i.state_num#c.r_2 i.state_num#c.zXr_2
+						i.state_num#c.r_3 i.state_num#c.zXr_3
+						i.state_num#c.r_4 i.state_num#c.zXr_4
+						i.state_num#c.r_5 i.state_num#c.zXr_5
+						i.state_num#c.r_6 i.state_num#c.zXr_6
+						i.state_num#c.r_7 i.state_num#c.zXr_7
+;
+display in red _b[z] ;
+qui regress log_individuals z i.state_num 
+						i.state_num#c.r_1 i.state_num#c.zXr_1
+						i.state_num#c.r_2 i.state_num#c.zXr_2
+						i.state_num#c.r_3 i.state_num#c.zXr_3
+						i.state_num#c.r_4 i.state_num#c.zXr_4
+						i.state_num#c.r_5 i.state_num#c.zXr_5
+						i.state_num#c.r_6 i.state_num#c.zXr_6
+;
+display in red _b[z] ;
+qui regress log_individuals z i.state_num 
+						i.state_num#c.r_1 i.state_num#c.zXr_1
+						i.state_num#c.r_2 i.state_num#c.zXr_2
+						i.state_num#c.r_3 i.state_num#c.zXr_3
+						i.state_num#c.r_4 i.state_num#c.zXr_4
+						i.state_num#c.r_5 i.state_num#c.zXr_5
+;
+display in red _b[z] ;
+qui regress log_individuals z i.state_num 
+						i.state_num#c.r_1 i.state_num#c.zXr_1
+						i.state_num#c.r_2 i.state_num#c.zXr_2
+						i.state_num#c.r_3 i.state_num#c.zXr_3
+						i.state_num#c.r_4 i.state_num#c.zXr_4
+;
+display in red _b[z] ;
+#delimit cr 
+*matrix list e(b)
+
+check
+
+/////////////////////
+// AVERAGE / TOTAL //
+///////////////////// 
+
 // single graph in relative time, all states; one average, one total 
 foreach var in individuals households issuance adults children {
 	preserve
