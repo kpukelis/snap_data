@@ -23,6 +23,7 @@ global monthsinayear 	= 12
 local switch_install 	= 0
 
 // Build data 
+local _fips 			= 0
 local _clocks 			= 0
 local alabama			= 0 // not completed (fixed individual)
 // local alaska			= 0 fixed statewide 
@@ -80,7 +81,7 @@ local wisconsin 		= 0
 
 // combine 
 local combine_state_ym 	= 0
-local combine_county_ym	= 1
+local combine_county_ym	= 1 /// KEEP GOING HERE 2021-01-10
 
 // analyze
 local analyze_state_ym	= 0
@@ -98,6 +99,7 @@ if `switch_install' == 1 {
 // build data for each state 
 #delimit ;
 foreach step in 
+	_fips
 	_clocks
 	alabama
 /* 	alaska*/
