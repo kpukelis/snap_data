@@ -28,7 +28,7 @@ display in red `ym_end_state'
 display in red `ym_start_state'
 
 // import 
-import excel using "${dir_root}/state_data/texas/excel/state/snap-cases-eligible-statewide.xlsx", case(lower) allstring clear
+import excel using "${dir_root}/data/state_data/texas/excel/state/snap-cases-eligible-statewide.xlsx", case(lower) allstring clear
 
 // initial cleanup
 dropmiss, force 
@@ -188,7 +188,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// import 
-	import excel using "${dir_root}/state_data/texas/excel/enrollment/`year'/`prefix_`year''`monthname'`yearname_`year''.`filetype'", case(lower) allstring clear
+	import excel using "${dir_root}/data/state_data/texas/excel/enrollment/`year'/`prefix_`year''`monthname'`yearname_`year''.`filetype'", case(lower) allstring clear
 
 	// initial cleanup
 	dropmiss, force 
@@ -301,4 +301,4 @@ order county ym households individuals issuance adults children age_00_04 age_05
 sort county ym 
 
 // save
-save "${dir_root}/state_data/texas/texas.dta", replace
+save "${dir_root}/data/state_data/texas/texas.dta", replace

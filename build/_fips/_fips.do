@@ -14,10 +14,10 @@ forvalues year = `year_min'(1)`year_max' {
 
 	// import 
 	if inrange(`year',2011,2014) {
-		import excel using "${dir_root}/state_data/_fips/all-geocodes-v`year'.xls", case(lower) firstrow allstring clear
+		import excel using "${dir_root}/data/state_data/_fips/all-geocodes-v`year'.xls", case(lower) firstrow allstring clear
 	}
 	else if inrange(`year',2015,2019) {
-		import excel using "${dir_root}/state_data/_fips/all-geocodes-v`year'.xlsx", case(lower) firstrow allstring clear
+		import excel using "${dir_root}/data/state_data/_fips/all-geocodes-v`year'.xlsx", case(lower) firstrow allstring clear
 	}
 
 	// drop initial obs
@@ -88,7 +88,7 @@ forvalues year = `year_min'(1)`year_max' {
 	// save 
 	tempfile statefips_`year'
 	save `statefips_`year''
-	save "${dir_root}/state_data/_fips/statefips_`year'.dta", replace 
+	save "${dir_root}/data/state_data/_fips/statefips_`year'.dta", replace 
 
 	// restore
 	restore 
@@ -161,7 +161,7 @@ forvalues year = `year_min'(1)`year_max' {
 	// save 
 	tempfile countyfips_`year'
 	save `countyfips_`year''
-	save "${dir_root}/state_data/_fips/countyfips_`year'.dta", replace 
+	save "${dir_root}/data/state_data/_fips/countyfips_`year'.dta", replace 
 
 	// restore
 	restore 
@@ -180,7 +180,7 @@ foreach type in state county {
 			append using ``type'fips_`year''
 		}
 	}
-	save "${dir_root}/state_data/_fips/`type'fips.dta", replace 
+	save "${dir_root}/data/state_data/_fips/`type'fips.dta", replace 
 }
 
 *****************************************************

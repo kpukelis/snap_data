@@ -37,8 +37,8 @@ local legend_options 				off
 foreach y in  households individuals  issuance {
 
 	// load data
-	use "${dir_root}/state_data/state_ym.dta", clear 
-	merge m:1 state using "${dir_root}/state_data/clocks_wide.dta", assert(2 3) keep(3) nogen
+	use "${dir_root}/data/state_data/state_ym.dta", clear 
+	merge m:1 state using "${dir_root}/data/state_data/clocks_wide.dta", assert(2 3) keep(3) nogen
 
 	// event: binding events only 
 	gen bindingexpected_ym = bindingclockstart_ym + 3 + 1 /*+ 0.5*/ + adjust_clock

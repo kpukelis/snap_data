@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 // import population data 
-import excel "${dir_root}/state_data/ohio/_population/co-est2019-annres-39.xlsx", case(lower) firstrow allstring clear 
+import excel "${dir_root}/data/state_data/ohio/_population/co-est2019-annres-39.xlsx", case(lower) firstrow allstring clear 
 
 // drop headers
 drop in 1
@@ -84,7 +84,7 @@ assert dup == 0
 drop dup 
 
 // save 
-save "${dir_root}/state_data/ohio/ohio_county_pop.dta", replace
+save "${dir_root}/data/state_data/ohio/ohio_county_pop.dta", replace
 
 
 *********************************************************************

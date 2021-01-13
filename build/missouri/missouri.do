@@ -49,10 +49,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if `year' >= 2011 & !inlist(`year',2020) {
-		import excel using "${dir_root}/state_data/missouri/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/missouri/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 	else {
-		import excel using "${dir_root}/state_data/missouri/excel/`year'/`month'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/missouri/excel/`year'/`month'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 
 	// initial cleanup
@@ -303,7 +303,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 }
 
 **TEMPORARY; later, save all pages together
-save "${dir_root}/state_data/missouri/missouri_page`n'.dta", replace
+save "${dir_root}/data/state_data/missouri/missouri_page`n'.dta", replace
 
 check
 */
@@ -311,7 +311,7 @@ check
 ***************
 ************
 local n = 1
-use "${dir_root}/state_data/missouri/missouri_page`n'.dta", clear
+use "${dir_root}/data/state_data/missouri/missouri_page`n'.dta", clear
 
 // drop duplicates
 duplicates drop
@@ -342,10 +342,10 @@ assert dup == 0
 drop dup
 
 **TEMPORARY
-save "${dir_root}/state_data/missouri/missouri_page`n'.dta", replace
+save "${dir_root}/data/state_data/missouri/missouri_page`n'.dta", replace
 
 
 // save just state level data for now 
-use "${dir_root}/state_data/missouri/missouri_page1.dta", clear
-save "${dir_root}/state_data/missouri/missouri.dta", replace
+use "${dir_root}/data/state_data/missouri/missouri_page1.dta", clear
+save "${dir_root}/data/state_data/missouri/missouri.dta", replace
 

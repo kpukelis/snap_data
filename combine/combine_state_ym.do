@@ -82,7 +82,7 @@ foreach state of local states_withtotal {
 	display in red "`state'"
 
 	// load 
-	use "${dir_root}/state_data/`state'/`state'.dta", clear
+	use "${dir_root}/data/state_data/`state'/`state'.dta", clear
 	
 	// keep total 
 	keep if county == "total"
@@ -124,7 +124,7 @@ foreach state of local states_only {
 	display in red "`state'"
 
 	// load
-	use "${dir_root}/state_data/`state'/`state'.dta", clear
+	use "${dir_root}/data/state_data/`state'/`state'.dta", clear
 
 	// state var 
 	gen state = "`state'"
@@ -161,7 +161,7 @@ foreach state of local states_collapse {
 	display in red "`state'"
 
 	// load 
-	use "${dir_root}/state_data/`state'/`state'.dta", clear 
+	use "${dir_root}/data/state_data/`state'/`state'.dta", clear 
 
 	// state var 
 	gen state = "`state'" 
@@ -268,5 +268,5 @@ order state ym
 sort state ym 
 
 // save 
-save "${dir_root}/state_data/state_ym.dta", replace 
+save "${dir_root}/data/state_data/state_ym.dta", replace 
 

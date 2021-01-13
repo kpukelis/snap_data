@@ -25,22 +25,22 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inrange(`ym',ym(2006,4),ym(2008,12)) {
-		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2009,1),ym(2009,12)) {
-		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2010,1),ym(2014,12)) {
-		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2015,1),ym(2017,12)) {
-		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme_statistical_bulletin_`month'_`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,12)) {
-		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else {
-		import delimited using "${dir_root}/state_data/arizona/csvs/tabula-dbme-statistical_bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear		
+		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme-statistical_bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear		
 	}
 	dropmiss, force
 	egen nmcount = rownonmiss(_all), strok
@@ -206,7 +206,7 @@ order county ym households individuals adults children issuancehousehold issuanc
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/arizona/arizona.dta", replace
+save "${dir_root}/data/state_data/arizona/arizona.dta", replace
 
 
 

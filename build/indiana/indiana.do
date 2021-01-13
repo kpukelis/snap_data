@@ -20,7 +20,7 @@ forvalues year = `start_year'(1)`end_year' {
 			else {
 				local month_string = "`month'"
 			}
-			import delimited "${dir_root}/state_data/indiana/csvs/tabula-`year'-`month_string'.csv", delimiter(",") clear
+			import delimited "${dir_root}/data/state_data/indiana/csvs/tabula-`year'-`month_string'.csv", delimiter(",") clear
 			
 			// remove title columns
 			drop if v1 == ""
@@ -191,5 +191,5 @@ forvalues year = `start_year'(1)`end_year' {
 		}
 	}
 }
-save "${dir_root}/state_data/indiana/indiana.dta", replace 
+save "${dir_root}/data/state_data/indiana/indiana.dta", replace 
 

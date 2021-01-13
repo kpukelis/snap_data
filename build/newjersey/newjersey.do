@@ -41,7 +41,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red "`year'"
 
 	// import 
-	import excel using "${dir_root}/state_data/newjersey/excel/`year'/cps_`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+	import excel using "${dir_root}/data/state_data/newjersey/excel/`year'/cps_`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	
 	// initial cleanup
 	dropmiss, force 
@@ -336,5 +336,5 @@ order county ym households individuals adults children age60plus peoplewithadisa
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/newjersey/newjersey.dta", replace 
+save "${dir_root}/data/state_data/newjersey/newjersey.dta", replace 
 

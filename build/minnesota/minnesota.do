@@ -58,7 +58,7 @@ forvalues year = `year_start'(1)`year_end' {
 		}
 
 		// import 
-		import excel using "${dir_root}/state_data/minnesota/`file_`year''", sheet("`monthname'") case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/minnesota/`file_`year''", sheet("`monthname'") case(lower) allstring clear
 	
 		// initial cleanup
 		dropmiss, force 
@@ -155,4 +155,4 @@ order county county_num ym households individuals issuance
 sort county ym 
 
 // save
-save "${dir_root}/state_data/minnesota/minnesota.dta", replace
+save "${dir_root}/data/state_data/minnesota/minnesota.dta", replace

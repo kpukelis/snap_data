@@ -15,7 +15,7 @@ forvalues year = `year_start'(1)`year_end' {
 		display in red `"`sheet'"' `year'
 
 		// import 
-		import excel using "${dir_root}/state_data/illinois/snap`year'.xlsx", sheet("`sheet'") firstrow case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/illinois/snap`year'.xlsx", sheet("`sheet'") firstrow case(lower) allstring clear
 		
 		// drop observations, then variables with all missing values
 		dropmiss, obs force
@@ -135,7 +135,7 @@ forvalues year = `year_start'(1)`year_end' {
 		display in red `"`sheet'"' `year'
 
 		// import 
-		import excel using "${dir_root}/state_data/illinois/snap`year'.xlsx", sheet("`sheet'") firstrow case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/illinois/snap`year'.xlsx", sheet("`sheet'") firstrow case(lower) allstring clear
 		
 		// drop observations, then variables with all missing values
 		dropmiss, obs force
@@ -257,16 +257,16 @@ forvalues year = `year_start'(1)`year_end' {
 			drop _m
 		}
 	}
-	save "${dir_root}/state_data/illinois/illinois_`year'_TEMP.dta", replace 
+	save "${dir_root}/data/state_data/illinois/illinois_`year'_TEMP.dta", replace 
 }
 
 // Note only merging 2017 for now; going to get to the office level and then append with 2018-2020 data
 forvalues year = `year_start'(1)2017 {
 	if `year' == `year_start' {
-		use "${dir_root}/state_data/illinois/illinois_`year'_TEMP.dta", clear
+		use "${dir_root}/data/state_data/illinois/illinois_`year'_TEMP.dta", clear
 	}
 	else {
-		append using "${dir_root}/state_data/illinois/illinois_`year'_TEMP.dta"
+		append using "${dir_root}/data/state_data/illinois/illinois_`year'_TEMP.dta"
 	}
 }
 
@@ -278,13 +278,13 @@ sort county ym
 rename persons individuals
 
 // save
-save "${dir_root}/state_data/illinois/illinois_county.dta", replace 
+save "${dir_root}/data/state_data/illinois/illinois_county.dta", replace 
 check
 */
 ******************************************************************************
 
 // load data
-use "${dir_root}/state_data/illinois/illinois_county.dta", clear 
+use "${dir_root}/data/state_data/illinois/illinois_county.dta", clear 
 
 // collapse to larger office level
 

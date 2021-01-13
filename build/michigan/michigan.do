@@ -106,7 +106,7 @@ foreach year of local years {
 	dis in red "`year'"
 	
 	// import data 
-	import excel "${dir_root}/state_data/michigan/excel/DHS-Trend_Table_24_269236_7_`year'.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/data/state_data/michigan/excel/DHS-Trend_Table_24_269236_7_`year'.xlsx", allstring case(lower) clear
 
 	// initial cleanup
 	dropmiss, force 
@@ -268,7 +268,7 @@ order county ym
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/michigan/michigan.dta", replace 
+save "${dir_root}/data/state_data/michigan/michigan.dta", replace 
 
 
 

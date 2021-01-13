@@ -73,22 +73,22 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 
 	// load data 
 	if inrange(`ym',ym(2013,1),ym(2014,12)) {
-		import delimited "${dir_root}/state_data/newmexico/excel/`year'/tabula-MSR_`monthname'_`year'_data.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
+		import delimited "${dir_root}/data/state_data/newmexico/excel/`year'/tabula-MSR_`monthname'_`year'_data.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
 	}
 	else if inrange(`ym',ym(2015,1),ym(2017,3)) {
-		import delimited "${dir_root}/state_data/newmexico/excel/`year'/tabula-MSR_`monthname'_`year'.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
+		import delimited "${dir_root}/data/state_data/newmexico/excel/`year'/tabula-MSR_`monthname'_`year'.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
 	}
 	else if inrange(`ym',ym(2017,4),ym(2017,4)) | (`ym' >= ym(2019,1)) {
-		import excel "${dir_root}/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2017,5),ym(2017,12)) {
-		import excel "${dir_root}/state_data/newmexico/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/newmexico/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2018,7),ym(2018,12)) {
-		import excel "${dir_root}/state_data/newmexico/excel/`year'/MSR_`monthname'`year'_Final.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'`year'_Final.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,6)) {
-		import excel "${dir_root}/state_data/newmexico/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/newmexico/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 
 	// initial cleanup
@@ -300,4 +300,4 @@ order office county ym households
 sort office county ym 
 
 // save 
-save "${dir_root}/state_data/newmexico/newmexico.dta", replace
+save "${dir_root}/data/state_data/newmexico/newmexico.dta", replace

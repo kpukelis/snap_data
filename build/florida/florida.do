@@ -9,7 +9,7 @@ foreach outcome in clients households issuance {
 	local outcome_string = "`outcome'"
 
 	// import data 
-	import excel "${dir_root}/state_data/florida/build/florida_county_level.xlsx", sheet("`outcome'_long") firstrow case(lower) clear
+	import excel "${dir_root}/data/state_data/florida/build/florida_county_level.xlsx", sheet("`outcome'_long") firstrow case(lower) clear
 	
 	// a bit of cleaning
 	gen ym = ym(year, month)
@@ -33,12 +33,12 @@ foreach outcome in clients households issuance {
 	drop year month
 	
 	// save 
-	save "${dir_root}/state_data/florida/clean/`outcome'_county_level.dta", replace
+	save "${dir_root}/data/state_data/florida/clean/`outcome'_county_level.dta", replace
 	
 	// collapse to total, for now
 	collapse (sum) `outcome', by(ym)
 	label var `outcome' "SNAP `outcome'"
-	save "${dir_root}/state_data/florida/clean/`outcome'_state_level.dta", replace
+	save "${dir_root}/data/state_data/florida/clean/`outcome'_state_level.dta", replace
 
 }
 
@@ -52,10 +52,10 @@ local state_merge_vars "ym"
 foreach level in county state {
 	foreach outcome in clients households issuance {
 		if "`outcome'" == "clients" {
-			use "${dir_root}/state_data/florida/clean/`outcome'_`level'_level.dta", replace
+			use "${dir_root}/data/state_data/florida/clean/`outcome'_`level'_level.dta", replace
 		}
 		else {
-			merge 1:1 ``level'_merge_vars' using "${dir_root}/state_data/florida/clean/`outcome'_`level'_level.dta"
+			merge 1:1 ``level'_merge_vars' using "${dir_root}/data/state_data/florida/clean/`outcome'_`level'_level.dta"
 			if "`outcome'" == "issuance" {
 				assert _m == 3 if ym >= ym(2002,1)
 				drop _m
@@ -67,9 +67,9 @@ foreach level in county state {
 		}
 	}
 	rename clients individuals
-	save "${dir_root}/state_data/florida/clean/florida_`level'_level.dta", replace
+	save "${dir_root}/data/state_data/florida/clean/florida_`level'_level.dta", replace
 }
 
 // save with standard name
-use "${dir_root}/state_data/florida/clean/florida_county_level.dta", clear
-save "${dir_root}/state_data/florida/florida.dta", replace 
+use "${dir_root}/data/state_data/florida/clean/florida_county_level.dta", clear
+save "${dir_root}/data/state_data/florida/florida.dta", replace 

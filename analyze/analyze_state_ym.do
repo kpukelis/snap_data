@@ -14,8 +14,8 @@ local vline_color_binding		blue
 *************************************************************************************
 
 // load data 
-use "${dir_root}/state_data/state_ym.dta", clear 
-merge m:1 state using "${dir_root}/state_data/clocks_wide.dta", assert(2 3) keep(3) nogen
+use "${dir_root}/data/state_data/state_ym.dta", clear 
+merge m:1 state using "${dir_root}/data/state_data/clocks_wide.dta", assert(2 3) keep(3) nogen
 
 /*
 // SET OF STATE GRAPHS 

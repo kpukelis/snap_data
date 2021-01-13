@@ -104,7 +104,7 @@ forvalues month = `month_start'(1)`month_end' {
 	}
 
 	// import data 
-	import excel "${dir_root}/state_data/arkansas/csvs/`year'/COOR`monthname'`year'`suffix'.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/data/state_data/arkansas/csvs/`year'/COOR`monthname'`year'`suffix'.xlsx", allstring case(lower) clear
 	dropmiss, force
 	foreach v of varlist _all {
 		replace `v' = trim(`v')
@@ -225,7 +225,7 @@ forvalues month = `month_start'(1)`month_end' {
 		// save 
 		tempfile _`year'_`month'_`num'
 		save `_`year'_`month'_`num''
-		save "${dir_root}/state_data/arkansas/_`year'_`month'_`num'.dta", replace
+		save "${dir_root}/data/state_data/arkansas/_`year'_`month'_`num'.dta", replace
 	
 		// restore 
 		restore
@@ -253,7 +253,7 @@ forvalues num = 1(1)2 {
 			dis in red `month'
 
 
-			use "${dir_root}/state_data/arkansas/_`year'_`month'_`num'.dta", clear
+			use "${dir_root}/data/state_data/arkansas/_`year'_`month'_`num'.dta", clear
 			
 			// make sure all variables (except county) are numeric
 			foreach v of varlist _all {
@@ -289,12 +289,12 @@ forvalues num = 1(1)2 {
 			dis in red `month'
 			if `year' == `year_start' & `month' == `month_start' {
 				use `new_`year'_`month'_`num'', clear
-*				use "${dir_root}/state_data/arkansas/_`year'_`month'_`num'.dta", clear
+*				use "${dir_root}/data/state_data/arkansas/_`year'_`month'_`num'.dta", clear
 
 			}
 			else {
 				append using `new_`year'_`month'_`num''
-*				append using "${dir_root}/state_data/arkansas/_`year'_`month'_`num'.dta"
+*				append using "${dir_root}/data/state_data/arkansas/_`year'_`month'_`num'.dta"
 			}
 		}
 	}
@@ -311,5 +311,5 @@ order county ym
 sort county ym
 
 // save 
-save "${dir_root}/state_data/arkansas/arkansas.dta", replace 
+save "${dir_root}/data/state_data/arkansas/arkansas.dta", replace 
 

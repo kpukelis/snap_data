@@ -9,7 +9,7 @@ forvalues year = `year_start'(1)`year_end' {
 	dis in red "`year'"
 
 	// import data 
-	import excel "${dir_root}/state_data/kansas/csvs/SFY`year'_CntyCaseload_Rpt.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/data/state_data/kansas/csvs/SFY`year'_CntyCaseload_Rpt.xlsx", allstring case(lower) clear
 	dropmiss, force
 	foreach v of varlist _all {
 		replace `v' = trim(`v')
@@ -572,6 +572,6 @@ order county region ym
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/kansas/kansas.dta", replace
+save "${dir_root}/data/state_data/kansas/kansas.dta", replace
 
 

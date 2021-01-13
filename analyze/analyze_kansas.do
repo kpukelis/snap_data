@@ -19,7 +19,7 @@ local dot_size 					vsmall
 
 ******************************************************************
 
-use "${dir_root}/state_data/kansas/kansas.dta", clear 
+use "${dir_root}/data/state_data/kansas/kansas.dta", clear 
 keep if county == "total"
 
 

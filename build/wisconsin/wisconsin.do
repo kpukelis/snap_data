@@ -15,7 +15,7 @@ local numvars_recipients 		= 14
 // unduplicated-assistance
 
 // import 
-import excel using "${dir_root}/state_data/wisconsin/excel/fs-unduplicated-assistance.xls", allstring clear
+import excel using "${dir_root}/data/state_data/wisconsin/excel/fs-unduplicated-assistance.xls", allstring clear
 
 // initial cleanup
 dropmiss, force 
@@ -97,7 +97,7 @@ order county year
 sort county year
 
 // save 
-save "${dir_root}/state_data/wisconsin/wisconsin_unduplicated-assistance.dta", replace 
+save "${dir_root}/data/state_data/wisconsin/wisconsin_unduplicated-assistance.dta", replace 
 
 *********************************************************************
 // unduplicated-recipients
@@ -108,7 +108,7 @@ forvalues year = `year_start'(1)`year_end_unduplicated' {
 	local year_short = `year' - 2000
 	
 	// import 
-	import excel using "${dir_root}/state_data/wisconsin/excel/fs-unduplicated-recipients-cy`year_short'.xls", allstring clear
+	import excel using "${dir_root}/data/state_data/wisconsin/excel/fs-unduplicated-recipients-cy`year_short'.xls", allstring clear
 	
 	// initial cleanup
 	dropmiss, force 
@@ -194,7 +194,7 @@ order county year
 sort county year
 
 // save 
-save "${dir_root}/state_data/wisconsin/wisconsin_unduplicated-recipients.dta", replace
+save "${dir_root}/data/state_data/wisconsin/wisconsin_unduplicated-recipients.dta", replace
 
 *********************************************************************
 // other files 
@@ -208,7 +208,7 @@ foreach file of local files {
 		local year_short = `year' - 2000
 
 		// import 
-		import excel using "${dir_root}/state_data/wisconsin/excel/fs-`file'-cy`year_short'.xls", allstring clear
+		import excel using "${dir_root}/data/state_data/wisconsin/excel/fs-`file'-cy`year_short'.xls", allstring clear
 
 		// initial cleanup
 		dropmiss, force 
@@ -300,7 +300,7 @@ foreach file of local files {
 	sort county ym 
 
 	// save 
-	save "${dir_root}/state_data/wisconsin/wisconsin_`file'.dta", replace
+	save "${dir_root}/data/state_data/wisconsin/wisconsin_`file'.dta", replace
 }
  
 *************************************************************************
@@ -312,8 +312,8 @@ foreach file of local files {
 ///////////////////////
 
 // merge
-use "${dir_root}/state_data/wisconsin/wisconsin_unduplicated-assistance.dta", clear 
-merge 1:1 county year using "${dir_root}/state_data/wisconsin/wisconsin_unduplicated-recipients.dta"
+use "${dir_root}/data/state_data/wisconsin/wisconsin_unduplicated-assistance.dta", clear 
+merge 1:1 county year using "${dir_root}/data/state_data/wisconsin/wisconsin_unduplicated-recipients.dta"
 drop _m 
 
 // combine same variable 
@@ -326,7 +326,7 @@ order county year
 sort county year
 
 // save 
-save "${dir_root}/state_data/wisconsin/wisconsin_year.dta", replace 
+save "${dir_root}/data/state_data/wisconsin/wisconsin_year.dta", replace 
 
 ////////////////////////
 // MONTHLY DATA FILES //
@@ -335,10 +335,10 @@ save "${dir_root}/state_data/wisconsin/wisconsin_year.dta", replace
 // monthly data files 
 foreach file of local files {
 	if "`file'" == "`file_first'" {
-		use "${dir_root}/state_data/wisconsin/wisconsin_`file'.dta", clear
+		use "${dir_root}/data/state_data/wisconsin/wisconsin_`file'.dta", clear
 	}
 	else {
-		merge 1:1 county ym using "${dir_root}/state_data/wisconsin/wisconsin_`file'.dta"
+		merge 1:1 county ym using "${dir_root}/data/state_data/wisconsin/wisconsin_`file'.dta"
 		assert _m == 3
 		drop _m 
 	}
@@ -357,5 +357,5 @@ order county ym
 sort county ym
 
 // save 
-save "${dir_root}/state_data/wisconsin/wisconsin.dta", replace 
+save "${dir_root}/data/state_data/wisconsin/wisconsin.dta", replace 
 

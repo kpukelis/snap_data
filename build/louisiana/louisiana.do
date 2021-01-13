@@ -44,7 +44,7 @@ local month_12					June
 // Part 1
 
 // import
-import excel "${dir_root}/state_data/louisiana/excel/FS_SFY_Totals.xlsx", sheet("Table 1") allstring clear
+import excel "${dir_root}/data/state_data/louisiana/excel/FS_SFY_Totals.xlsx", sheet("Table 1") allstring clear
 
 // initial cleanup
 dropmiss, force 
@@ -157,7 +157,7 @@ forvalues year = `year_start_part2'(1)`year_end_part2' {
 	local yearnames = "`year_short_name'" + "`year_short_plus1_name'"
 
 	// import excel 
-	import excel "${dir_root}/state_data/louisiana/excel/001_Fiscal Year Totals/fy`yearnames'_FS_SFY_Totals.xlsx", sheet("Table 1") allstring clear
+	import excel "${dir_root}/data/state_data/louisiana/excel/001_Fiscal Year Totals/fy`yearnames'_FS_SFY_Totals.xlsx", sheet("Table 1") allstring clear
 
 	// initial cleanup
 	dropmiss, force 
@@ -302,7 +302,7 @@ forvalues year = `year_start'(1)`year_end' {
 	local yearnames = "`year_short_name'" + "`year_short_plus1_name'"
 
 	// import
-	import excel "${dir_root}/state_data/louisiana/excel/002_Cases by Parish & Region/fy`yearnames'_FS_Cases.xlsx", sheet("Table 1") allstring clear
+	import excel "${dir_root}/data/state_data/louisiana/excel/002_Cases by Parish & Region/fy`yearnames'_FS_Cases.xlsx", sheet("Table 1") allstring clear
 	
 	// initial cleanup
 	dropmiss, force 
@@ -708,7 +708,7 @@ forvalues year = `year_start'(1)`year_end' {
 	local yearnames = "`year_short_name'" + "`year_short_plus1_name'"
 
 	// import
-	import excel "${dir_root}/state_data/louisiana/excel/014_SNAP Recipients by Age/fy`yearnames'_FS_Age.xlsx", sheet("Table 1") allstring clear
+	import excel "${dir_root}/data/state_data/louisiana/excel/014_SNAP Recipients by Age/fy`yearnames'_FS_Age.xlsx", sheet("Table 1") allstring clear
 	
 	// initial cleanup
 	dropmiss, force 
@@ -973,7 +973,7 @@ order county ym
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/louisiana/louisiana.dta", replace 
+save "${dir_root}/data/state_data/louisiana/louisiana.dta", replace 
 
 
 

@@ -37,7 +37,7 @@ foreach dataset of local datasets {
 		display "`year'"
 		 
 		// import 
-		import excel using "${dir_root}/state_data/northcarolina/`file_`dataset''.xlsx", sheet("`year'`month'") firstrow case(lower) clear
+		import excel using "${dir_root}/data/state_data/northcarolina/`file_`dataset''.xlsx", sheet("`year'`month'") firstrow case(lower) clear
 	
 		// clean a bit 
 		if "`dataset'" == "cases" {
@@ -162,13 +162,13 @@ foreach dataset of local datasets {
 			append using `_`ym''
 		}
 	}
-	save "${dir_root}/state_data/northcarolina/northcarolina_`dataset'.dta", replace
+	save "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'.dta", replace
 
 }
 **"NOTE:  During January 2014, Work First began to transition into NCFAST.  The data in the first chart represents the case and participant count information from the EIS legacy system, while the data from the second chart represents the data from the NCFAST system. All counties did not transition at the same time, so there may not be data represented from the NCFAST system for each county. Therefore, to calculate the total per county on the summary tab, the case counts were added together from both systems."		
-use "${dir_root}/state_data/northcarolina/northcarolina_workcases.dta", clear 
+use "${dir_root}/data/state_data/northcarolina/northcarolina_workcases.dta", clear 
 collapse (sum) workfirst_cases workfirst_participants, by(county ym)
-save "${dir_root}/state_data/northcarolina/northcarolina_workcases.dta", replace
+save "${dir_root}/data/state_data/northcarolina/northcarolina_workcases.dta", replace
 duplicates report county ym 
 
 ***********************************************************
@@ -176,10 +176,10 @@ duplicates report county ym
 // merge all datasets together
 foreach dataset of local datasets {
 	if "`dataset'" == "cases" {
-		use "${dir_root}/state_data/northcarolina/northcarolina_`dataset'.dta", clear
+		use "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'.dta", clear
 	}
 	else {
-		merge 1:1 county ym using "${dir_root}/state_data/northcarolina/northcarolina_`dataset'.dta"
+		merge 1:1 county ym using "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'.dta"
 		assert county == "total" if _m == 2
 		drop _m
 
@@ -203,5 +203,5 @@ rename cases households
 rename participants individuals
 
 // save 
-save "${dir_root}/state_data/northcarolina/northcarolina.dta", replace 
+save "${dir_root}/data/state_data/northcarolina/northcarolina.dta", replace 
 

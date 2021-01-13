@@ -32,7 +32,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	if inrange(`ym',ym(2020,1),ym(2020,12)) {
 		// load data 
-		import excel "${dir_root}/state_data/colorado/excel/Caseload by county_CY2020 YTD.xlsx", sheet("`monthname'`year_short'") allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/colorado/excel/Caseload by county_CY2020 YTD.xlsx", sheet("`monthname'`year_short'") allstring case(lower) firstrow clear 
 	}
 	// drop empty variables
 	dropmiss, force 
@@ -96,7 +96,7 @@ order county ym issuance households individuals households_npa individuals_npa h
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/colorado/colorado.dta", replace 
+save "${dir_root}/data/state_data/colorado/colorado.dta", replace 
 
 **************************************************************************
 
@@ -108,11 +108,11 @@ forvalues year = `year_start'(1)`year_end' {
 
 	if `year' <= 19 {
 		// load data 
-		import excel "${dir_root}/state_data/colorado/excel/Average caseload_CY.xlsx", sheet("CY`year'") allstring case(lower) firstrow cellrange(A1:H66) clear
+		import excel "${dir_root}/data/state_data/colorado/excel/Average caseload_CY.xlsx", sheet("CY`year'") allstring case(lower) firstrow cellrange(A1:H66) clear
 	}
 	else {
 		// load data 
-		import excel "${dir_root}/state_data/colorado/excel/Caseload by county_CY2020 YTD.xlsx", sheet("CY AVG") allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/colorado/excel/Caseload by county_CY2020 YTD.xlsx", sheet("CY AVG") allstring case(lower) firstrow clear 
 	}
 	// drop empty variables
 	dropmiss, force 
@@ -181,4 +181,4 @@ order county year issuance households individuals households_npa individuals_npa
 sort county year 
 
 // save 
-save "${dir_root}/state_data/colorado/colorado_year.dta", replace 
+save "${dir_root}/data/state_data/colorado/colorado_year.dta", replace 

@@ -82,46 +82,46 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inrange(`ym',ym(2005,1),ym(2007,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/`monthname'-`year'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/`monthname'-`year'.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2008,1),ym(2008,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_1.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-`monthname'_1.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2009,1),ym(2009,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_2.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-`monthname'_2.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2010,1),ym(2010,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_3.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-`monthname'_3.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2011,1),ym(2011,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_4.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-`monthname'_4.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2012,1),ym(2012,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_5.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-`monthname'_5.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2013,1),ym(2013,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'_6.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-`monthname'_6.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2014,1),ym(2014,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-`monthname'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-`monthname'.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2015,1),ym(2015,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/GeoDist_`monthname'2015.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/GeoDist_`monthname'2015.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2016,1),ym(2016,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/GeoDistrib_`monthname'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/GeoDistrib_`monthname'.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2017,1),ym(2017,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-distribution-`monthname'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-distribution-`monthname'_1.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_1.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2019,1),ym(2019,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-distribution-`monthname'_2.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_2.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2020,1),ym(2020,12)) {
-		import excel using "${dir_root}/state_data/maine/csvs/`year'/geo-distribution-`monthname'_3.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_3.xlsx", case(lower) allstring clear
 	}
 	dropmiss, force
 	qui describe, varlist
@@ -255,6 +255,6 @@ order county ym
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/maine/maine.dta", replace 
+save "${dir_root}/data/state_data/maine/maine.dta", replace 
 
 

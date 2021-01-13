@@ -13,7 +13,7 @@ forvalues year = `year_start'(1)`year_end' {
 	local yearminus1	= `year' - 1
 
 	// import data 
-	import excel "${dir_root}/state_data/maryland/csvs/`year'-All-Program-Monthly-Statistical-Report.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/data/state_data/maryland/csvs/`year'-All-Program-Monthly-Statistical-Report.xlsx", allstring case(lower) clear
 	dropmiss, force
 	foreach v of varlist _all {
 		replace `v' = trim(`v')
@@ -1092,7 +1092,7 @@ foreach num of local obsnum_withincounty_nums {
 	}
 	*tempfile _`year'
 	*save `_`year''
-	save "${dir_root}/state_data/maryland/maryland_fy`year'.dta", replace
+	save "${dir_root}/data/state_data/maryland/maryland_fy`year'.dta", replace
 
 }
 */
@@ -1100,10 +1100,10 @@ foreach num of local obsnum_withincounty_nums {
 **************************************************
 forvalues year = `year_start'(1)`year_end' {
 	if `year' == `year_start' {
-		use "${dir_root}/state_data/maryland/maryland_fy`year'.dta", clear 
+		use "${dir_root}/data/state_data/maryland/maryland_fy`year'.dta", clear 
 	}
 	else {
-		append using "${dir_root}/state_data/maryland/maryland_fy`year'.dta"
+		append using "${dir_root}/data/state_data/maryland/maryland_fy`year'.dta"
 	}
 }
 
@@ -1119,7 +1119,7 @@ save `county_level'
 // STATE LEVEL DATA 2008-2020
 
 // collapse to get totals
-use "${dir_root}/state_data/maryland/maryland.dta", clear
+use "${dir_root}/data/state_data/maryland/maryland.dta", clear
 keep county ym snap_households snap_recipients snap_npa_recipients snap_pa_recipients
 rename snap_households households
 rename snap_recipients individuals
@@ -1132,7 +1132,7 @@ save `late_state'
 // STATE LEVEL DATA 1996-2005
 
 // import data 
-import excel "${dir_root}/state_data/maryland/csvs/Statistical Reports - Archive - cases.xlsx", allstring case(lower) clear
+import excel "${dir_root}/data/state_data/maryland/csvs/Statistical Reports - Archive - cases.xlsx", allstring case(lower) clear
 
 // initial cleanup
 dropmiss, force 
@@ -1281,5 +1281,5 @@ order county ym households individuals issuance households_npa households_pa hou
 sort county ym
 
 // save 
-save "${dir_root}/state_data/maryland/maryland.dta", replace 
+save "${dir_root}/data/state_data/maryland/maryland.dta", replace 
 

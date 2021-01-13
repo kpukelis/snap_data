@@ -146,7 +146,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display "`year'"
 
 	// import 
-	import delimited using "${dir_root}/state_data/montana/csvs/tabula-`year'-`month'.csv", delimiters(",") case(lower) stringcols(_all) clear
+	import delimited using "${dir_root}/data/state_data/montana/csvs/tabula-`year'-`month'.csv", delimiters(",") case(lower) stringcols(_all) clear
 
 	// mark observation with Powell county
 	replace v1 = trim(v1)
@@ -301,4 +301,4 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		append using `_`ym''
 	}
 }
-save "${dir_root}/state_data/montana/montana.dta", replace
+save "${dir_root}/data/state_data/montana/montana.dta", replace

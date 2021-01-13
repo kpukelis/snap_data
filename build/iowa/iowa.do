@@ -35,7 +35,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display "`yearminus1'"
 
 	// import data 
-	import excel "${dir_root}/state_data/iowa/csvs/newformat/FA-F1-2016 `year'-`month'.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/data/state_data/iowa/csvs/newformat/FA-F1-2016 `year'-`month'.xlsx", allstring case(lower) clear
 	dropmiss, force
 	foreach v of varlist _all {
 		replace `v' = trim(`v')
@@ -170,7 +170,7 @@ sort county ym
 tab county
 
 // save 
-save "${dir_root}/state_data/iowa/iowa.dta", replace 
+save "${dir_root}/data/state_data/iowa/iowa.dta", replace 
 
 
 ********************************************************************

@@ -51,22 +51,22 @@ if `ym' != ym(2018,9) {
 
 	// import 
 	if inrange(`ym',ym(2002,6),ym(2006,12)) {
-		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/`monthname'`year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/`monthname'`year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2007,1),ym(2016,12)) {
-		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/PAMS`year'-`monthname'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/PAMS`year'-`monthname'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2017,1),ym(2017,12)) {
-		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/PAMS_`monthname'_`year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/PAMS_`monthname'_`year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,12)) {
-		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/Updated PAMS `year'_`monthname'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/Updated PAMS `year'_`monthname'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2019,1),ym(2019,12)) {
-		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/Case Load Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/Case Load Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else {
-		import excel using "${dir_root}/state_data/ohio/excel/`year'/binder/Document Cloud/Caseload Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/Caseload Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	
 	// initial cleanup
@@ -287,7 +287,7 @@ sum Pindividuals if ym <= ym(2013,10) & county == "defiance"
 
 // proportions, using population
 *preserve 
-*	use "${dir_root}/state_data/ohio/ohio_county_pop.dta", clear
+*	use "${dir_root}/data/state_data/ohio/ohio_county_pop.dta", clear
 *	keep if inlist(county,"defiance","paulding")
 *	bysort year: egen Tpop = total(pop)
 *	gen Ppop = pop / Tpop
@@ -359,7 +359,7 @@ order county ym individuals_pa individuals_npa individuals households_pa househo
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/ohio/ohio.dta", replace 
+save "${dir_root}/data/state_data/ohio/ohio.dta", replace 
 
 // check county
 tab county

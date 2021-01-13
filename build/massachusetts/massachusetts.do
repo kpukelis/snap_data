@@ -79,7 +79,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			local varname individuals
 		}
 		// import 
-		import excel "${dir_root}/state_data/massachusetts/excel/`year'/FINAL_ZIPCODE_`monthname'_`year'.xlsx", sheet("`sheet'") allstring clear 
+		import excel "${dir_root}/data/state_data/massachusetts/excel/`year'/FINAL_ZIPCODE_`monthname'_`year'.xlsx", sheet("`sheet'") allstring clear 
 
 		// initial cleanup
 		dropmiss, force 
@@ -200,7 +200,7 @@ order zipcode city ym
 sort zipcode ym 
 
 // save 
-save "${dir_root}/state_data/massachusetts/massachusetts.dta", replace
+save "${dir_root}/data/state_data/massachusetts/massachusetts.dta", replace
 
 tab ym 
 tab zipcode

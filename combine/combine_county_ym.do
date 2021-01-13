@@ -97,7 +97,7 @@ foreach state of local states_withtotal {
 	display in red "`state'"
 
 	// load 
-	use "${dir_root}/state_data/`state'/`state'.dta", clear
+	use "${dir_root}/data/state_data/`state'/`state'.dta", clear
 	
 	// drop "total" observations
 	drop if county == "total"
@@ -146,7 +146,7 @@ foreach state of local states_collapse {
 	display in red "`state'"
 
 	// load 
-	use "${dir_root}/state_data/`state'/`state'.dta", clear 
+	use "${dir_root}/data/state_data/`state'/`state'.dta", clear 
 	
 	// state var 
 	gen state = "`state'" 
@@ -206,7 +206,7 @@ foreach v in individuals households issuance {
 ////////////////////
 	
 // merge in state fips code 
-merge m:1 state using "${dir_root}/state_data/_fips/statefips_2019.dta", keepusing(statefips) assert(2 3) keep(3) nogen 
+merge m:1 state using "${dir_root}/data/state_data/_fips/statefips_2019.dta", keepusing(statefips) assert(2 3) keep(3) nogen 
 
 // just drop county fips codes for now; I will merge these in my own based on countyname later 
 drop countycode
@@ -341,7 +341,7 @@ foreach county of local county_collapse_list {
 		
 // merge in fips county codes
 recast str32 county 
-merge m:1 statefips county using "${dir_root}/state_data/_fips/countyfips_2019.dta", keepusing(countyfips county_og county_type)
+merge m:1 statefips county using "${dir_root}/data/state_data/_fips/countyfips_2019.dta", keepusing(countyfips county_og county_type)
 *bysort state: tab county if _m == 1
 drop if _m == 2
 assert inlist(_m,3) | (inlist(_m,1) & state == "southdakota" & county == "shannon") // this didn't merge because of the year (only in 2014 fips data)
@@ -370,4 +370,4 @@ order state county ym individuals households issuance adults children
 sort state county ym 
 
 // save 
-save "${dir_root}/state_data/county_ym.dta", replace 
+save "${dir_root}/data/state_data/county_ym.dta", replace 

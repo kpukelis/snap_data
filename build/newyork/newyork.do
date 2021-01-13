@@ -48,16 +48,16 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inrange(`ym',ym(2001,1),ym(2004,12)) {
-		import excel using "${dir_root}/state_data/newyork/excel/`year'/stats`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/newyork/excel/`year'/stats`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2005,1),ym(2005,12)) {
-		import excel using "${dir_root}/state_data/newyork/excel/`year'/STATS`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/newyork/excel/`year'/STATS`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2006,1),ym(2006,12)) {
-		import excel using "${dir_root}/state_data/newyork/excel/`year'/STATS_`monthname'`year'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/newyork/excel/`year'/STATS_`monthname'`year'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else {
-		import excel using "${dir_root}/state_data/newyork/excel/`year'/`year'-`monthname'-stats.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/newyork/excel/`year'/`year'-`monthname'-stats.pdf_short.xlsx", case(lower) allstring clear
 	}
 
 	// initial cleanup
@@ -182,7 +182,7 @@ order county ym households individuals issuance households_temp individuals_temp
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/newyork/newyork.dta", replace 
+save "${dir_root}/data/state_data/newyork/newyork.dta", replace 
 
 tab county 
 

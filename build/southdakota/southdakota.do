@@ -72,7 +72,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// import 
-	import excel using "${dir_root}/state_data/southdakota/excel/`year'/`prefix_`year''`monthname'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
+	import excel using "${dir_root}/data/state_data/southdakota/excel/`year'/`prefix_`year''`monthname'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
 	dropmiss, force
 	dropmiss, obs force
 	describe, varlist 
@@ -191,6 +191,6 @@ order county ym households individuals adults children issuance
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/southdakota/southdakota.dta", replace 
+save "${dir_root}/data/state_data/southdakota/southdakota.dta", replace 
 
 

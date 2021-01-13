@@ -24,22 +24,22 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inrange(`ym',ym(2001,9),ym(2006,12)) {
-		import delimited using "${dir_root}/state_data/virginia/csv/participation_`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/data/state_data/virginia/csv/participation_`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2007,1),ym(2016,5)) {
-		import delimited using "${dir_root}/state_data/virginia/csv/`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
+		import delimited using "${dir_root}/data/state_data/virginia/csv/`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
 	else if inrange(`ym',ym(2016,6),ym(2017,7)) {
-		import excel using "${dir_root}/state_data/virginia/xlsx/`month'-`year'.xlsx", allstring clear 
+		import excel using "${dir_root}/data/state_data/virginia/xlsx/`month'-`year'.xlsx", allstring clear 
 	}
 	else if inrange(`ym',ym(2017,8),ym(2019,6)) {
-		import excel using "${dir_root}/state_data/virginia/xls/`month'-`year'.xls", allstring clear 
+		import excel using "${dir_root}/data/state_data/virginia/xls/`month'-`year'.xls", allstring clear 
 	}
 	else if inrange(`ym',ym(2019,7),ym(2019,12)) {
-		import excel using "${dir_root}/state_data/virginia/xls/`month'-`year'_SNAP_Participation.xls", allstring clear 
+		import excel using "${dir_root}/data/state_data/virginia/xls/`month'-`year'_SNAP_Participation.xls", allstring clear 
 	}
 	else if inrange(`ym',ym(2020,1),ym(2020,4)) {
-		import excel using "${dir_root}/state_data/virginia/xls/`month'_`year'_SNAP_Participation_Report.xls", allstring clear 
+		import excel using "${dir_root}/data/state_data/virginia/xls/`month'_`year'_SNAP_Participation_Report.xls", allstring clear 
 	}
 
 	// initial cleanup
@@ -317,7 +317,7 @@ order county fips ym
 sort fips ym 
 
 // save 
-save "${dir_root}/state_data/virginia/virginia.dta", replace
+save "${dir_root}/data/state_data/virginia/virginia.dta", replace
 
 **********************************************************************************************************
 **********************************************************************************************************

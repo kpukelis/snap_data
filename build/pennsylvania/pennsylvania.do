@@ -15,7 +15,7 @@ foreach file of local files {
 		display in red "`sheet'"
 
 		// import 
-		import excel using "${dir_root}/state_data/pennsylvania/pdfs/needed/MA_TANF_GA_SNAP_`file'.xlsx", sheet("`sheet'") /*firstrow*/ case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/pennsylvania/pdfs/needed/MA_TANF_GA_SNAP_`file'.xlsx", sheet("`sheet'") /*firstrow*/ case(lower) allstring clear
 		dropmiss, force obs
 
 		// rename variables
@@ -132,6 +132,6 @@ order county ym
 sort county ym
 
 // save
-save "${dir_root}/state_data/pennsylvania/pennsylvania.dta", replace
+save "${dir_root}/data/state_data/pennsylvania/pennsylvania.dta", replace
 
 

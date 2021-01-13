@@ -17,7 +17,7 @@ local expected_clock2 			= `beginning_clock2' + 3 + 1
 
 ******************************************************************
 
-use "${dir_root}/state_data/arizona/arizona.dta", clear 
+use "${dir_root}/data/state_data/arizona/arizona.dta", clear 
 drop if county == "total"
 
 gen waiver2016 = 0

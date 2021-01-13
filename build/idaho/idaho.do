@@ -23,7 +23,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display "`year'"
 
 	// import 
-	import excel using "${dir_root}/state_data/idaho/excel/`year'-`month'.xlsx", allstring firstrow case(lower) clear
+	import excel using "${dir_root}/data/state_data/idaho/excel/`year'-`month'.xlsx", allstring firstrow case(lower) clear
 	
 	// clean 
 	rename a county
@@ -65,6 +65,6 @@ order county ym
 sort county ym
 
 // save 
-save "${dir_root}/state_data/idaho/idaho.dta", replace 
+save "${dir_root}/data/state_data/idaho/idaho.dta", replace 
 
 

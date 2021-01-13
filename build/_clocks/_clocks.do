@@ -68,11 +68,11 @@ replace adjust_clock = 0 if inlist(state,"indiana")
 replace adjust_clock = 1 if inlist(state,"pennsylvania") 
 
 // save 	
-save "${dir_root}/state_data/clocks.dta", replace 
+save "${dir_root}/data/state_data/clocks.dta", replace 
 
 // wide version 
 bysort state (clockstart_ym): gen num = _n
 reshape wide clockstart_ym, i(state) j(num)
 order state clocktype
-save "${dir_root}/state_data/clocks_wide.dta", replace 
+save "${dir_root}/data/state_data/clocks_wide.dta", replace 
 

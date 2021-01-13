@@ -81,10 +81,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inlist(`year',2011,2012,2013,2014,2015,2016,2017,2018) {
-		import excel using "${dir_root}/state_data/tennessee/excel/`year'/`prefix_`year''`monthname'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/tennessee/excel/`year'/`prefix_`year''`monthname'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 	else if inlist(`year',2019,2020) {
-		import excel using "${dir_root}/state_data/tennessee/excel/`year'/`yearname_`year''`monthname'`suffix_`year''.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/tennessee/excel/`year'/`yearname_`year''`monthname'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 
 	// initial cleanup
@@ -274,5 +274,5 @@ order county ym
 sort county ym 
 
 // save
-save "${dir_root}/state_data/tennessee/tennessee.dta", replace
+save "${dir_root}/data/state_data/tennessee/tennessee.dta", replace
 

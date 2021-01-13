@@ -78,7 +78,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// import 
-	import excel using "${dir_root}/state_data/southcarolina/excel/`year'/`prefix_`year''`yearname_`year''`middle_`year''`month'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
+	import excel using "${dir_root}/data/state_data/southcarolina/excel/`year'/`prefix_`year''`yearname_`year''`middle_`year''`month'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
 	dropmiss, force
 	dropmiss, obs force
 	replace `firstvar' = trim(`firstvar')
@@ -144,6 +144,6 @@ order county ym households individuals issuance
 sort county ym 
 
 // save 
-save "${dir_root}/state_data/southcarolina/southcarolina.dta", replace 
+save "${dir_root}/data/state_data/southcarolina/southcarolina.dta", replace 
 
 
