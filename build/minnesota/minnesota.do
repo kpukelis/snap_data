@@ -139,6 +139,12 @@ forvalues ym = `ym_start'(1)`ym_end' {
 // clean up county 
 replace county = "total" if inlist(county,"statewide","statewide total")
 
+// drop if county is missing 
+foreach var in households individuals issuance {
+	assert missing(`var') if missing(county)
+}
+drop if missing(county)
+
 // assert no duplicates
 duplicates tag county ym, gen(dup)
 assert dup == 0

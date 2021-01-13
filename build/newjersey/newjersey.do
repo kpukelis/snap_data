@@ -323,6 +323,14 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 }
 
+// replace njtotal = total 
+replace county = "total" if county == "njtotal"
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
 // order and sort 
 order county ym households individuals adults children age60plus peoplewithadisability households_wfnj_tanf households_otherlowinc
 sort county ym 

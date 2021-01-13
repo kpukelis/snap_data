@@ -257,6 +257,9 @@ foreach year of local years {
 // change name for total column
 replace county = "total" if county == "State"
 
+// make counties lowercase
+replace county = strlower(county)
+
 // drop duplicates
 duplicates drop 
 

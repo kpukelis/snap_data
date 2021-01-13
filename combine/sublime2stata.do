@@ -1,0 +1,1 @@
+	drop if state == "" & county == ""

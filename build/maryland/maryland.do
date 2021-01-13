@@ -1249,6 +1249,33 @@ save `state_level'
 use `county_level', clear 
 append using `state_level'
 
+// fix for maryland data only 
+capture rename snap_npa_recipients individuals_npa
+capture rename snap_pa_recipients individuals_pa
+capture confirm variable individuals_npa
+if !_rc {
+	capture gen individuals = individuals_npa + individuals_pa
+}
+foreach type in received approved notapproved {
+	capture confirm variable snap_npa_apps_`type' 
+	if !_rc {
+		replace snap_apps_`type' = snap_npa_apps_`type' + snap_pa_apps_`type' if missing(snap_apps_`type') & !missing(snap_npa_apps_`type') & !missing(snap_pa_apps_`type')
+		assert !missing(snap_apps_`type') if !missing(snap_npa_apps_`type') & !missing(snap_pa_apps_`type')
+	}
+	capture drop snap_npa_apps_`type'
+	capture drop snap_pa_apps_`type'
+}
+capture rename snap_apps_received 		apps_received
+capture rename snap_apps_approved 		apps_approved
+capture rename snap_apps_notapproved 	apps_denied
+
+// combine vars that were not already combined
+replace households = snap_households if missing(households) & !missing(snap_households)
+replace individuals = snap_recipients if missing(individuals) & !missing(snap_recipients)
+foreach v in individuals households {
+	assert !missing(`v') if !missing(`v'_npa) & !missing(`v'_pa)	
+}
+
 // order and sort 
 order county ym households individuals issuance households_npa households_pa households_npa_cert households_pa_cert individuals_npa individuals_pa
 sort county ym

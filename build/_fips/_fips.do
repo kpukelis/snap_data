@@ -138,6 +138,7 @@ forvalues year = `year_min'(1)`year_max' {
 	replace county = subinstr(county, "`=char(10)'", "", .)
 	replace county = subinstr(county, "`=char(13)'", "", .)
 	replace county = subinstr(county, "`=char(14)'", "", .)
+	replace county = subinstr(county, `"`=char(34)'"', "", .) // single quotation '
 	replace county = ustrregexra(county," ","")
 	replace county = ustrregexra(county,"-","")
 	replace county = ustrregexra(county,"\'","")
@@ -183,3 +184,4 @@ foreach type in state county {
 }
 
 *****************************************************
+

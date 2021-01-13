@@ -5,6 +5,7 @@ local ym_start	 				= ym(2002,6)
 local ym_end 					= ym(2020,4)
 
 ************************************************************
+
 forvalues ym = `ym_start'(1)`ym_end' {
 if `ym' != ym(2018,9) {
 
@@ -238,6 +239,120 @@ if `ym' != ym(2018,9) {
 
 // replace county 
 replace county = "total" if county == "statewide"
+replace county = ustrregexra(county,"/","")
+
+////////////////////////////////////
+// DEFIANCE PAULDING COUNTY SPLIT //
+////////////////////////////////////
+
+// split numbers into two counties, based on history of when the proportions were listed separately
+// only case (so far) is ohio's defiance and paulding counties
+
+// preserve
+preserve
+
+keep if strpos(county,"def") | strpos(county,"paulding")
+dropmiss, force 
+
+// gen def paulding total 
+foreach var of varlist _all {
+if !inlist("`var'","state","statefips","county","ym","office","zipcode","city") {
+	
+	// total between defiance and paulding counties
+	gen temp = `var' if inlist(county,"defiance","paulding")
+	if inlist("`var'","avg_issuance_households","avg_issuance_individuals","avg_individuals_households","participation_rate","percpop_snap") {
+		bysort ym: egen T`var' = mean(temp)
+	}
+	else {
+		bysort ym: egen T`var' = total(temp)
+	}
+	drop temp 
+
+	// proportions of each
+	gen P`var' = `var' / T`var'
+
+}
+}
+
+// graph of proportions overtime 
+*twoway 	(connected Pindividuals ym if county == "defiance", mcolor(red) lcolor(red)) ///
+*		(connected Pindividuals ym if county == "paulding", mcolor(blue) lcolor(blue)) ///
+*		(connected Phouseholds ym if county == "defiance", mcolor(red) lcolor(red)) ///
+*		(connected Phouseholds ym if county == "paulding", mcolor(blue) lcolor(blue)) ///
+*		(connected Pissuance ym if county == "defiance", mcolor(red) lcolor(red)) ///
+*		(connected Pissuance ym if county == "paulding", mcolor(blue) lcolor(blue) xline(645))
+
+// average of proportions on or before 2013m10
+sum Pindividuals if ym <= ym(2013,10) & county == "defiance"
+
+// proportions, using population
+*preserve 
+*	use "${dir_root}/state_data/ohio/ohio_county_pop.dta", clear
+*	keep if inlist(county,"defiance","paulding")
+*	bysort year: egen Tpop = total(pop)
+*	gen Ppop = pop / Tpop
+*	twoway 	(connected Ppop year if county == "defiance", mcolor(red) lcolor(red)) ///
+*			(connected Ppop year if county == "paulding", mcolor(blue) lcolor(blue))
+*	// both methods give the same answer. This is encouraging! 
+*restore
+
+// use the average of the proportion from individuals, for simplicity
+qui sum Pindividuals if ym <= ym(2013,10) & county == "defiance"
+local prop_defiance = `r(mean)'
+qui sum Pindividuals if ym <= ym(2013,10) & county == "paulding"
+local prop_paulding = `r(mean)'
+drop P* 
+drop T*
+
+local ym_replace_start = ym(2014,2)
+local ym_replace_end = ym(2020,4) // **KP: should be ym_end from the state 
+
+// expand where observations don't exist 
+expand 3 if county == "defpaulding" & inrange(ym,ym(2018,9),`ym_replace_end')
+bysort county ym: gen obsnum = _n
+replace county = "defiance" if obsnum == 2
+replace county = "paulding" if obsnum == 3
+drop obsnum
+
+sort ym county
+foreach var of varlist _all {
+if !inlist("`var'","state","statefips","county","ym","office","zipcode","city") {
+	display in red "`var'"
+	forvalues ym = `ym_replace_start'(1)`ym_replace_end' {
+		display in red "`ym'"
+		qui replace `var' = . if inlist(county,"defiance","paulding") & ym == `ym'
+		qui sum `var' if county == "defpaulding" & ym == `ym'
+		#delimit ;
+		if !((`ym' == ym(2018,9)) | 
+		     (inlist("`var'","adults","children") 
+		     	& `ym' < ym(2018,10)) | 
+			 (inlist("`var'","issuance","avg_individuals_households","avg_issuance_individuals","avg_issuance_households","households_npa","individuals_npa","households_pa","individuals_pa") 
+			 	& `ym' > ym(2018,8))
+			) {
+		;
+		#delimit cr 
+			assert `r(N)' == 1
+			local value = `r(mean)'
+			qui replace `var' = `value'*`prop_defiance' if county == "defiance" & ym == `ym'
+			qui replace `var' = `value'*`prop_paulding' if county == "paulding" & ym == `ym'
+		}
+	}
+}
+}
+
+// drop combo observation 
+drop if county == "defpaulding"
+
+// save 
+tempfile defpaulding_data 
+save `defpaulding_data'
+
+// restore
+restore
+
+// drop existing defpaulding data, and append new data 
+drop if inlist(county,"defiance","paulding","defpaulding")
+append using `defpaulding_data'
 
 // order and sort 
 order county ym individuals_pa individuals_npa individuals households_pa households_npa households issuance avg_issuance_individuals avg_issuance_households adults children
@@ -250,6 +365,7 @@ save "${dir_root}/state_data/ohio/ohio.dta", replace
 tab county
 
 // assert everything adds up 
-assert individuals_pa + individuals_npa == individuals if !missing(individuals_pa)
-assert households_pa + households_npa == households if !missing(households_pa)
+assert abs((individuals_pa + individuals_npa) - individuals) < 0.01 if !missing(individuals_pa)
+assert abs((households_pa + households_npa) - households) < 0.01 if !missing(households_pa)
+
 

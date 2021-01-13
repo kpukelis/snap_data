@@ -5,6 +5,7 @@ local ym_start 					= ym(2001,9)
 local ym_end 					= ym(2020,4)
 
 ***********************************************************************************
+/*
 forvalues ym = `ym_start'(1)`ym_end' {
 
 	dis in red `ym'
@@ -251,6 +252,66 @@ issuance == 0
 ;
 #delimit cr
 
+
+save "C:/Users/Kelsey/Desktop/snap_temp.dta", replace 
+*/
+
+use "C:/Users/Kelsey/Desktop/snap_temp.dta", clear
+
+// get rid of slashes, spaces
+replace county = ustrregexra(county,"\/","")
+replace county = ustrregexra(county," ","") 
+
+// need to address multicounty cases
+#delimit ; 
+local pairs
+alleghanycovington
+/*bedfordcountycity*/
+chesterfieldcolonialheights
+greensvilleemporia
+halifaxsouthboston
+henrymartinsville
+roanokecountysalem
+rockinghamharrisonburg
+stauntonaugusta
+yorkpoquoson
+augustastauntonwaynesboro 
+fairfaxcountycityfallschurch
+rockbridgebuenavistalexington
+; 
+#delimit cr 
+
+// drop observations that already have county data 
+foreach pair of local pairs {
+	drop if county == "`pair'"
+}
+
+// fix county names to match full fips data 
+drop if county == "bedford" & fips == 19 & inrange(ym,ym(2001,9),ym(2014,2))
+drop if county == "bedford" & fips == 515 & inrange(ym,ym(2001,9),ym(2014,4))
+replace county = "bedford" if county == "bedfordcountycity"
+replace region_detail = "county" if county == "roanoke" & fips == 161
+replace county = "roanokecounty" if county == "roanoke" & fips == 161
+replace region_detail = "city" if county == "roanoke" & fips == 770
+replace county = "roanokecity" if county == "roanoke" & fips == 770
+replace county = "fairfaxcity" if county == "fairfax" & region_detail == "city"
+replace county = "fairfaxcounty" if county == "fairfax" & region_detail == ""
+replace county = "fairfaxcounty" if county == "fairfax" & region_detail == "county"
+replace county = "richmondcity" if county == "richmond" & region_detail == "city"
+replace county = "richmondcounty" if county == "richmond" & region_detail == ""
+replace county = "richmondcounty" if county == "richmond" & region_detail == "county"
+replace county = "franklincity" if county == "franklin" & fips == 620
+replace county = "franklincounty" if county == "franklin" & fips == 67
+drop if county == "southboston"
+drop if county == "cliftonforge"
+
+// drop extra observations 
+drop if county == "northern" & households_pa == 11827 & ym == ym(2007,2)
+drop if county == "piedmont" & households_pa == 13673 & ym == ym(2007,4)
+
+// assert level of data 
+bysort county ym: assert _N == 1
+
 // order and sort 
 order county fips ym 
 sort fips ym 
@@ -258,6 +319,7 @@ sort fips ym
 // save 
 save "${dir_root}/state_data/virginia/virginia.dta", replace
 
-
+**********************************************************************************************************
+**********************************************************************************************************
 
 
