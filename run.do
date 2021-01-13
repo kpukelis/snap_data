@@ -25,6 +25,7 @@ local switch_install 		= 0
 // Build data 
 local _fips 				= 0
 local _clocks 				= 0
+local _waivers_quarter 		= 1
 local alabama				= 0 // not completed (fixed individual)
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
@@ -81,7 +82,7 @@ local wisconsin 			= 0
 
 // combine 
 local combine_state_ym 		= 0 // need to rerun 
-local combine_county_ym		= 1 /// KEEP GOING HERE 2021-01-12
+local combine_county_ym		= 0 // still more work here 
 
 // analyze
 local analyze_state_ym		= 0
@@ -114,6 +115,7 @@ foreach step in
 foreach step in 
 	_fips
 	_clocks
+	_waivers_quarter
 	alabama
 /* 	alaska*/
 	arizona

@@ -1,22 +1,22 @@
 og snap vars,npa,pa,issuance per household,issuance per person,average hh size,age related,abawds,disability related,applications,geography,overlap with other programs,participation rate,net expenditure,other,other programs altogether,tanf,can safely ignore
-snap_households,households_npa,households_pa,issuancehousehold,issuanceperson,avg_recip_per_case,age60plus,abawdsactive,peoplewithadisability,apps_received,region,households_wfnj_tanf,participation_rate,snap_netexpenditure,pendingdays_total,ga_households,tanf_households,households_temp
-snap_recipients,individuals_npa,individuals_pa,issuance_percase,issuance_perrecip,,age_00_04,abawdsclosed,,apps_approved,countycode,households_otherlowinc,percpop_snap,,pendingdays_1to30,ga_adults,tanf_adults,individuals_temp
-,snap_npa_recipients,snap_pa_recipients,avg_pay_per_case,avg_pay_per_person,,age_05_17,workfirst_cases,,apps_denied,county_marker,snap_fip_households,,,pendingdays_31to60,ga_children,tanf_children,issuance_temp
-,issuance_npa,issuance_pa,avg_issuance_households,avg_issuance_individuals,,age_18_59,workfirst_participants,,snap_npa_apps_received,county_num,snap_fip_individuals,,,pendingdays_60plus,ga_persons,tanf_persons,households_nontemp
-,,,avg_payment_percase,,,age_60_64,workfirst_apps,,snap_npa_apps_approved,office,snap_fip_issuance,,,pendingoverdue_total,childcare_households,tanf_cases,individuals_nontemp
-,,,,,,age_65,,,snap_pa_apps_received,region_marker,snap_medassist_households,,,pendingoverdue_AC,childcare_children,tanfpas_benefits,issuance_nontemp
-,,,,,,,,,snap_pa_apps_approved,state_marker,snap_medassist_individuals,,,pendingoverdue_BD,obsnum_withincounty,tanf_apps_received,
-,,,,,,,,,snap_apps_received,numobs_office,snap_medassist_issuance,,,pendingoverdue_perc,rca_cases,tanf_apps_approved,
-,,,,,,,,,snap_apps_approved,numobs_county,snap_hawki_households,,,overdue_approved,rca_benefits,tanf_cases_closed,
-,,,,,,,,,apps,fips,snap_hawki_individuals,,,overdue_denied,pas_cases,tanf_recipients,
-,,,,,,,,,snap_apps_notapproved,zipcode,snap_hawki_issuance,,,average,aspire_participants,tanf_apps_notapproved,
-,,,,,,,,,,city,snap_only_households,,,source_ym,emergassist_grants,tanf_netexpenditure,
-,,,,,,,,,,region_detail,snap_only_individuals,,,,emergassist_netexpenditure,,
-,,,,,,,,,,multicounty_marker,snap_only_issuance,,,,burial_grants,,
-,,,,,,,,,,,all_uniqueindiv,,,,burial_netexpenditure,,
+snap_households,households_npa,households_pa,issuancehousehold,issuanceperson,avg_recip_per_case,age60plus,abawdsactive,peoplewithadisability,apps_received,countycode (louisiana),households_wfnj_tanf,participation_rate,snap_netexpenditure,pendingdays_total,ga_households,tanf_households,households_temp
+snap_recipients,individuals_npa,individuals_pa,issuance_percase,issuance_perrecip,,age_00_04,abawdsclosed,,apps_approved,county_num (minnesota),households_otherlowinc,percpop_snap,,pendingdays_1to30,ga_adults,tanf_adults,individuals_temp
+,snap_npa_recipients,snap_pa_recipients,avg_pay_per_case,avg_pay_per_person,,age_05_17,workfirst_cases,,apps_denied,"fips (virginia, non multicounties only)",snap_fip_households,,,pendingdays_31to60,ga_children,tanf_children,issuance_temp
+,issuance_npa,issuance_pa,avg_issuance_households,avg_issuance_individuals,,age_18_59,workfirst_participants,,snap_apps_received,,snap_fip_individuals,,,pendingdays_60plus,ga_persons,tanf_persons,households_nontemp
+,,,avg_payment_percase,,,age_60_64,workfirst_apps,,snap_apps_approved,multicounty_marker,snap_fip_issuance,,,pendingoverdue_total,childcare_households,tanf_cases,individuals_nontemp
+,,,,,,age_65,,,snap_apps_notapproved,county_marker,snap_medassist_households,,,pendingoverdue_AC,childcare_children,tanfpas_benefits,issuance_nontemp
+,,,,,,,,,apps,region_marker,snap_medassist_individuals,,,pendingoverdue_BD,obsnum_withincounty,tanf_apps_received,
+,,,,,,,,,snap_npa_apps_received,state_marker,snap_medassist_issuance,,,pendingoverdue_perc,rca_cases,tanf_apps_approved,
+,,,,,,,,,snap_npa_apps_approved,,snap_hawki_households,,,overdue_approved,rca_benefits,tanf_cases_closed,
+,,,,,,,,,snap_pa_apps_received,numobs_office (new mexico),snap_hawki_individuals,,,overdue_denied,pas_cases,tanf_recipients,
+,,,,,,,,,snap_pa_apps_approved,numobs_county (newmexico),snap_hawki_issuance,,,average,aspire_participants,tanf_apps_notapproved,
+,,,,,,,,,,,snap_only_households,,,source_ym,emergassist_grants,tanf_netexpenditure,
+,,,,,,,,,,zipcode (massachusetts),snap_only_individuals,,,,emergassist_netexpenditure,,
+,,,,,,,,,,city (massachusetts),snap_only_issuance,,,,burial_grants,,
+,,,,,,,,,,office (newmexico),all_uniqueindiv,,,,burial_netexpenditure,,
 ,,,,,,,,,,,all_uniquecases,,,,tdap_apps_received,,
-,,,,,,,,,,,,,,,tdap_apps_approved,,
-,,,,,,,,,,,,,,,tdap_cases_closed,,
+,,,,,,,,,,region_detail,,,,,tdap_apps_approved,,
+,,,,,,,,,,region,,,,,tdap_cases_closed,,
 ,,,,,,,,,,,,,,,tdap_recipients,,
 ,,,,,,,,,,,,,,,tdap_recipients_shortterm,,
 ,,,,,,,,,,,,,,,tdap_recipients_longterm,,
