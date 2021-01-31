@@ -2,12 +2,13 @@
 // Kelsey Pukelis
 
 local first_year 				= 2009
-local years 					2009 2012 2014 2016 2018
+local years 					2009 2012 2014 2016 2018 2019
 local _2009_length 				= 36
 local _2012_length 				= 28
 local _2014_length 				= 27
 local _2016_length 				= 30
-local _2018_length 				= 31 // **KP: note that this could change as more data gets added for 2020
+local _2018_length 				= 31 // **KP: not sure if this is right note that this could change as more data gets added for 2021
+local _2019_length 				= 26 // **KP: note that this could change as more data gets added for 2021
 local first_county 				Alcona
 #delimit ;
 local counties 					
@@ -270,7 +271,7 @@ sort county ym
 // save 
 save "${dir_root}/data/state_data/michigan/michigan.dta", replace 
 
-
+check
 
 
 

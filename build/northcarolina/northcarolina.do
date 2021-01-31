@@ -2,25 +2,25 @@
 // imports cases and clients from excel sheets
 
 local datasets 					cases apps abawds workcases workapps
-local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-04-2020"
+local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-12-2020"
 local file_apps 				"FNS-Applications-By-County-By-Month-thru-12-2017-rev4-17-2018 (1)"
-local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-03-2020"
-local file_workcases			"Work-First-Cases-Participants-Counts-by-County-thru-03-2020"
+local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-12-2020"
+local file_workcases			"Work-First-Cases-Participants-Counts-by-County-thru-11-2020"
 local file_workapps 			"Work-First-Applications-By-Month-thru-12-2017 (1)"
 
 local ym_start_cases			= ym(2006,7)
-local ym_end_cases				= ym(2020,4)
+local ym_end_cases				= ym(2020,12)
 local ym_start_apps				= ym(2007,4)
 local ym_end_apps				= ym(2017,12)
 local ym_start_abawds			= ym(2017,4)
-local ym_end_abawds				= ym(2020,3)
+local ym_end_abawds				= ym(2020,12)
 local ym_start_workcases		= ym(2007,4)
-local ym_end_workcases			= ym(2020,3)
+local ym_end_workcases			= ym(2020,11)
 local ym_start_workapps			= ym(2007,4)
 local ym_end_workapps			= ym(2017,12)
 
 ***************************************************************
-
+/*
 foreach dataset of local datasets {
 	forvalues ym = `ym_start_`dataset''(1)`ym_end_`dataset'' {
 	
@@ -52,7 +52,7 @@ foreach dataset of local datasets {
 			}
 			gen ym = `ym'
 			format ym %tm
-			if inlist(`ym',ym(2018,2),ym(2018,3),ym(2018,4)) | inrange(`ym',ym(2018,8),ym(2020,4)) {
+			if inlist(`ym',ym(2018,2),ym(2018,3),ym(2018,4)) | inrange(`ym',ym(2018,8),ym(2020,12)) {
 				rename countyname county
 			}
 			replace county = trim(county)
@@ -170,7 +170,7 @@ use "${dir_root}/data/state_data/northcarolina/northcarolina_workcases.dta", cle
 collapse (sum) workfirst_cases workfirst_participants, by(county ym)
 save "${dir_root}/data/state_data/northcarolina/northcarolina_workcases.dta", replace
 duplicates report county ym 
-
+*/
 ***********************************************************
 
 // merge all datasets together
@@ -202,6 +202,14 @@ label var workfirst_apps "Work First applications"
 rename cases households
 rename participants individuals
 
+// drop bad vars 
+dropmiss, force 
+count if !missing(m)
+if `r(N)' == 2 {
+	drop m
+}
+
 // save 
 save "${dir_root}/data/state_data/northcarolina/northcarolina.dta", replace 
+
 

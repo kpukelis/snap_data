@@ -2,7 +2,7 @@
 // imports households and individuals from excel sheets
 
 local ym_start					= ym(2013,1)
-local ym_end 					= ym(2020,3)
+local ym_end 					= ym(2020,12)
 local prefix_2013 				"websnap"
 local prefix_2014 				"websnap"
 local prefix_2015 				"snap_"
@@ -18,7 +18,7 @@ local suffix_2016 				"_1"
 local suffix_2017 				"_2"
 local suffix_2018 				"_3"
 local suffix_2019 				"_4"
-local suffix_2020 				""
+local suffix_2020 				"_5"
 
 ***************************************************************
 
@@ -90,7 +90,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if v1 == "a) Data not shown to avoid disclosure of information for particular individuals"
 
 	// determine number of variables
-	if !inlist(`ym',ym(2016,7),ym(2019,12)) {
+	if !inlist(`ym',ym(2016,7),ym(2019,12),ym(2020,8)) {
 		describe, varlist
 		assert r(k) == 9 | r(k) == 10
 		if r(k) == 9 & `ym' < ym(2017,1) {

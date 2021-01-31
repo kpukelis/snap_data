@@ -1,7 +1,7 @@
 // maine.do
 
 local ym_start	 				= ym(2005,1)
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2020,12)
 
 ************************************************************
 
@@ -182,7 +182,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		sum obsnum if v1 == "county name"
 		keep if obsnum >= r(mean)
 		drop in 1
-		if inrange(`ym',ym(2018,7),ym(2020,4)) {
+		if inrange(`ym',ym(2018,7),ym(2020,12)) {
 			drop in 1
 		}
 		dropmiss, force  
@@ -256,5 +256,4 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/maine/maine.dta", replace 
-
 

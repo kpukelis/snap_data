@@ -2,7 +2,7 @@
 // imports cases and clients from csvs
 
 local ym_start	 				= ym(2008,10) 
-local ym_end 					= ym(2020,3)
+local ym_end 					= ym(2020,12)
 local suffix_2008 				""
 local suffix_2009 				""
 local suffix_2010 				""
@@ -70,33 +70,42 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	qui sum obsnum if strpos(v1,"APPLICATIONS RECEIVED")
 	local batch_start_1 = `r(min)'
 	*qui sum obsnum if strpos(v1,"NW REGION") & strpos(v2,"ANDREW")
-	if inrange(`ym',ym(2008,10),ym(2009,2)) | inrange(`ym',ym(2010,10),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) | inrange(`ym',ym(2014,8),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2020,3)) {
-		qui sum obsnum if /*strpos(v5,"# APPS") &*/ strpos(v5,"RECEIVED")
+	if inrange(`ym',ym(2008,10),ym(2009,2)) | inrange(`ym',ym(2010,10),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6)) | inrange(`ym',ym(2014,8),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2020,4)) | inrange(`ym',ym(2020,8),ym(2020,12)) {
+		noisily sum obsnum if /*strpos(v5,"# APPS") &*/ strpos(v5,"RECEIVED")
 	}
-	else if inrange(`ym',ym(2009,3),ym(2010,9)) | inlist(`ym',ym(2014,5),ym(2014,7)) {
-		qui sum obsnum if /*strpos(v4,"# APPS") &*/ strpos(v4,"RECEIVED")
+	else if inrange(`ym',ym(2009,3),ym(2010,9)) | inlist(`ym',ym(2014,5),ym(2014,7),ym(2020,7)) {
+		noisily sum obsnum if /*strpos(v4,"# APPS") &*/ strpos(v4,"RECEIVED")
 	}
-	else if inlist(`ym',ym(2012,3),ym(2013,12)) {
-		qui sum obsnum if /*strpos(v6,"# APPS") &*/ strpos(v6,"RECEIVED")
+	else if inlist(`ym',ym(2012,3),ym(2013,12)) | inrange(`ym',ym(2020,5),ym(2020,6)) {
+		noisily sum obsnum if /*strpos(v6,"# APPS") &*/ strpos(v6,"RECEIVED")
 	}
 	else if inlist(`ym',ym(2018,5)) {
-		qui sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
+		noisily sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
+	}
+	else {
+		display	 in red "RECEIVED: include this ym in list of values in code"
+		stop 
 	}
 	assert r(N) == 2
 	local batch_start_2 = `r(min)'
+
 *	qui sum obsnum if strpos(v1,"SE REGION") & strpos(v2,"IRON")
 *	assert r(N) == 1
 *	local batch_start_3 = `r(min)'
 	local batch_start_3 = `r(max)'
 *	qui sum obsnum if strpos(v1,"NW REGION") & strpos(v3,"ANDREW")
-	if inrange(`ym',ym(2008,10),ym(2010,9)) | inrange(`ym',ym(2011,9),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2012,8)) | inlist(`ym',ym(2014,5)) | inrange(`ym',ym(2014,7),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2020,3)) {
+	if inrange(`ym',ym(2008,10),ym(2010,9)) | inrange(`ym',ym(2011,9),ym(2012,2)) | inrange(`ym',ym(2012,4),ym(2012,8)) | inlist(`ym',ym(2014,5)) | inrange(`ym',ym(2014,7),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2020,4)) | inlist(`ym',ym(2020,7)) {
 		qui sum obsnum if /*strpos(v6,"EXPEDITED") &*/ strpos(v6,"APPLICATIONS")
 	}
-	else if inrange(`ym',ym(2010,10),ym(2011,8)) | inlist(`ym',ym(2012,3),ym(2012,9)) | inrange(`ym',ym(2012,10),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6),ym(2018,5)) {
+	else if inrange(`ym',ym(2010,10),ym(2011,8)) | inlist(`ym',ym(2012,3),ym(2012,9)) | inrange(`ym',ym(2012,10),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6),ym(2018,5)) | inlist(`ym',ym(2020,5),ym(2020,6)) | inrange(`ym',ym(2020,8),ym(2020,12)) {
 		qui sum obsnum if /*strpos(v7,"EXPEDITED") &*/ strpos(v7,"APPLICATIONS")
 	}
 	else if inlist(`ym',ym(2013,12)) {
 		qui sum obsnum if /*strpos(v8,"EXPEDITED") &*/ strpos(v8,"APPLICATIONS")	
+	}
+	else {
+		display	 in red "APPLICATIONS: include this ym in list of values in code "
+		stop
 	}
 	assert r(N) == 2
 	local batch_start_4 = `r(min)'
@@ -112,19 +121,24 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	local batch_start_7 = `r(min)'
 	local batch_start_7 = `r(max)'
 *	qui sum obsnum if strpos(v1,"SE REGION") & strpos(v2,"IRON")
-	if inrange(`ym',ym(2008,10),ym(2012,2)) | inlist(`ym',ym(2013,12)) | inrange(`ym',ym(2014,8),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2018,9)) {
+	if inrange(`ym',ym(2008,10),ym(2012,2)) | inlist(`ym',ym(2013,12)) | inrange(`ym',ym(2014,8),ym(2018,4)) | inrange(`ym',ym(2018,6),ym(2018,9)) | inlist(`ym',ym(2020,7)) {
 		qui sum obsnum if strpos(v5,"HOUSEHOLDS") /*strpos(v5,"TOTAL HOUSEHOLDS") */
 		local total_households_var v5
 	}
-	else if inrange(`ym',ym(2012,3),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6),ym(2018,5)) {
+	else if inrange(`ym',ym(2012,3),ym(2013,11)) | inrange(`ym',ym(2014,1),ym(2014,4)) | inlist(`ym',ym(2014,6),ym(2018,5)) | inlist(`ym',ym(2020,5),ym(2020,6)) | inrange(`ym',ym(2020,8),ym(2020,12)) {
 		qui sum obsnum if strpos(v6,"HOUSEHOLDS") /*strpos(v6,"TOTAL HOUSEHOLDS") */
 		local total_households_var v6
 	}
-	else if inlist(`ym',ym(2014,5),ym(2014,7)) | inrange(`ym',ym(2018,10),ym(2020,3)) {
+	else if inlist(`ym',ym(2014,5),ym(2014,7)) | inrange(`ym',ym(2018,10),ym(2020,4)) {
 		qui sum obsnum if strpos(v4,"HOUSEHOLDS") /*strpos(v4,"TOTAL HOUSEHOLDS") */	
 		local total_households_var v4
 	}
-	if `ym' < ym(2014,8) | inrange(`ym',ym(2018,10),ym(2020,3)) {
+	else {
+		display	 in red "HOUSEHOLDS: include this ym in list of values in code "
+		stop 
+	}
+
+	if `ym' < ym(2014,8) | inrange(`ym',ym(2018,10),ym(2020,4)) {
 		assert r(N) == 2
 		local batch_start_8 = `r(min)'
 		local batch_start_9 = `r(max)'
@@ -155,6 +169,18 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if v1 == "AUGUST 2019" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if v1 == "SEPTEMBER 2019" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if v1 == "OCTOBER 2019" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if v1 == "DSS FSD/MHD Monthly Management Report Page 151"
+	drop if strpos(v1,"TABLE 25") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"TABLE 26") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MAY 2020") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JUNE 2020") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JULY 2020") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"AUGUST 2020") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"SEPTEMBER 2020") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2020") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2020") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2020") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DSS FSD/MHD MONTHLY MANAGEMENT REPORT")
 
 	// keep a particular page of data
 *	forvalues n = 1(1)`num_pages' {
@@ -305,7 +331,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 **TEMPORARY; later, save all pages together
 save "${dir_root}/data/state_data/missouri/missouri_page`n'.dta", replace
 
-check
+
 */
 ******************
 ***************

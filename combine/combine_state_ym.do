@@ -7,6 +7,7 @@
 //	connecticut		 // not completed (fixed individual)
 // 	delaware		 rolling clock
 //	hawaii			 // not completed (rolling clock)
+//	illinois		 fixed statewide
 // 	nevada			 fixed individual
 // 	newhampshire	 fixed individual
 //	northdakota		 // not completed (rolling clock)
@@ -20,7 +21,6 @@
 // 	districtofcolumbia			 unclear clock
 
 
-//	illinois			
 //  missouri
 //	oregon			
 
@@ -30,6 +30,7 @@ local states_withtotal
 	arizona
 	arkansas
 	colorado
+	illinois
 	iowa
 	kansas
 	louisiana

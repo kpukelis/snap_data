@@ -1,12 +1,64 @@
 // pennsylvania.do
 // imports households and persons from excel sheets
 
+
+// import 
+import delimited using "${dir_root}/data/state_data/pennsylvania/pdfs/Supplemental_Nutrition_Assistance_Program_Individuals_And_Dollars_2004_-_Current_Monthly_County___Statewide_Human_Services.csv", varnames(1) stringcols(_all) case(lower) clear
+
+// drop unnecessary vars 
+drop date
+drop monthname 
+rename ?statename statename
+assert statename == "PA"
+drop statename
+drop fipsstatecode
+rename calendaryear year 
+drop countycode
+drop statefiscalyear
+drop latitude
+drop longitude
+drop georeferencedlatitudelongitude
+rename snapindividuals individuals
+rename snapdollars issuance 
+rename countyname county
+
+// destring
+// NOTE: pennsylvania does not need to merge in 
+foreach var in year month fipscountycode individuals issuance {
+	destring `var', replace ignore(",")
+	confirm numeric variable `var'
+}
+
+// countyname 
+replace county = strlower(county)
+replace county = ustrregexra(county," ","")
+replace county = "total" if county == "statewide"
+
+// ym 
+gen ym = ym(year,month)
+format ym %tm 
+drop year month 
+
+// order and sort 
+order fipscountycode county ym individuals issuance
+sort fipscountycode ym 
+
+// save 
+save "${dir_root}/data/state_data/pennsylvania/pennsylvania.dta", replace
+
+******************************************************************************************************************************
+******************************************************************************************************************************
+******************************************************************************************************************************
+/*
+// OLD
+
 local files 					July2017 Oct2017 Apr2019 Oct2019 Apr2020
 
 local ym_start					= ym(2016,7)
 local ym_end 					= ym(2020,4)
 
 ***************************************************************
+
 
 foreach file of local files {
 	foreach sheet in "SNAPIndividuals-HistorybyCounty" "SNAP $-HistorybyCounty" {

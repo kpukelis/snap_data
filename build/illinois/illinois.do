@@ -6,7 +6,7 @@ local year_end 					2020
 local sheets 					persons households
 
 ***************************************************************
-
+/*
 forvalues year = `year_start'(1)`year_end' {
 	foreach sheet of local sheets {
 	if `year' < 2018 {
@@ -15,7 +15,7 @@ forvalues year = `year_start'(1)`year_end' {
 		display in red `"`sheet'"' `year'
 
 		// import 
-		import excel using "${dir_root}/data/state_data/illinois/snap`year'.xlsx", sheet("`sheet'") firstrow case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/illinois/excel/snap`year'.xlsx", sheet("`sheet'") firstrow case(lower) allstring clear
 		
 		// drop observations, then variables with all missing values
 		dropmiss, obs force
@@ -89,11 +89,24 @@ forvalues year = `year_start'(1)`year_end' {
 		
 		drop county_temp*
 		replace county = ustrregexra(county," ","")
+		replace county = subinstr(county," ","",.)
+		replace county = subinstr(county, "`=char(9)'", " ", .)
+		replace county = subinstr(county, "`=char(10)'", " ", .)
+		replace county = subinstr(county, "`=char(13)'", " ", .)
+		replace county = subinstr(county, "`=char(14)'", " ", .)
 		if `year' == 2013 {
 			replace county = "clinton" if county == "clintonclintoncountyofficeclosedandconsolidatedwithmarioncountyoffice."
 			replace county = "mercer" if county == "mercer mercercountyofficeclosed,consolidatedwithwarrencountyoffice."
 		}
-		
+
+		replace county = "jodaviess" if strpos(county,"jo") & strpos(county,"daviess")
+		replace county = "rockisland" if strpos(county,"rock") & strpos(county,"island")
+		replace county = "stclair" if county == "st.clair"
+		replace county = "boone" if strpos(county,"boone")
+		replace county = "coles" if county == "coles(midillinois)"
+		replace county = "total" if county == "totalstate"
+		drop if county == "maconltc"
+
 		replace `sheet' = ustrregexra(`sheet'," ","")
 		destring `sheet', replace
         confirm numeric variable `sheet'
@@ -124,6 +137,11 @@ forvalues year = `year_start'(1)`year_end' {
 		duplicates tag county ym, gen(dup)
 		assert dup == 0
 		drop dup
+		
+		// save 
+		*tempfile `year'_`sheet'
+		*save ``year'_`sheet''
+		save "${dir_root}/data/state_data/illinois/temp/`year'_`sheet'.dta", replace
 
 	}
 
@@ -135,12 +153,30 @@ forvalues year = `year_start'(1)`year_end' {
 		display in red `"`sheet'"' `year'
 
 		// import 
-		import excel using "${dir_root}/data/state_data/illinois/snap`year'.xlsx", sheet("`sheet'") firstrow case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/illinois/excel/snap`year'.xlsx", sheet("`sheet'") firstrow case(lower) allstring clear
 		
 		// drop observations, then variables with all missing values
 		dropmiss, obs force
 		dropmiss, force
 
+		// clean up county 
+		replace office = officenumber if inlist(officenumber,"DOWNSTATE","COOK COUNTY","TOTAL STATE")
+		replace officenumber = "" if inlist(officenumber,"DOWNSTATE","COOK COUNTY","TOTAL STATE")
+		destring officenumber, replace
+		confirm numeric variable officenumber
+		rename office county 
+		replace county = strlower(county)
+		replace county = trim(county)
+		drop if county == "cntl all kid"
+		if inlist(`year',2013) {
+			drop if strpos(county,"notice:")
+		}
+		replace county = "total" if county == "totalstate"
+		replace county = "cook" if county == "cookcounty"
+		replace county = "stclair" if county == "st.clair-e.st.louis"
+		drop if county == "downstate"
+
+		/* OLD
 		// clean up office 
 		replace office = officenumber if inlist(officenumber,"DOWNSTATE","COOK COUNTY","TOTAL STATE")
 		replace officenumber = "" if inlist(officenumber,"DOWNSTATE","COOK COUNTY","TOTAL STATE")
@@ -149,23 +185,24 @@ forvalues year = `year_start'(1)`year_end' {
 		replace office = strlower(office)
 		replace office = trim(office)
 		drop if office == "cntl all kid"
-
+		*/
+	
 		// reshape
 		rename january _1 
 		rename february _2 
 		rename march _3
 		rename april _4 
 		rename may _5
+		rename june _6 
+		rename july _7
+		rename august _8
+		rename september _9
+		rename october _10 
+		rename november _11
 		if `year' != 2020 {
-			rename june _6 
-			rename july _7
-			rename august _8
-			rename september _9
-			rename october _10 
-			rename november _11
 			rename december _12
 		}
-		reshape long _, i(office) j(month)
+		reshape long _, i(county) j(month)
 		rename _ `sheet'
 
 		// clean up main variable
@@ -175,30 +212,30 @@ forvalues year = `year_start'(1)`year_end' {
 		gen consolidated_note = ""
 		replace consolidated_note = `sheet' if strpos(`sheet',"consolidated")
 		replace consolidated_note = `sheet' if inlist(`sheet',"Closed","closed")
-		replace consolidated_note = office if strpos(office,"consolidated")
+		replace consolidated_note = county if strpos(county,"consolidated")
 		replace `sheet' = "" if strpos(`sheet',"consolidated")
 		replace `sheet' = "" if  inlist(`sheet',"Closed","closed")
 		if !inrange(`year',2014,2017) {
-			replace office = ustrregexra(office," ","")
+			replace county = ustrregexra(county," ","")
 		}
-		gen office_temp = office 
-		split office_temp, parse(" ")
-		foreach v of varlist office_temp? {
+		gen county_temp = county 
+		split county_temp, parse(" ")
+		foreach v of varlist county_temp? {
 			replace `v' = trim(`v') 
 			replace `v' = ustrregexra(`v'," ","")
 		}
-		capture confirm variable office_temp2
+		capture confirm variable county_temp2
 		if !_rc {
-			capture noisily assert inlist(office_temp2,"office","")
-			replace office = office_temp1 if inlist(office_temp2,"office","")
-			capture confirm variable office_temp3
+			capture noisily assert inlist(county_temp2,"county","")
+			replace county = county_temp1 if inlist(county_temp2,"county","")
+			capture confirm variable county_temp3
 			if !_rc {
-				capture noisily assert inlist(office_temp2,"office","") | inlist(office_temp3,"office","")
-				replace office = office_temp1 + " " + office_temp2 if inlist(office_temp3,"office","")
-				capture confirm variable office_temp4
+				capture noisily assert inlist(county_temp2,"county","") | inlist(county_temp3,"county","")
+				replace county = county_temp1 + " " + county_temp2 if inlist(county_temp3,"county","")
+				capture confirm variable county_temp4
 				if !_rc {
-					noisily assert inlist(office_temp2,"office","") | inlist(office_temp3,"office","","illinois)")
-					replace office = office_temp1 + " " + office_temp2 + " " + office_temp3 if inlist(office_temp3,"illinois)")
+					noisily assert inlist(county_temp2,"county","") | inlist(county_temp3,"county","","illinois)")
+					replace county = county_temp1 + " " + county_temp2 + " " + county_temp3 if inlist(county_temp3,"illinois)")
 				}
 			}
 		}
@@ -206,8 +243,8 @@ forvalues year = `year_start'(1)`year_end' {
 
 		}
 		
-		drop office_temp*
-		replace office = ustrregexra(office," ","")		
+		drop county_temp*
+		replace county = ustrregexra(county," ","")		
 		replace `sheet' = ustrregexra(`sheet'," ","")
 		destring `sheet', replace
         confirm numeric variable `sheet'
@@ -218,18 +255,39 @@ forvalues year = `year_start'(1)`year_end' {
 		format ym %tm 
 		drop year month 
 
-		// order and sort 
-		order office ym `sheet'
-		sort office ym
+		// need to collapse kane-aurora, kane-elgin 
+		// need to collapse madison-e.alton madison-g.city
+		replace county = "kane" if inlist(county,"kane-aurora","kane-elgin")
+		replace county = "madison" if inlist(county,"madison-e.alton","madison-g.city")
+		rename `sheet' `sheet'_OLD
+		bysort county: egen `sheet' = total(`sheet'_OLD)
+		drop `sheet'_OLD
+		drop officenumber
+		duplicates drop 
+		duplicates tag county ym, gen(dup)
+		assert dup == 0
+		drop dup 
 
-		// assert no duplicates by office ym 
-		duplicates tag office ym, gen(dup)
+		// clean up counties again 
+		replace county = "total" if county == "totalstate"
+		replace county = "cook" if county == "cookcounty"
+		replace county = "stclair" if county == "st.clair-e.st.louis"
+		drop if county == "downstate"
+
+		// order and sort 
+		order county ym `sheet'
+		sort county ym
+
+		// assert no duplicates by county ym 
+		duplicates tag county ym, gen(dup)
 		assert dup == 0
 		drop dup
 
+
 		// save 
-		tempfile `year'_`sheet'
-		save ``year'_`sheet''
+		*tempfile `year'_`sheet'
+		*save ``year'_`sheet''
+		save "${dir_root}/data/state_data/illinois/temp/`year'_`sheet'.dta", replace
 
 	}
 	}
@@ -239,20 +297,19 @@ forvalues year = `year_start'(1)`year_end' {
 ***************************************************************
 
 forvalues year = `year_start'(1)`year_end' {
-	if `year' < 2018 {
-		local level county
-	}
-	else {
-		local level office 
-	}
+
+	local level county 
 	display in red "`year'"
 	foreach sheet of local sheets {
+		display in red "`year' `sheet'"
 		display in red "`sheet'"
 		if "`sheet'" == "persons" {
-			use ``year'_`sheet'', clear
+			*use ``year'_`sheet'', clear
+			use "${dir_root}/data/state_data/illinois/temp/`year'_`sheet'.dta", clear 
 		}
 		else {
-			merge 1:1 `level' ym using ``year'_`sheet''
+			*merge 1:1 `level' ym using ``year'_`sheet''
+			merge 1:1 `level' ym using "${dir_root}/data/state_data/illinois/temp/`year'_`sheet'.dta"
 			assert _m == 3
 			drop _m
 		}
@@ -260,8 +317,9 @@ forvalues year = `year_start'(1)`year_end' {
 	save "${dir_root}/data/state_data/illinois/illinois_`year'_TEMP.dta", replace 
 }
 
+
 // Note only merging 2017 for now; going to get to the office level and then append with 2018-2020 data
-forvalues year = `year_start'(1)2017 {
+forvalues year = `year_start'(1)`year_end' {
 	if `year' == `year_start' {
 		use "${dir_root}/data/state_data/illinois/illinois_`year'_TEMP.dta", clear
 	}
@@ -277,94 +335,142 @@ sort county ym
 // rename 
 rename persons individuals
 
+// drop consolidation notes 
+drop consolidated_note
+
+// drop nonobservations 
+drop if missing(individuals) & missing(households)
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
 // save
-save "${dir_root}/data/state_data/illinois/illinois_county.dta", replace 
-check
+save "${dir_root}/data/state_data/illinois/illinois_office.dta", replace 
 */
 ******************************************************************************
 
-// load data
-use "${dir_root}/data/state_data/illinois/illinois_county.dta", clear 
+use "${dir_root}/data/state_data/illinois/illinois_office.dta", clear
 
-// collapse to larger office level
+// population: make 2020 data same as 2019 data, for now 
+preserve
+use "${dir_root}/data/state_data/illinois/illinois_county_pop.dta", clear 
+duplicates tag county year, gen(dup)
+assert dup == 0
+drop dup 
+expand 2 if year == 2019
+bysort county year: gen obsnum_within = _n 
+sum obsnum_within
+assert `r(max)' == 2
+replace year = 2020 if obsnum_within == 2
+drop obsnum_within
+tempfile illinois_county_pop
+save `illinois_county_pop'
+restore 
 
-// generate closed date 
-gen ym_closed = .
-replace ym_closed = ym(2011,1) if inlist(county,"brown","calhoun","clark","cumberland","dewitt","edwards","ford","gallatin","grundy") | inlist(county,"hardin","jasper","johnson","lee","menard","monroe","piatt","putnum") | inlist(county,"scott","stark","washington","wayne","woodford")
-replace ym_closed = ym(2011,3) if inlist(county,"mercer")
-replace ym_closed = ym(2011,7) if inlist(county,"boone","perry")
-replace ym_closed = ym(2013,10) if inlist(county,"alexander","clay","douglas","edgar","effingham","kendall","pope","shelby")
-/*
-henderson
-KEEP GOING HERE
+// crosswalk for combinations of offices 
+preserve
+	import excel using "${dir_root}/data/state_data/illinois/office_crosswalk/office_county_crosswalk.xlsx", sheet("Sheet1") clear 
+	
+	// initial cleanup
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	
+	// turn first row into variable names 
+	foreach var of varlist * {
+		replace `var' = strlower(`var')
+		replace `var' = "_" + `var' if _n == 1
+		replace `var' = ustrregexra(`var',"-","") if _n == 1
+		*replace `var' = ustrregexra(`var',".","") if _n == 1
+		*replace `var' = ustrregexra(`var'," ","") if _n == 1
+		label variable `var' "`=`var'[1]'"
+		rename `var' `=`var'[1]'
+	}
+	drop in 1
+	
+	// drop office totals
+	drop in 1
+	
+	// reshape long
+	rename _time county 
+	reshape long _, i(county) j(_yyyy_mm) string 
+	rename _ newcounty
+	
+	// ym 
+	gen year = substr(_yyyy_mm,1,4)
+	gen month = substr(_yyyy_mm,6,2)
+	foreach v in year month {
+		destring `v', replace 
+		confirm numeric variable `v'
+	}
+	gen ym = ym(year,month)
+	format ym %tm
+	drop year month
+	drop _yyyy_mm
+	
+	// make sure level of the data is really originalcounty ym level
+	duplicates tag county ym, gen(dup)
+	assert dup == 0
+	drop dup 
 
-madison |         36        0.73       53.54
-                        madison-e.alton |         21        0.43       53.96
-                         madison-g.city |         21        0.43       5
+	// save 
+	tempfile crosswalk 
+	save `crosswalk'
+restore
 
- kane |         36        0.73       40.18
-                            kane-aurora |         21        0.43       40.61
-                             kane-elgin |         21        0.43       41.04
+// merge in original county names
+rename county newcounty
+merge 1:m newcounty ym using `crosswalk', keepusing(county)
+assert _m == 3
+drop _m 
+rename newcounty office_county_group
 
-  st.clair |         36        0.73       83.17
-                    st.clair-e.st.louis |         21        0.43       8
-*/
+// make sure level of the data is really originalcounty ym level
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
 
-// mark consolidations
-rename county office
-replace office = "pulaski" 		if office == "alexander" 	& ym >= ym(2013,11)
-replace office = "madison" 		if office == "bond" 		& ym >= ym(2014,2)
-replace office = "winnebago" 	if office == "boone" 		& ym >= ym(2011,7)
-replace office = "schuyler" 	if office == "brown" 		& ym >= ym(2011,1)
-replace office = "jersey" 		if office == "calhoun" 		& ym >= ym(2011,1)
-replace office = "whiteside" 	if office == "carroll" 		& ym >= ym(2012,10)
-replace office = "edgar" 		if office == "clark" 		& ym >= ym(2011,1)
-replace office = "richland" 	if office == "clay" 		& ym >= ym(2014,1)
-replace office = "marion" 		if office == "clinton" 		& ym >= ym(2012,2)
-replace office = "effingham" 	if office == "cumberland" 	& ym >= ym(2011,1)
-replace office = "logan" 		if office == "dewitt" 		& ym >= ym(2011,1)
-replace office = "coles" 		if office == "douglas" 		& ym >= ym(2014,1)
-replace office = "coles" 		if office == "edgar" 		& ym >= ym(2014,1)
-replace office = "wabash" 		if office == "edwards" 		& ym >= ym(2011,1)
-replace office = "coles" 		if office == "effingham" 	& ym >= ym(2014,1)
-replace office = "marion" 		if office == "fayette" 		& ym >= ym(2012,2)
-replace office = "champaign" 	if office == "ford" 		& ym >= ym(2011,1)
-replace office = "saline" 		if office == "gallatin" 	& ym >= ym(2011,1)
-replace office = "jersey" 		if office == "greene" 		& ym >= ym(2012,9)
-replace office = "lasalle" 		if office == "grundy" 		& ym >= ym(2011,1)
-replace office = "franklin" 	if office == "hamilton" 	& ym >= ym(2012,4)
-replace office = "adams" 		if office == "hancock" 		& ym >= ym(2015,2)
-replace office = "pop" 			if office == "hardin" 		& ym >= ym(2011,1)
-replace office = "warren" 		if office == "henderson" 	& ym >= ym(2011,1)
-replace office = "kankakee" 	if office == "iroquois" 	& ym >= ym(2012,3)
-replace office = "crawford" 	if office == "jasper" 		& ym >= ym(2011,1)
-replace office = "stephenson" 	if office == "jodaviess" 	& ym >= ym(2012,8)
-replace office = "union" 		if office == "johnson" 		& ym >= ym(2011,1)
-replace office = "kane" 		if office == "kendall" 		& ym >= ym(2014,1)
-replace office = "lawre" 		if office == "kendall" 		& ym >= ym(2014,1)
-replace office = "richland" 	if office == "lawrence" 	& ym >= ym(2017,1)
-replace office = "ogle" 		if office == "lee" 			& ym >= ym(2014,1)
-replace office = "massac" 		if office == "pope" 		& ym >= ym(2014,1)
-replace office = "cass" 		if office == "schuyler" 	& ym >= ym(2015,7)
-replace office = "coles" 		if office == "shelby" 		& ym >= ym(2014,1)
-replace office = "ogle" 		if office == "lee" 			& ym >= ym(2011,1)
-replace office = "mclean" 		if office == "livingston" 	& ym >= ym(2012,10)
-replace office = "bureau" 		if office == "marshall" 	& ym >= ym(2012,10)
-replace office = "logan" 		if office == "menard" 		& ym >= ym(2011,1)
-replace office = "warren" 		if office == "mercer" 		& ym >= ym(2011,3)
-replace office = "randolph" 	if office == "monroe" 		& ym >= ym(2011,1)
-replace office = "douglas" 		if office == "moultrie" 	& ym >= ym(2012,9)
-replace office = "jackson" 		if office == "perry" 		& ym >= ym(2011,7)
-replace office = "moultrie" 	if office == "piatt" 		& ym >= ym(2011,1)
-replace office = "adams" 		if office == "pike" 		& ym >= ym(2012,8)
-replace office = "marshall" 	if office == "putnam" 		& ym >= ym(2011,1)
-replace office = "bureau" 		if office == "putnam" 		& ym >= ym(2012,1)
-replace office = "pike" 		if office == "scott" 		& ym >= ym(2011,1)
-replace office = "henry" 		if office == "stark" 		& ym >= ym(2011,1)
-replace office = "jefferson" 	if office == "washington" 	& ym >= ym(2011,1)
-replace office = "jefferson" 	if office == "wayne" 		& ym >= ym(2011,1)
-replace office = "wabash" 		if office == "white" 		& ym >= ym(2012,12)
-replace office = "peoria" 		if office == "woodford" 	& ym >= ym(2011,1)
-check
-collapse (sum) individuals households, by(office ym)
+// number of counties in the county group 
+sort office_county_group ym county
+by office_county_group ym: gen num_counties = _N
+assert num_counties >= 1 & !missing(num_counties)
+
+// will alter for office_county_group with more than one counties
+gen individuals_total = individuals
+gen households_total = households
+replace individuals = . if county != "total"
+replace households = . if county != "total"
+
+// merge in population data
+gen year = year(dofm(ym))
+merge m:1 county year using `illinois_county_pop', keepusing(pop)
+assert inlist(_m,2,3) | (_m == 1 & county == "total")
+drop if _m == 2
+drop _m 
+
+// make fraction: numerator is pop in county, denom is total pop in office_county_group
+bysort office_county_group ym: egen pop_total = total(pop)
+gen pop_frac = pop / pop_total
+
+// replace individuals, households with fraction of total 
+replace individuals = individuals_total * pop_frac if county != "total"
+replace households = households_total * pop_frac if county != "total"	
+
+// assert level of data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
+// order and sort 
+drop year 
+order office_county_group ym county individuals households pop pop_frac  num_counties pop_total individuals_total households_total 
+sort office_county_group ym county
+
+// save 
+save "${dir_root}/data/state_data/illinois/illinois.dta", replace 
+
+
 

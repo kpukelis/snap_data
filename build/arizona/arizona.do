@@ -3,7 +3,7 @@
 // Note: 2012m10 greenlee data missing from pdf
 
 local ym_start	 				= ym(2006,4)
-local ym_end 					= ym(2020,3)
+local ym_end 					= ym(2020,12) 
 
 ************************************************************
 

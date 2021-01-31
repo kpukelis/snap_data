@@ -7,7 +7,7 @@ global dir_graphs				"${dir_root}/graphs"
 
 local year_start				= 2006
 *local year_start				= 2014
-local year_end 					= 2019
+local year_end 					= 2020
 
 *KP: left to do
 *KEEP GOING WITH PAGE 5, still need to do page 4 
@@ -20,9 +20,9 @@ forvalues year = `year_start'(1)`year_end' {
 		local month_start = 5
 		local month_end = 12
 	}
-	else if `year' == 2019 {
+	else if `year' == 2020 {
 		local month_start = 1
-		local month_end = 8
+		local month_end = 9
 	}
 	else {
 		local month_start = 1

@@ -6,7 +6,7 @@
 local start_year 	= 2010
 local start_month 	= 5
 local end_year 		= 2020
-local end_month		= 4
+local end_month		= 11
 
 ***************************************************************************************
 

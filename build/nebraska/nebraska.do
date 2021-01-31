@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start 					= ym(2015,3)
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2020,11)
 
 *********************************************************************
 
@@ -68,7 +68,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	import excel using "${dir_root}/data/state_data/nebraska/excel/`year'/`monthname' `year'.xlsx", allstring firstrow case(lower) clear
-	
+
 	// initial cleanup
 	dropmiss, force 
 	dropmiss, obs force 
@@ -109,6 +109,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			}
 			else {
 				assert r(k) == 13 
+*check
 			}
 			assert r(N) == 5 
 
@@ -312,6 +313,7 @@ duplicates drop
 drop if missing(households) & missing(individuals) & missing(adc_families) & missing(ccsubsidy_children)
 drop if ym == ym(2018,6) & missing(adc_families) // manual drop 
 drop if ym == ym(2019,6) & individuals == 159963 // was mislabeled and is really just a copy of 2019m5 data 
+drop if ym == ym(2019,8) & adc_families == 4615 // manual drop 
 tempfile snap_final
 save `snap_final'
 restore

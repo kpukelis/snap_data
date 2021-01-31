@@ -1,8 +1,9 @@
 // maryland.do 
 // Kelsey Pukelis
 
-local year_start 					= 2008
-local year_end 						= 2020
+*local year_start 					= 2008
+local year_start 					= 2021
+local year_end 						= 2021
 
 ********************************************************************
 
@@ -86,8 +87,8 @@ foreach num of local obsnum_withincounty_nums {
 	else if `year' == 2016 {
 		assert r(k) == 15 | r(k) == 14 | r(k) == 6
  	}
-	else if `year' == 2020 {
-		assert r(k) == 13
+	else if `year' == 2021 {
+		assert r(k) == 7
  	}
  	else {
 		assert r(k) == 15 | r(k) == 14
@@ -106,9 +107,13 @@ foreach num of local obsnum_withincounty_nums {
 		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 _`yearminus1'_10 _`yearminus1'_11 _`yearminus1'_12 _`year'_01 _`year'_02 _`year'_03 average obsnum)
 		drop average
 	}
-	if r(k) == 6 {
+	if r(k) == 6 & `year' == 2016 {
 		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 average obsnum)
 		drop average		
+	}
+	if r(k) == 7 & `year' == 2021 {
+		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 _`yearminus1'_10 _`yearminus1'_11  obsnum)
+		capture drop average		
 	}
 	if `year' == 2013 & `num' == 9 {
 		replace _2013_02 = "521666.28" if _2013_02 == "521.666.28" & county == "montgomery"
@@ -799,7 +804,7 @@ foreach num of local obsnum_withincounty_nums {
 			rename _ ma_mchp_assistanceunits	
 		}
 	}
-	if inlist(`year',2017,2018,2019,2020) {
+	if inlist(`year',2017,2018,2019,2020,2021) {
 		if `num' == 1 {
 			rename _ tanf_apps_received			
 		}

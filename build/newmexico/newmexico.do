@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start 					= ym(2013,1) 
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2020,11)
 
 **************************************************************************
 
@@ -301,3 +301,4 @@ sort office county ym
 
 // save 
 save "${dir_root}/data/state_data/newmexico/newmexico.dta", replace
+

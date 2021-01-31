@@ -2,7 +2,7 @@
 // imports households and individuals from excel sheets
 
 local ym_start					= ym(2008,3)
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2020,12)
 local prefix_2008 				"fs-"
 local prefix_2009 				"fs-"
 local prefix_2010 				"fs-"
