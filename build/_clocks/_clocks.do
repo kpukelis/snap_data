@@ -3,7 +3,7 @@
 
 
 // import data 
-import excel "${dir_root}/snap_time_limits (1).xlsx", sheet("clocks") firstrow allstring case(lower) clear 
+import excel "${dir_root}/data/policy_data/clock_data/snap_time_limits (1).xlsx", sheet("clocks") firstrow allstring case(lower) clear 
 dropmiss, force obs 
 
 // drop unncessary vars 

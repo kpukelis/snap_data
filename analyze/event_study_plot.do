@@ -2,12 +2,12 @@
 // Kelsey Pukelis
 
 // parameters
-local months_before                 = 12 // ** if this range changes, need to change label below
+local months_before                 = 279 // ** if this range changes, need to change label below
 local months_by 					= 1
-local months_after 					= 12
+local months_after 					= 71
 local plot_months_before 			= 12
-local plot_months_by 				= 1
-local plot_months_after 			= 12
+local plot_months_by 				= 6
+local plot_months_after 			= 18
 local ci 							= 95
 local scale 						= 1 // scale to represent percent (0-100 instead of 0-1)
 local half_scale 					= `scale' / 2
@@ -24,7 +24,7 @@ local title_y 						`"Percent change in `y', relative to t = -1"'
 local yline_pattern 				dash
 local yline_color 					grey
 local caption_size					vsmall
-local ci_color 						black
+local ci_color 						gray
 local mark_color 					black
 local title_color 					black
 local background_color 				white
@@ -34,7 +34,7 @@ local legend_options 				off
 **************************************************************************************
 
 // loop over several outcomes: coefplot of the before and after terms
-foreach y in  households individuals  issuance {
+foreach y in   individuals households issuance {
 
 	// load data
 	use "${dir_root}/data/state_data/state_ym.dta", clear 
@@ -45,7 +45,15 @@ foreach y in  households individuals  issuance {
 
 	// relative time 
 	gen relative_ym = ym - bindingexpected_ym
+sum relative_ym
+/*
 
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+ relative_ym |      2,158   -51.25579    74.94855       -279         71
+
+*/
+*check
 	// sample of states with a visible first stage 
 	keep if !missing(bindingexpected_ym)
 
@@ -139,10 +147,10 @@ tab state_num
 	// I'm omitting the t = -1 term (so that it becomes the constant)
 	drop _1_months_before
 	*reg log_`y' _*_months_before _*_months_after i.state_num , vce(cluster state_num) // nocons
-	reg log_`y' _*_months_before _*_months_after i.state_num, vce(cluster state_num) // nocons
+	reg log_`y' _*_months_before _*_months_after i.state_num i.ym, vce(cluster state_num) // nocons
 	*reg log_`y' _*_months_before _*_months_after i.state_num /*i.state_num#c.r_1 i.state_num#c.r_2*/ /*i.state_num#c.zXr_1*/ /*i.state_num#c.r_2 i.state_num#c.r_3 i.state_num#c.r_4 i.state_num#c.r_5*/ , vce(cluster state_num) // nocons
 **KP: not sure if this is the right regression, with two-way FE
-check
+
 	// fill-in matrix
 	local tail = (1 - (`ci'/100)) / 2
 	local tstat = invttail(e(df_r),`tail')
@@ -205,19 +213,23 @@ check
 	keep if inrange(relative_ym,-`plot_months_before',`plot_months_after')
 
 	// label relative_ym appropriately
-	label define relative_ym -12 "-12" -11 "-11"  -10 "-10" -9 "-9" -8 "-8" -7 "-7" -6 "-6" -5 "-5" -4 "-4" -3 "-3" -2 "-2" -1 "-1" 0 "0" 1 "1" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6" 7 "7" 8 "8" 9 "9" 10 "10" 11 "11" 12 "12"
+	label define relative_ym -12 "-12+" -11 "-11"  -10 "-10" -9 "-9" -8 "-8" -7 "-7" -6 "-6" -5 "-5" -4 "-4" -3 "-3" -2 "-2" -1 "-1" 0 "0" 1 "1" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6" 7 "7" 8 "8" 9 "9" 10 "10" 11 "11" 12 "12" 13 "13" 14 "14" 15 "15" 16 "16" 17 "17" 18 "18+" //19 "19" 20 "20" 21 "21" 22 "22" 23 "23" 24 "24+"
 
 	// relabel ends of range
 	*label define relative_ym -`plot_months_before' "<= -`plot_months_before'", modify
 	*label define relative_ym  `plot_months_after'  ">= `plot_months_after'", modify
 	label values relative_ym relative_ym
 
+	gen zero = 0
+
 	// generate coefplot
 	#delimit ;
 	twoway 
-		(rcap u`ci' l`ci' relative_ym, lcolor(`ci_color'))
-		(scatter beta relative_ym, mcolor(`mark_color')
-		yline(0, lpattern(`yline_pattern') lcolor(`yline_color')) 
+		(rarea u`ci' l`ci' relative_ym, lcolor(`ci_color') fcolor(`ci_color'))
+		/*(rcap u`ci' l`ci' relative_ym, lcolor(`ci_color') fcolor(`ci_color'))*/
+		(scatter beta relative_ym, mcolor(`mark_color'))
+		(line zero relative_ym,lcolor(`mark_color')
+		xline(-0.5, lpattern(`yline_pattern') lcolor(`yline_color')) 
 		legend(`legend_options')
 		/*`ylabel'*/
 		xlabel(-`plot_months_before'(`plot_months_by')`plot_months_after', valuelabel)
@@ -231,7 +243,7 @@ check
 		)
 	;
 	#delimit cr
-
+check
 	// save graph
 	graph export "${dir_graphs}/event_plot_`y'.png", as(png) replace
 				

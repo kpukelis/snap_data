@@ -359,3 +359,9 @@ sort county ym
 // save 
 save "${dir_root}/data/state_data/wisconsin/wisconsin.dta", replace 
 
+keep if county == "total"
+local statewide_nowaiver = ym(2015,4)
+twoway connected households ym, xline(`statewide_nowaiver')
+twoway connected individuals ym, xline(`statewide_nowaiver')
+
+

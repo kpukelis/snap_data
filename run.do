@@ -13,7 +13,7 @@ cls
 // directories and file names
 global dir_root 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits"
 global dir_code 		"C:/Users/Kelsey/Documents/GitHub/snap_data"
-global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/_graphs"
+global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/data/state_data/_graphs"
 
 // run globals
 *do "${dir_code}/0_utility/globals.do"
@@ -24,8 +24,13 @@ local switch_install 		= 0
 
 // Build data 
 local _fips 				= 0
+local _zip 					= 0 // KEEP GOING HERE 2021-02-03
 local _clocks 				= 0
 local _waivers_quarter 		= 0
+local sipp_explore 			= 1
+local pub78list 			= 0
+local mass_phd_dummydata	= 0
+local hia 					= 0 // KEEP GOING HERE 2021-02-04
 local alabama				= 0 // not completed (fixed individual)
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
@@ -38,7 +43,7 @@ local florida				= 0
 local georgia				= 0
 local hawaii				= 0 // not completed (rolling clock)
 local idaho					= 0
-local illinois				= 0
+local illinois				= 0 // STILL REMAINING ISSUES WITH THE STATE TOTAL TIME SERIES
 local indiana				= 0 // **KP: can go back further cleaning indiana data 
 local iowa					= 0 // **KP: can go back further cleaning iowa data 
 local kansas				= 0 
@@ -47,7 +52,7 @@ local louisiana				= 0
 local maine					= 0 
 local maryland				= 0
 local massachusetts			= 0 // **KP: need to crosswalk zipcode to county
-local michigan				= 0 
+local michigan				= 0
 local minnesota				= 0 
 local mississippi			= 0 
 local missouri				= 0 // **KP: right now only state level, come back to clean county-level 
@@ -78,17 +83,20 @@ local wisconsin 			= 0
 // local wyoming 			= 0 fixed statewide
 // local districtofcolumbia	= 0 unclear clock
 
-**KP: 2020-11-19 missouri oregon left to be done 
+**KP: 2020-02-09 missouri oregon left to be done 
 
 // combine 
-local combine_state_ym 		= 0 // need to rerun 
+local combine_state_ym 		= 0
 local combine_county_ym		= 0 // still more work here 
 
 // analyze
+local shortlist 			= 0 // KEEP GOING HERE 2021-02-04
 local analyze_state_ym		= 0
 local event_study_plot 		= 0
 local analyze_arizona 		= 0
 local analyze_kansas 		= 0
+local analyze_massachusetts = 0 // NOT POLISHED, FINISHED AS OF 2021-03-02
+local analyze_wisconsin 	= 0
 
 ***********************************************
 
@@ -111,10 +119,59 @@ foreach step in
 ;
 #delimit cr
 
+// build other data 
+#delimit ;
+foreach step in 
+	hia
+	{ ;
+		if ``step'' == 1 { ;
+			do "${dir_code}/build/_hia/`step'.do" ;
+		} ;
+	} ;
+;
+#delimit cr
+
+// build other data 
+#delimit ;
+foreach step in 
+	pub78list
+	{ ;
+		if ``step'' == 1 { ;
+			do "${dir_code}/build/_foodpantry/`step'.do" ;
+		} ;
+	} ;
+;
+#delimit cr
+
+// build other data 
+#delimit ;
+foreach step in 
+	mass_phd_dummydata
+	{ ;
+		if ``step'' == 1 { ;
+			do "${dir_code}/build/_mass_phd/`step'.do" ;
+		} ;
+	} ;
+;
+#delimit cr
+
+// build other data 
+#delimit ;
+foreach step in 
+	sipp_explore
+	{ ;
+		if ``step'' == 1 { ;
+			do "${dir_code}/build/_sipp/`step'.do" ;
+		} ;
+	} ;
+;
+#delimit cr
+
 // build data for each state 
 #delimit ;
 foreach step in 
 	_fips
+	_zip
 	_clocks
 	_waivers_quarter
 	alabama
@@ -190,10 +247,13 @@ foreach step in
 // analyze data
 #delimit ;
 foreach step in 
+	shortlist
 	analyze_state_ym
 	event_study_plot
 	analyze_arizona 
 	analyze_kansas
+	analyze_massachusetts
+	analyze_wisconsin
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/analyze/`step'.do" ;

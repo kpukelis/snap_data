@@ -1,8 +1,7 @@
 // maryland.do 
 // Kelsey Pukelis
 
-*local year_start 					= 2008
-local year_start 					= 2021
+local year_start 					= 2008
 local year_end 						= 2021
 
 ********************************************************************
@@ -1124,7 +1123,7 @@ save `county_level'
 // STATE LEVEL DATA 2008-2020
 
 // collapse to get totals
-use "${dir_root}/data/state_data/maryland/maryland.dta", clear
+use `county_level', clear
 keep county ym snap_households snap_recipients snap_npa_recipients snap_pa_recipients
 rename snap_households households
 rename snap_recipients individuals
@@ -1285,6 +1284,18 @@ foreach v in individuals households {
 order county ym households individuals issuance households_npa households_pa households_npa_cert households_pa_cert individuals_npa individuals_pa
 sort county ym
 
+// remove all missing observations
+foreach var in households individuals issuance households_npa households_pa households_npa_cert households_pa_cert individuals_npa individuals_pa {
+	replace `var' = . if `var' == 0	
+}
+dropmiss households individuals issuance households_npa households_pa households_npa_cert households_pa_cert individuals_npa individuals_pa, force obs 
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
 // save 
 save "${dir_root}/data/state_data/maryland/maryland.dta", replace 
+
 

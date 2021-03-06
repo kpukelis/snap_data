@@ -264,6 +264,11 @@ replace county = strlower(county)
 // drop duplicates
 duplicates drop 
 
+// assert level of data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
 // order and sort 
 order county ym 
 sort county ym 
@@ -271,7 +276,6 @@ sort county ym
 // save 
 save "${dir_root}/data/state_data/michigan/michigan.dta", replace 
 
-check
 
 
 

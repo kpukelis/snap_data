@@ -25,7 +25,11 @@
 //	oregon			
 
 
+
 #delimit ;
+local first_state arizona
+;
+
 local states_withtotal
 	arizona
 	arkansas
@@ -263,6 +267,11 @@ label var households "Households"
 label var issuance "Issuance"
 label var adults "Adults"
 label var children "Children"
+
+// assert level of data 
+duplicates tag state ym, gen(dup)
+assert dup == 0
+drop dup 
 
 // order and sort 
 order state ym 
