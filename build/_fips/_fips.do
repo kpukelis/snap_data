@@ -47,12 +47,6 @@ forvalues year = `year_min'(1)`year_max' {
 	}
 	drop in 1
 
-	// drop vars I don't need
-	capture rename consolidtatedcitycodefips consolidatedcitycodefips
-	drop countysubdivisioncodefips
-	drop placecodefips
-	drop consolidatedcity
-
 	// rename to simplify 
 	rename statecodefips statefips 
 	rename countycodefips countyfips
@@ -64,6 +58,12 @@ forvalues year = `year_min'(1)`year_max' {
 
 	// preserve
 	preserve 
+
+	// drop vars I don't need
+	capture rename consolidtatedcitycodefips consolidatedcitycodefips
+	drop countysubdivisioncodefips
+	drop placecodefips
+	drop consolidatedcity
 
 	// keep if state level 
 	keep if summarylevel == "040"
@@ -99,6 +99,12 @@ forvalues year = `year_min'(1)`year_max' {
 
 	// preserve
 	preserve 
+
+	// drop vars I don't need
+	capture rename consolidtatedcitycodefips consolidatedcitycodefips
+	drop countysubdivisioncodefips
+	drop placecodefips
+	drop consolidatedcity
 
 	// keep if county level 
 	keep if inlist(summarylevel,"050","50")
@@ -166,21 +172,78 @@ forvalues year = `year_min'(1)`year_max' {
 	// restore
 	restore 
 
+	/////////////////////////////////////
+	// TOWN LEVEL DATA (MASSACHUSETTS) //
+	/////////////////////////////////////
+
+	// preserve 
+	preserve 
+
+	// keep massachusetts only 
+	keep if statefips == "25"
+	drop if areaname == "massachusetts"
+	keep if inlist(summarylevel,"61","061")
+
+	// separate out type 
+	gen town = (strpos(areaname,"town") >= 1)
+	gen city = (strpos(areaname,"city") >= 1)
+
+	// manual fix 
+	replace areaname = "freetown" if areaname == "free" & town == 1
+	
+	// remove "city", "town" from area name 
+	replace areaname = subinstr(areaname," city","",.)
+	replace areaname = subinstr(areaname," town","",.)
+	replace areaname = trim(areaname)
+
+	// destring vars 
+	foreach var in countyfips countysubdivisioncodefips placecodefips {
+		destring `var', replace 
+		confirm numeric variable `var'
+	}
+
+	// assert level of the data 
+	duplicates tag areaname city town, gen(dup)
+	assert dup == 0
+	drop dup 
+
+	// drop vars I don't need
+	drop summarylevel
+	capture rename consolidtatedcitycodefips consolidatedcitycodefips
+	drop statefips
+	drop consolidatedcity
+	drop placecodefips
+
+	// year 
+	gen year = `year'
+
+	// order, sort 
+	order year areaname city town countysubdivisioncodefips countyfips
+	sort year areaname
+
+	// save 
+	tempfile macitytowns_`year'
+	save `macitytowns_`year''
+	save "${dir_root}/data/state_data/_fips/macitytowns_`year'.dta", replace 
+
+	// restore 
+	restore 
+
 }	
 
 *****************************************************
 
 // combine data across years 
-foreach type in state county {
+foreach type in statefips countyfips macitytowns {
 	forvalues year = `year_min'(1)`year_max' {
 		if `year' == `year_min' {
-			use ``type'fips_`year'', clear
+			use ``type'_`year'', clear
 		}
 		else {
-			append using ``type'fips_`year''
+			append using ``type'_`year''
 		}
 	}
-	save "${dir_root}/data/state_data/_fips/`type'fips.dta", replace 
+	save "${dir_root}/data/state_data/_fips/`type'.dta", replace 
 }
 
 *****************************************************

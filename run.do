@@ -23,11 +23,11 @@ global monthsinayear 		= 12
 local switch_install 		= 0
 
 // Build data 
-local _fips 				= 0
-local _zip 					= 0 // KEEP GOING HERE 2021-02-03
+local _fips 				= 0 
+local _zip 					= 1 // KEEP GOING HERE 2021-03-13
 local _clocks 				= 0
 local _waivers_quarter 		= 0
-local sipp_explore 			= 1
+local sipp_explore 			= 0 // KEEP GOING HERE 2021-03-06
 local pub78list 			= 0
 local mass_phd_dummydata	= 0
 local hia 					= 0 // KEEP GOING HERE 2021-02-04
@@ -95,7 +95,7 @@ local analyze_state_ym		= 0
 local event_study_plot 		= 0
 local analyze_arizona 		= 0
 local analyze_kansas 		= 0
-local analyze_massachusetts = 0 // NOT POLISHED, FINISHED AS OF 2021-03-02
+local analyze_massachusetts = 0 // KEEP GOING HERE 2021-03-13
 local analyze_wisconsin 	= 0
 
 ***********************************************
