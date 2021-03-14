@@ -107,9 +107,30 @@ foreach Mon_yyyy in Feb_2013 Jul_2015 Aug_2017 Apr_2018 Sep_2018 Mar_2020 {
 import delimited using "${dir_root}/data/policy_data/state_exempt_counties/massachusetts/new england town to zip crosswalk/zcta_necta_rel_10.csv", delimiter(",") varnames(1) clear 
 keep zcta5 necta zpop
 
-// assert level of data 
+// rename 
+rename necta nectacode
+
+// tag duplicates 
 duplicates tag zcta5, gen(dup_zcta5)
-*duplicates tag necta, gen(dup_necta)
+*duplicates tag nectacode, gen(dup_nectacode)
+
+// just keep one necta for now 
+bysort zcta5: gen obsnum = _n
+assert inlist(obsnum,1,2)
+count if obsnum == 2
+assert r(N) == 39 
+drop if obsnum == 2
+drop obsnum
+
+// assert level of data 
+drop dup_zcta5
+duplicates tag zcta5, gen(dup)
+assert dup == 0
+drop dup 
+
+// merge in other crosswalk
+merge 1:1 nectacode using `Mar_2020'
+check
 
 KEEP GOING HERE 2021-03-13
 
