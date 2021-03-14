@@ -24,13 +24,14 @@ local switch_install 		= 0
 
 // Build data 
 local _fips 				= 0 
-local _zip 					= 1 // KEEP GOING HERE 2021-03-13
+local _zip 					= 0 // unfinished, unused
 local _clocks 				= 0
 local _waivers_quarter 		= 0
 local sipp_explore 			= 0 // KEEP GOING HERE 2021-03-06
 local pub78list 			= 0
 local mass_phd_dummydata	= 0
 local hia 					= 0 // KEEP GOING HERE 2021-02-04
+local massachusetts_waivers = 1 // KEEP GOING HERE 2021-03-14
 local alabama				= 0 // not completed (fixed individual)
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
@@ -162,6 +163,18 @@ foreach step in
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/build/_sipp/`step'.do" ;
+		} ;
+	} ;
+;
+#delimit cr
+
+// waiver data 
+#delimit ;
+foreach step in 
+	massachusetts_waivers
+	{ ;
+		if ``step'' == 1 { ;
+			do "${dir_code}/build/massachusetts/`step'.do" ;
 		} ;
 	} ;
 ;
