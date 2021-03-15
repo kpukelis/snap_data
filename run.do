@@ -31,7 +31,7 @@ local sipp_explore 			= 0 // KEEP GOING HERE 2021-03-06
 local pub78list 			= 0
 local mass_phd_dummydata	= 0
 local hia 					= 0 // KEEP GOING HERE 2021-02-04
-local massachusetts_waivers = 1 // KEEP GOING HERE 2021-03-14
+local massachusetts_waivers = 0 
 local alabama				= 0 // not completed (fixed individual)
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
@@ -96,7 +96,7 @@ local analyze_state_ym		= 0
 local event_study_plot 		= 0
 local analyze_arizona 		= 0
 local analyze_kansas 		= 0
-local analyze_massachusetts = 0 // KEEP GOING HERE 2021-03-13
+local analyze_massachusetts = 1 // KEEP GOING HERE 2021-03-13
 local analyze_wisconsin 	= 0
 
 ***********************************************
