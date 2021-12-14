@@ -102,7 +102,7 @@ rename efsbrsn2 		snap_beginreason2S
 rename efsersn1 		snap_endreason1S
 rename tfsersn2 		snap_endreason2S
 rename rfsyn 			snap_nowS 
-rename tehc_st 			statefips
+rename tehc_st 			statefips_monthly
 rename tst_intv 		state_interview
 rename rhnumu18wt2 		persons_18under // wt2 version includes individuals not in the household at the time of interview
 rename edob_bmonth 		birthmonth
@@ -124,6 +124,30 @@ bysort hhid pid: egen snap_everever = max(snap_everP)
 
 // recode snap_nowS
 recode snap_nowS (1=1) (2=0)
+
+// impose main state of residence as statefips at first nonmissing statefips; usually beginning of first wave (2013m1)
+destring statefips_monthly, replace 
+confirm numeric variable statefips_monthly
+*dis ym(2013,1)
+*dis ym(2016,12)
+forvalues m = 636(1)683 {
+	gen temp = statefips_monthly if ym == `m'
+	bysort hhid pid: egen statefips`m' = max(temp)
+	drop temp 
+}
+gen statefips = .
+forvalues m = 636(1)683 {
+	replace statefips = statefips`m' if missing(statefips) & !missing(statefips`m')
+	drop statefips`m'
+}
+assert !missing(statefips)
+
+// optional: assert one statefips per person 
+bysort hhid pid: egen max_statefips = max(statefips)
+bysort hhid pid: egen min_statefips = min(statefips)
+assert min_statefips == max_statefips
+drop min_statefips
+drop max_statefips
 
 // merge in clock info, to get relative time 
 preserve 
@@ -168,23 +192,78 @@ save "${dir_root}/data/health_data/surveys/SIPP/data/wave_all_WORKING.dta", repl
 */
 **********
 
+**KP: states included right now: fips, AB, clock start, waiver
+// 4, AZ, 2016m1, partial 
+//  5, AK, 2016m1, none
+//  12, FL, 2016m1, none
+//  13, GA, 2017m12, partial
+//  18, IN, 2015m7, none
+//  19, IA, 2017m12, none 
+//  20, KS, 2013m10, none
+//  23, ME, 2014m10, none 
+//  24, MD, 2016m1, partial 
+//  29, MO, 2016m1, none 
+//  30, MT, 2015m1, partial 
+**KP: why no Oregon??, OR, 2016m1, partial 
+//  42, PA, 2018m1, partial 
+//  45, SC, 2016m4, none 
+
 use "${dir_root}/data/health_data/surveys/SIPP/data/wave_all_WORKING.dta", clear
 
 ////////////////////////
 // SAMPLE RESTRICTION //
 ////////////////////////
-
-// sample of states with a visible first stage 
-keep if !missing(bindingexpected_ym)
+**KP: keep going, adding in placebo groups (age18_49 == 0, partial states)
 
 // keep people ever on snap 
 keep if snap_everever == 1
 
+// between the ages of 18-49, at relative time -1
+// Note: only defined for states with a clock since it considers age at relative time 
+keep if age18_49 == 1
+
+// sample of states with a visible first stage 
+keep if !missing(bindingexpected_ym)
+
 // households without children only 
 keep if persons_18under == 0
+**KP: return to this; right now, can change over time 
 
-// between the ages of 18-49
-keep if age18_49 == 1
+// states with not even partial waivers
+keep if inlist(statefips,5,12,18,19,20,23,29,45)
+*drop if inlist(statefips,5,12,18,19,20,23,29,45)
+
+
+**KP: temporary, see what happens if drop one state
+drop if statefips == 5
+	**KP: this plot makes the most sense: dropping 5 and only persons_18under
+
+
+
+/*
+**KP: temporary: only keep states which have no waiver
+keep if inlist(statefips,5,12,18,19,20,23,29,45)
+**KP: statefips 19 not in this sample for some reason
+
+// plot each state separately 
+foreach state in 5 12 18 20 23 29 45 {
+	display in red "statefips `state'"
+	preserve
+		keep if statefips == `state'
+		gen count = 1
+		collapse (sum) count (mean) snap_nowS, by(relative_ym ym)
+		*twoway connected snap_nowS relative_ym
+		sum ym if relative_ym == 0
+		local zero = `r(mean)'
+		sum count 
+		local averageNoversample = `r(mean)'
+		twoway connected snap_nowS ym, xline(`zero') title("statefips `state'") caption("average N over sample = `averageNoversample'")
+		graph export "${dir_graphs}/ts_snap_nowS_statefips`state'.png", as(png) replace
+	restore 
+
+}
+check
+*/
 
 /*
 // average 
@@ -203,10 +282,10 @@ twoway 	(connected mean_snap_nowS relative_ym) (line lci95 relative_ym, lstyle(d
 // parameters
 local months_before                 = 65 // ** if this range changes, need to change label below
 local months_by 					= 1
-local months_after 					= 35
+local months_after 					= 35 
 local plot_months_before 			= 24
-local plot_months_by 				= 6
-local plot_months_after 			= 24
+local plot_months_by 				= 3
+local plot_months_after 			= 9
 local ci 							= 95
 local scale 						= 1 // scale to represent percent (0-100 instead of 0-1)
 local half_scale 					= `scale' / 2
@@ -349,7 +428,7 @@ foreach y in snap_nowS {
 	keep if inrange(relative_ym,-`plot_months_before',`plot_months_after')
 
 	// label relative_ym appropriately
-	label define relative_ym -12 "-12+" -11 "-11"  -10 "-10" -9 "-9" -8 "-8" -7 "-7" -6 "-6" -5 "-5" -4 "-4" -3 "-3" -2 "-2" -1 "-1" 0 "0" 1 "1" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6" 7 "7" 8 "8" 9 "9" 10 "10" 11 "11" 12 "12" 13 "13" 14 "14" 15 "15" 16 "16" 17 "17" 18 "18+" //19 "19" 20 "20" 21 "21" 22 "22" 23 "23" 24 "24+"
+	label define relative_ym -24 "-24+" -21 "-21" -18 "-18" -15 "-15" -12 "12" -11 "-11"  -10 "-10" -9 "-9" -8 "-8" -7 "-7" -6 "-6" -5 "-5" -4 "-4" -3 "-3" -2 "-2" -1 "-1" 0 "0" 1 "1" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6" 7 "7" 8 "8" 9 "9+" // 10 "10" 11 "11" 12 "12" 13 "13" 14 "14" 15 "15" 16 "16" 17 "17" 18 "18" 19 "19" 20 "20" 21 "21" 22 "22" 23 "23" 24 "24+"
 
 	// relabel ends of range
 	*label define relative_ym -`plot_months_before' "<= -`plot_months_before'", modify

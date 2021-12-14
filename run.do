@@ -11,9 +11,11 @@ set more off
 cls
 
 // directories and file names
-global dir_root 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits"
+*global dir_root 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits"
+global dir_root 		"G:/My Drive/Harvard/research/time_limits"
 global dir_code 		"C:/Users/Kelsey/Documents/GitHub/snap_data"
-global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/data/state_data/_graphs"
+*global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/data/state_data/_graphs"
+global dir_graphs 		"G:/My Drive/Harvard/research/time_limits/data/state_data/_graphs"
 
 // run globals
 *do "${dir_code}/0_utility/globals.do"
@@ -29,6 +31,7 @@ local _clocks 				= 0
 local _waivers_quarter 		= 0
 local sipp_explore 			= 0 // KEEP GOING HERE 2021-03-06
 local pub78list 			= 0
+local irs990_explore		= 1 // KEEP GOING HERE 2021-10-18
 local mass_phd_dummydata	= 0
 local hia 					= 0 // KEEP GOING HERE 2021-02-04
 local massachusetts_waivers = 0 
@@ -96,8 +99,12 @@ local analyze_state_ym		= 0
 local event_study_plot 		= 0
 local analyze_arizona 		= 0
 local analyze_kansas 		= 0
-local analyze_massachusetts = 1 // KEEP GOING HERE 2021-03-13
+local analyze_massachusetts = 0 // KEEP GOING HERE 2021-03-13
+local analyze_newyork 		= 1 // KEEP GOING HERE 2021-12-06
+local analyze_southcarolina	= 0 
 local analyze_wisconsin 	= 0
+local newyork_southerntier 	= 0 // KEEP GOING HERE 2021-04-26
+
 
 ***********************************************
 
@@ -136,6 +143,7 @@ foreach step in
 #delimit ;
 foreach step in 
 	pub78list
+	irs990_explore
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/build/_foodpantry/`step'.do" ;
@@ -266,7 +274,10 @@ foreach step in
 	analyze_arizona 
 	analyze_kansas
 	analyze_massachusetts
+	analyze_newyork
+	analyze_southcarolina	
 	analyze_wisconsin
+	newyork_southerntier
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/analyze/`step'.do" ;
