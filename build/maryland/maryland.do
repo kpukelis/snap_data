@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local year_start 					= 2008
-local year_end 						= 2021
+local year_end 						= 2022
 
 ********************************************************************
 
@@ -43,6 +43,7 @@ drop if !inlist(A,
 "queen anne's",
 "st. mary's")
 & !inlist(A,
+"saint mary's"
 "somerset",
 "talbot",
 "washington",
@@ -54,6 +55,7 @@ drop if !inlist(A,
 
 bysort A (obsnum): gen obsnum_withincounty = _n 
 sum obsnum_withincounty	
+
 if `year' == 2008 {
 	assert r(max) == 28 
 }
@@ -69,25 +71,29 @@ else if inlist(`year',2011,2012,2013,2014,2016) {
 else if inlist(`year',2015) {
 	assert r(max) == 34
 }
-else if inlist(`year',2017,2018,2019,2020) {
+else if inlist(`year',2017,2018,2019,2020,2021,2022) {
 	assert r(max) == 42
 }
+else {
+	STOP
+}
 levelsof obsnum_withincounty, local(obsnum_withincounty_nums)
+**local num = 29
 foreach num of local obsnum_withincounty_nums {
 	display in red `num'
 	preserve
 	keep if obsnum_withincounty == `num'
 	dropmiss, force
 	drop obsnum_withincounty	
-	qui describe, varlist 
+	describe, varlist 
 	if `year' == 2015 {
 		assert r(k) == 15 | r(k) == 14 | r(k) == 12
  	}
 	else if `year' == 2016 {
 		assert r(k) == 15 | r(k) == 14 | r(k) == 6
  	}
-	else if `year' == 2021 {
-		assert r(k) == 7
+	else if `year' == 2022 {
+		assert r(k) == 12
  	}
  	else {
 		assert r(k) == 15 | r(k) == 14
@@ -803,7 +809,7 @@ foreach num of local obsnum_withincounty_nums {
 			rename _ ma_mchp_assistanceunits	
 		}
 	}
-	if inlist(`year',2017,2018,2019,2020,2021) {
+	if inlist(`year',2017,2018,2019,2020,2021,2022) {
 		if `num' == 1 {
 			rename _ tanf_apps_received			
 		}
@@ -1124,12 +1130,16 @@ save `county_level'
 
 // collapse to get totals
 use `county_level', clear
-keep county ym snap_households snap_recipients snap_npa_recipients snap_pa_recipients
+keep county ym snap_households snap_recipients /*snap_npa_recipients snap_pa_recipients*/ snap_netexpenditure snap_apps_received snap_apps_approved snap_apps_notapproved
 rename snap_households households
 rename snap_recipients individuals
-rename snap_npa_recipients individuals_npa
-rename snap_pa_recipients individuals_pa
-collapse (sum) households individuals individuals_npa individuals_pa, by(ym)
+*rename snap_npa_recipients individuals_npa
+*rename snap_pa_recipients individuals_pa
+rename snap_netexpenditure issuance
+*rename snap_apps_received apps_received
+*rename snap_apps_approved apps_approved
+*rename snap_apps_notapproved apps_denied
+collapse (sum) households individuals /*individuals_npa individuals_pa*/ issuance snap_apps_received snap_apps_approved snap_apps_notapproved, by(ym)
 tempfile late_state
 save `late_state'
 

@@ -1,19 +1,13 @@
 // oregon.do
 // imports cases and clients from excel sheets
 
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/oregon"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
-
-local years 					2017 2018 2019
-local sheets 					"Allotments" //"Total Recipients" "Cases" // NOT DONE: "NA Recipients" "Persons Coded as CH" "Persons Over 60" "CH Under 5"
-local sheets 					`"Cases"' // "Cases" "NA Recipients" "Persons Coded as CH" "Persons Over 60" "CH Under 5"
-**KP for some reason having to do with annoying quotes, the sheets loop is not working. 
+local years 					2017 2018 2019 2020
+local sheets 					`""Allotments" "Total Recipients" "Cases"  "NA Recipients" "Persons Coded as CH" "Persons Over 60" "CH Under 5""'
 
 ***************************************************************
 
 // import 
-import excel using "${dir_root}/COPIED_Oregon Self-Sufficiency Statewide Data Charts FY 10-11 - FY 17-18 (Partial).xlsx", firstrow case(lower) allstring clear
+import excel using "${dir_root}/data/state_data/oregon/COPIED_Oregon Self-Sufficiency Statewide Data Charts FY 10-11 - FY 17-18 (Partial).xlsx", firstrow case(lower) allstring clear
 		
 // keep only interesting SNAP vars for now
 replace selfsufficiencyprogramcategor = trim(selfsufficiencyprogramcategor)
@@ -89,33 +83,50 @@ foreach sheet of local sheets {
 		// year 
 		display in red `"`sheet'"' `year'
 
+		// filename suffix 
+		if inlist(`year',2019,2020) {
+			local filename_suffix xlsx
+		}
+		else {
+			local filename_suffix xls
+		}
+
 		// import 
-		import excel using "${dir_root}/SNAP County Tables by FIPS Jan`year' - Dec`year'.xls", sheet("`sheet'") firstrow case(lower) allstring clear
-		drop in 1
-		drop in 1
-		drop in 1
-		drop in 1
-		drop in 1
-		drop in 1
-		drop in 1
-		drop datarefresh
+		import excel using "${dir_root}/data/state_data/oregon/SNAP County Tables by FIPS Jan`year' - Dec`year'.`filename_suffix'", sheet("`sheet'") firstrow case(lower) allstring clear
+		capture drop datarefresh
 		capture drop p 
 		capture drop q
 
-		// turn first row into variable names 
-		foreach var of varlist * {
-			replace `var' = strlower(`var')
-			replace `var' = ustrregexra(`var',"-","") if _n == 1
-			*replace `var' = ustrregexra(`var',".","") if _n == 1
-			*replace `var' = ustrregexra(`var'," ","") if _n == 1
-			label variable `var' "`=`var'[1]'"
-			rename `var' `=`var'[1]'
+		if inlist(`year',2017,2018) {
+			drop in 1
+			drop in 1
+			drop in 1
+			drop in 1
+			drop in 1
+			drop in 1
+			drop in 1
+	
+			// turn first row into variable names 
+			foreach var of varlist * {
+				replace `var' = strlower(`var')
+				replace `var' = ustrregexra(`var',"-","") if _n == 1
+				*replace `var' = ustrregexra(`var',".","") if _n == 1
+				*replace `var' = ustrregexra(`var'," ","") if _n == 1
+				label variable `var' "`=`var'[1]'"
+				rename `var' `=`var'[1]'
+			}
+			drop in 1
+			capture drop tot	
 		}
-		drop in 1
-		capture drop tot
+		
+		// drop notes
+		replace county = strlower(county)
+		drop if strpos(county,"emergency allotment")
 
 		// clean fips 
+		replace fips = strlower(fips)
 		replace county = "blank" if fips == "blank"
+		replace county = "total" if fips == "total"
 		replace fips = "888" if fips == "blank"
 		replace fips = "999" if county == "total"
 		replace fips = trim(fips)
@@ -126,6 +137,9 @@ foreach sheet of local sheets {
 		recast str3 fips 
 		duplicates tag fips, gen(dup)
 		drop if dup == 1 & fips == "093" & dec == "0"
+		if "`sheet'" == "Persons Coded as CH" & `year' == 2019 {
+			drop if dup == 1 & fips == "075" & total == "3"	
+		}
 		drop dup
 
 		// destring
@@ -149,8 +163,7 @@ foreach sheet of local sheets {
 		reshape long _, i(fips) j(month) 
 
 		// rename to actual variable
-		*local name = lower("`sheet')
-		local name = ustrregexra(`"`sheet'"'," ","")
+		local name = ustrregexra(lower(`"`sheet'"')," ","")
 		rename _ `name'
 		label var `name' `"`sheet'"'
 
@@ -159,6 +172,10 @@ foreach sheet of local sheets {
 		gen ym = ym(year,month)
 		format ym %tm
 		drop year month
+
+		// make sure variable names are consistent
+		capture rename fipscode fips 
+	*	rename 
 
 		// order and sort 
 		order fips county ym 
@@ -176,7 +193,7 @@ foreach sheet of local sheets {
 foreach sheet of local sheets {
 	foreach year of local years {
 
-		local name = ustrregexra(`"`sheet'"'," ","")
+		local name = ustrregexra(lower(`"`sheet'"')," ","")
 
 		if `year' == 2017 {
 			use ``name'_`year'', clear
@@ -187,33 +204,66 @@ foreach sheet of local sheets {
 	
 		*tempfile `name'
 		*save ``name''
-		save "${dir_root}/oregon_`name'.dta", replace
+		save "${dir_root}/data/state_data/oregon/oregon_`name'.dta", replace
 	}
 }
 */
 
-*foreach sheet of local sheets {
-foreach sheet in Allotments Recipients Cases {
+foreach sheet of local sheets {
 	local name = ustrregexra(`"`sheet'"'," ","")
-	if "`name'" == "Allotments" {
+	if "`sheet'" == "Allotments" {
 		*use ``name'', clear
-		use "${dir_root}/oregon_`name'.dta", clear 
+		use "${dir_root}/data/state_data/oregon/oregon_`name'.dta", clear 
 	}
 	else {
 		*merge 1:1 fips ym using ``name'', assert(3) nogen
-		merge 1:1 fips ym using "${dir_root}/oregon_`name'.dta"
+		merge 1:1 fips ym using "${dir_root}/data/state_data/oregon/oregon_`name'.dta"
 		drop _m
 	}
 }
 
+// drop vars I don't need 
+drop monthlyavg 
+drop total 
+
+// rename vars to stay consistent 
+rename allotments 		benefits
+rename cases 			households
+rename totalrecipients 	persons
+rename personsover60 	age_60
+rename chunder5 		age_0_5 
+rename personscodedasch children 
+rename narecipients 	persons_na
+
+// replace data that should be missing 
+foreach var in benefits households persons age_60 age_0_5 children persons_na {
+	replace `var' = . if `var' == 0 & ym == ym(2020,12)
+}
+
 // append state data 
 append using `oregon_state'
-replace fip
 
+// resolve duplicates 
+duplicates tag county ym, gen(dup)
+drop if dup == 1 & inrange(ym,ym(2017,1),ym(2017,12)) & county == "total" & missing(children) & missing(persons_na) & missing(age_60) & missing(age_0_5)
+drop if inlist(dup,4,5,6,8)	& missing(county)
+	// drop these many duplicate codes for now 
+drop dup 
+
+// assert level of the data
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup
 
 // order and sort 
 order fips county ym 
-sort fips ym
+sort county ym
 
 // save
-save "${dir_root}/oregon.dta", replace 
+save "${dir_root}/data/state_data/oregon/oregon.dta", replace 
+
+
+tab county, miss 
+tab fips, miss 
+tab ym 
+

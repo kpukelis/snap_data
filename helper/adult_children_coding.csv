@@ -1,0 +1,27 @@
+State,age range,classification,classification,notes
+Texas,0-4,children,children,
+Texas,5-17,children,children,
+Texas,18-59,adults,adults,
+Texas,60-64,adults,elderly,
+Texas,65+,adults,elderly,
+Arizona,,adults,,no age definition made in report; might be online
+Arizona,,children,,no age definition made in report; might be online
+Kansas,,adults,,no age definition made in report; might be online
+Kansas,,children,,no age definition made in report; might be online
+Louisiana,under age 18,children,,
+Louisiana,age 18 and over,adults,,
+Michigan,,adults,,no age definition made in report; might be online
+Michigan,,children,,no age definition made in report; might be online
+New Jersey,,adults,,no age definition made in report; might be online
+New Jersey,,children,,no age definition made in report; might be online
+New Jersey,60+,elderly,elderly,separate from adults definition
+Ohio,0-21,adults,,
+Ohio,22+,children,,
+South Dakota,under age 18,children,,
+South Dakota,age 18 and over,adults,,
+Oregon,60+,,elderly,
+Oregon,0-5,,,
+Oregon ,,children,,no age definition made in report; might be online
+Oregon ,,adults,,no age definition made in report; might be online; calculate from individuals - persons
+New Mexico,,adults,,no age definition made in report; might be online
+New Mexico,,children,,no age definition made in report; might be online

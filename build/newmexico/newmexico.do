@@ -4,7 +4,147 @@
 local ym_start 					= ym(2013,1) 
 local ym_end 					= ym(2020,11)
 
+local ym_start_apps 			= ym(2019,1) // could get data earlier
+local ym_end_apps 				= ym(2022,3)
+
 **************************************************************************
+//////////////
+// APP DATA //
+//////////////
+
+forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
+
+	// display ym 
+	display in red "`ym'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year = year(dofm(`ym'))
+	gen month = month(dofm(`ym'))
+	tostring month, gen(monthname) 
+	tostring month, gen(monthname_var) 
+	replace monthname = "January" if monthname == "1"
+	replace monthname = "February" if monthname == "2"
+	replace monthname = "March" if monthname == "3"
+	replace monthname = "April" if monthname == "4"
+	replace monthname = "May" if monthname == "5"
+	replace monthname = "June" if monthname == "6"
+	replace monthname = "July" if monthname == "7"
+	replace monthname = "August" if monthname == "8"
+	replace monthname = "September" if monthname == "9"
+	replace monthname = "October" if monthname == "10"
+	replace monthname = "November" if monthname == "11"
+	replace monthname = "December" if monthname == "12"
+	local month = month
+	display in red "`month'"
+	local monthname = monthname
+	display in red "`monthname'"
+	local monthname_var = monthname_var
+	display in red "`monthname_var'"
+	local year = year
+	display in red "`year'"
+
+	// load data 
+	import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'-3.xlsx", allstring case(lower) firstrow clear 
+
+	// initial cleanup
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+
+	// keep relevant cells 
+	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview s are w aived. Recertification periods are automatically extended for households w ith an Interim Review  due in March and April for")
+	drop if strpos(v1,"Note: December 2020 expenditures include the LIHEAP $300 supplement payments that were tied to prior months since May 2020. The additional expenditures are reflected in the total cases and recipients reported.")
+	drop if strpos(v1,"The March 2021 SNAP expenditures include COVID-19 additional Emergency Allotment")
+	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview")
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	assert `r(N)' == 25
+	keep if _n <= 12
+	describe, varlist 
+	assert `r(k)' == 12
+	keep v7 v10
+	drop in 1
+	drop in 1
+	drop in 1
+	describe, varlist 
+	assert `r(k)' == 2
+	rename v7 variable  
+	rename v10 value 
+	
+	// clean up variable name 
+	replace variable = trim(variable)
+	replace variable = strlower(variable)
+	replace variable = ustrregexra(variable," ","")
+	replace variable = ustrregexra(variable,"4","")
+	replace variable = ustrregexra(variable,"5","")
+	replace variable = ustrregexra(variable,"6","")
+	replace variable = ustrregexra(variable,"7","")
+	replace variable = ustrregexra(variable,"/","per")
+	assert inlist(variable,"expenditures","cases","expenditurespercase","recipients","adults","children","recipientspercase","casesprocessed","approvals")
+
+	// destring
+	destring value, replace
+	confirm numeric variable value 
+
+	// reshape
+	gen id = 1
+	rename value _
+	reshape wide _, i(id) j(variable) string
+	drop id 
+
+	// rename some vars to be consistent 
+	rename _expenditures issuance
+	rename _cases households
+	rename _expenditurespercase avg_issuance_households
+	rename _recipients individuals
+	rename _adults adults
+	rename _children children
+	rename _recipientspercase avg_issuance_individuals
+	rename _casesprocessed apps_received
+	rename _approvals apps_approved
+
+	// ym 
+	gen ym = `ym'
+	format ym %tm 
+	order ym 
+
+	// county 
+	gen county = "total"
+
+	// order 
+	order county ym 
+	// save 
+	tempfile _`ym'
+	save `_`ym''
+	
+}
+
+// append 
+forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
+	if `ym' == `ym_start_apps' {
+		use `_`ym'', clear
+	}
+	else {
+		append using `_`ym''
+	}
+}
+
+// save 
+tempfile newmexico_apps
+save `newmexico_apps'
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+**************************************************************************************************************
+**************************************************************************************************************
+
+/////////////////////
+// ENROLLMENT DATA //
+/////////////////////
 
 forvalues ym = `ym_start'(1)`ym_end' {
 if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
@@ -73,22 +213,22 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 
 	// load data 
 	if inrange(`ym',ym(2013,1),ym(2014,12)) {
-		import delimited "${dir_root}/data/state_data/newmexico/excel/`year'/tabula-MSR_`monthname'_`year'_data.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
+		import delimited "${dir_root}/data/state_data/newmexico/excel_og/`year'/tabula-MSR_`monthname'_`year'_data.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
 	}
 	else if inrange(`ym',ym(2015,1),ym(2017,3)) {
-		import delimited "${dir_root}/data/state_data/newmexico/excel/`year'/tabula-MSR_`monthname'_`year'.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
+		import delimited "${dir_root}/data/state_data/newmexico/excel_og/`year'/tabula-MSR_`monthname'_`year'.pdf_short.csv", stringcols(_all) case(lower) varnames(1) clear 
 	}
 	else if inrange(`ym',ym(2017,4),ym(2017,4)) | (`ym' >= ym(2019,1)) {
-		import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/newmexico/excel_og/`year'/MSR_`monthname'_`year'.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2017,5),ym(2017,12)) {
-		import excel "${dir_root}/data/state_data/newmexico/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/newmexico/excel_og/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2018,7),ym(2018,12)) {
-		import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'`year'_Final.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/newmexico/excel_og/`year'/MSR_`monthname'`year'_Final.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 	else if inrange(`ym',ym(2018,1),ym(2018,6)) {
-		import excel "${dir_root}/data/state_data/newmexico/excel/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
+		import excel "${dir_root}/data/state_data/newmexico/excel_og/`year'/`monthname'`year'_MSR.pdf_short.xlsx", allstring case(lower) firstrow clear 
 	}
 
 	// initial cleanup
@@ -299,6 +439,27 @@ assert numobs_county == 1 | numobs_office == 1
 order office county ym households 
 sort office county ym 
 
+// save
+tempfile newmexico_enrollment
+save `newmexico_enrollment'
+
+******************************************************************************************************************************************************
+
+// merge 
+use `newmexico_apps', clear
+
+// since households is in both, just use households from county 
+drop households 
+merge 1:1 county ym using `newmexico_enrollment', update 
+assert _m !=5 
+drop _m 
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
 // save 
 save "${dir_root}/data/state_data/newmexico/newmexico.dta", replace
+
 

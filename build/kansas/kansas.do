@@ -1,9 +1,75 @@
 // kansas.do 
 
 local year_start 			= 2011
-local year_end 				= 2021
+local year_end 				= 2019 // **KP: need to fix 2020 & 2021
+*local year_end 			= 2021
 
 ********************************************************************
+
+// STATEWIDE DATA 
+
+// import 
+import excel "${dir_root}/data/state_data/kansas/excel/CURRENT_PAR_SFYXXXX_Access.xlsx", allstring case(lower) firstrow clear
+
+// clean up
+dropmiss, force 
+
+// check number of variables
+describe, varlist
+assert `r(k)' == 9
+
+// date 
+destring year, replace 
+confirm numeric variable year 
+replace month = trim(month)
+replace month = strlower(month)
+replace month = "1" if month == "january"
+replace month = "2" if month == "february"
+replace month = "3" if month == "march"
+replace month = "4" if month == "april"
+replace month = "5" if month == "may"
+replace month = "6" if month == "june"
+replace month = "7" if month == "july"
+replace month = "8" if month == "august"
+replace month = "9" if month == "september"
+replace month = "10" if month == "october"
+replace month = "11" if month == "november"
+replace month = "12" if month == "december"
+assert !missing(month)
+destring month, replace
+confirm numeric variable month 
+gen ym = ym(year,month)
+format ym %tm 
+drop year month 
+
+// variable to merge with county level data 
+gen county = "total"
+
+// rename to match data below
+rename cases 			households
+rename persons 			individuals 
+rename avgcostpercase 	avg_issuance_households
+rename avgcostperperson avg_issuance_individuals
+rename expenditures 	issuance
+
+// destring 
+foreach var in households adults children individuals avg_issuance_households avg_issuance_individuals issuance {
+	destring `var', replace 
+	confirm numeric variable `var'
+}
+
+// order and sort 
+order county ym households individuals issuance adults children avg_issuance_households avg_issuance_individuals
+sort county ym 
+
+// save 
+tempfile kansas_state 
+save `kansas_state'
+
+********************************************************************
+
+// COUNTY DATA 
+
 forvalues year = `year_start'(1)`year_end' {
 
 	dis in red "`year'"
@@ -166,7 +232,7 @@ foreach v of varlist _all {
 *br
 
 // assert right structure of data 
-qui describe, varlist 
+describe, varlist 
 assert r(k) == 17 | r(k) == 13 | r(k) == 41 | r(k) == 18
 if r(k) == 18 {
 	rename (`r(varlist)') v#, addnumber
@@ -517,13 +583,14 @@ if !inrange(`year',2019,2020) {
 	gen odd = mod(obsnum_withincounty,2)	
 	keep if !inlist(county,"wichita","total") | (odd == 1 & inlist(county,"wichita","total"))
 	tab obsnum_withincounty if county == "wichita"
-	drop obsnum_withincounty odd 
+	drop odd 
 }
 if `year' == 2020 {
 	// manually drop extra observations
 	drop if county == "total" & obsnum_withincounty == 3
 	drop if county == "wichita" & missing(region)
 }
+drop obsnum_withincounty
 
 // drop 13th month (it's an average) - 2nd month for 2020
 bysort county: assert _N == 12 | _N == 13 if `year' < 2020
@@ -570,6 +637,26 @@ forvalues year = `year_start'(1)`year_end' {
 // order and sort 
 order county region ym 
 sort county ym 
+
+// save 
+tempfile kansas_county
+save `kansas_county'
+
+
+******************************************************************************
+******************************************************************************
+
+// MERGE IN STATEWIDE DATA 
+
+// merge 
+use `kansas_county', clear 
+merge 1:1 county ym using `kansas_state', update 
+
+// validate merge
+assert inrange(ym,ym(2010,7),ym(2019,6)) & county != "total" if inlist(_m,1)
+assert inrange(ym,ym(2010,7),ym(2019,6)) & county == "total" if inlist(_m,3,4,5)
+assert inrange(ym,ym(2019,7),ym(2022,4)) if _m == 2
+drop _m 
 
 // save 
 save "${dir_root}/data/state_data/kansas/kansas.dta", replace

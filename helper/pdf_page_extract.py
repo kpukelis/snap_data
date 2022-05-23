@@ -4,13 +4,20 @@ Created on Thu Jun 18 21:26:20 2020
 
 @author: Kelsey
 """
+#%%
+import sys
+print(sys.prefix)
+import sys -m pip install PyPDF2
 
 #%%
 #https://stackoverflow.com/questions/51567750/extract-specific-pages-of-pdf-and-save-it-with-python
 
 #information = [(filename1,startpage1,endpage1), (filename2, startpage2, endpage2), ...,(filename19,startpage19,endpage19)].
 import PyPDF2  
+#import pypdf2
 #import os
+
+#%%
 
 year = '2019'
 year_short = '19'
@@ -36,24 +43,6 @@ filenames = [
              '12' + year_short + '-family-support-mohealthnet-report' + '.pdf' 
              ]
 
-# newmexico
-state = 'newmexico'
-startpage = 21
-endpage = 21
-filenames = [
-             #'MSR_' + 'January_' + year + '.pdf', 
-             #'MSR_' + 'February_' + year + '.pdf', 
-             #'MSR_' + 'March_' + year + '.pdf',
-             #'MSR_' + 'April_' + year + '.pdf', 
-             'MSR_' + 'May_' + year + '.pdf', 
-             'MSR_' + 'June_' + year + '.pdf', 
-             'MSR_' + 'July_' + year + '.pdf',
-             'MSR_' + 'August_' + year + '.pdf', 
-             'MSR_' + 'September_' + year + '.pdf', 
-             'MSR_' + 'October_' + year + '.pdf', 
-             'MSR_' + 'November_' + year + '.pdf',
-             'MSR_' + 'December_' + year + '.pdf' 
-             ]
 
 # oregon
 state = 'oregon'
@@ -74,9 +63,30 @@ filenames = [
              'SNAP Flash figures ' + 'December ' + year + '.pdf' 
              ]
 
+# newmexico
+state = 'newmexico'
+startpage = 3
+endpage = 3
+filenames = [
+             'MSR_' + 'January_' + year + '.pdf', 
+             'MSR_' + 'February_' + year + '.pdf', 
+             'MSR_' + 'March_' + year + '.pdf',
+             'MSR_' + 'April_' + year + '.pdf', 
+             'MSR_' + 'May_' + year + '.pdf', 
+             'MSR_' + 'June_' + year + '.pdf', 
+             'MSR_' + 'July_' + year + '.pdf',
+             'MSR_' + 'August_' + year + '.pdf', 
+             'MSR_' + 'September_' + year + '.pdf', 
+             'MSR_' + 'October_' + year + '.pdf', 
+             'MSR_' + 'November_' + year + '.pdf',
+             'MSR_' + 'December_' + year + '.pdf' 
+             ]
 
-directory = 'C:\\Users\\Kelsey\\Google Drive\\Harvard\\research\\time_limits\\data\\state_data\\' + state + '\\pdfs\\' + year + '\\'
-directory_short = 'C:\\Users\\Kelsey\\Google Drive\\Harvard\\research\\time_limits\\data\\state_data\\' + state + '\\pdfs_short\\' + year + '\\'
+
+#directory = 'C:\\Users\\Kelsey\\Google Drive\\Harvard\\research\\time_limits\\data\\state_data\\' + state + '\\pdfs\\' + year + '\\'
+#directory_short = 'C:\\Users\\Kelsey\\Google Drive\\Harvard\\research\\time_limits\\data\\state_data\\' + state + '\\pdfs_short\\' + year + '\\'
+directory = 'G:\\My Drive\\Harvard\\research\\time_limits\\data\\state_data\\' + state + '\\pdfs\\' + year + '\\'
+directory_short = 'G:\\My Drive\\Harvard\\research\\time_limits\\data\\state_data\\' + state + '\\pdfs_short\\' + year + '\\'
 
 
 print(filenames)
@@ -84,8 +94,10 @@ print(filenames)
 
 for filename in filenames:
     pdfFileObj = open(directory + filename, 'rb')
-    pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
-    pdf_writer = PyPDF2.PdfFileWriter()
+    #pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
+    pdfReader = pypdf2.PdfFileReader(pdfFileObj)
+    #pdf_writer = PyPDF2.PdfFileWriter()
+    pdf_writer = pypdf2.PdfFileWriter()
     start = startpage
     end = endpage
     while start<=end:

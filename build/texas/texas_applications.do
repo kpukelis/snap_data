@@ -1,9 +1,6 @@
-global dir_root 				"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/state_data/texas"
-global dir_data 				"${dir_root}"
-global dir_graphs				"${dir_root}/graphs"
 
 local ym_start 					= ym(2014,1)
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2022,3)
 local prefix_2014 				"SNAP-"
 local prefix_2015 				"SNAP-"
 local prefix_2016 				"SNAP-"
@@ -11,6 +8,8 @@ local prefix_2017 				"timeliness-snap-"
 local prefix_2018 				"timeliness-snap-"
 local prefix_2019 				"timeliness-snap-"
 local prefix_2020 				"timeliness-snap-"
+local prefix_2021 				"timeliness-snap-"
+local prefix_2022 				"timeliness-snap-"
 local yearname_2014				"-2014"
 local yearname_2015				"-2015"
 local yearname_2016				"-2016"
@@ -18,6 +17,8 @@ local yearname_2017				"-2017"
 local yearname_2018				"-2018"
 local yearname_2019				"-2019"
 local yearname_2020 			"-2020"
+local yearname_2021 			"-2021"
+local yearname_2022 			"-2022"
 
 *********************************************************************
 
@@ -53,7 +54,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace monthname = "December" 	if month == "12"
 		local monthname = monthname
 	}
-	else if inlist(`year',2017,2018,2019,2020) {
+	else if inlist(`year',2017,2018,2019,2020,2021,2022) {
 		gen monthname = ""
 		replace monthname = "jan" 	if month == "01"
 		replace monthname = "feb" 	if month == "02"
@@ -68,6 +69,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace monthname = "nov" 	if month == "11"
 		replace monthname = "dec" 	if month == "12"
 		local monthname = monthname
+	}
+	else {
+		stop 
 	}
 	local filetype xls
 
@@ -144,7 +148,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		tempfile _`ym'
 		save `_`ym''
 	}
-	else if inrange(`ym',ym(2018,8),ym(2019,6)) | inrange(`ym',ym(2019,8),ym(2020,4)) {
+	else if inrange(`ym',ym(2018,8),ym(2022,3)) {
 		
 		if inrange(`ym',ym(2020,1),ym(2020,3)) {
 			local total = 38
@@ -222,8 +226,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		tempfile _`ym'
 		save `_`ym''
 	}
-	else if inlist(`ym',ym(2017,4),ym(2019,7)) {
-		// couldn't find 2017m4,2019m7 data to download; link was broken
+	else if inlist(`ym',ym(2017,4)) {
+		// couldn't find 2017m4 data to download; link was broken
 		
 		// create blank dataset 
 		clear
@@ -234,6 +238,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		// save 
 		tempfile _`ym'
 		save `_`ym''
+	}
+	else {
+		STOP
 	}
 
 
@@ -258,7 +265,7 @@ drop dup
 // order 
 order region ym 
 sort region ym 
-
+CHECK	
 // save
 save "${dir_root}/texas_applications.dta", replace
 

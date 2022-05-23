@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start	 				= ym(2007,1)
-local ym_end 					= ym(2020,3)
+local ym_end 					= ym(2022,2)
 
 ************************************************************
 forvalues ym = `ym_start'(1)`ym_end' {
@@ -73,6 +73,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"JANUARY 2012 By County")
 	drop if strpos(v1,"∆=higher caseload % change *=lower caseload % change")
 	drop if strpos(v1,"Data is derived from NJ MMIS Shared Data Warehouse.")
+	drop if strpos(v1,"Total NJ SNAP Recipients") & strpos(v1," by County")
 	gen obsnum = _n 
 	gsort -obsnum
 	while !((strpos(v1,"NJ") & strpos(v1,"total")) | (strpos(v1,"NJ") & strpos(v1,"Total")) | (strpos(v1,"NJ") & strpos(v1,"TOTAL"))) {
@@ -117,8 +118,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		rename v7 children
 		rename v8 individuals
 		rename v9 individuals_percchange
-		rename v10 age60plus
-		rename v11 peoplewithadisability
+		rename v10 age_60
+		rename v11 disabled
 	}
 	else {
 		assert `r(k)' == 9	
@@ -139,7 +140,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop individuals_percchange
 
 	// destring 
-	foreach var in households_wfnj_tanf households_otherlowinc households adults children individuals age60plus peoplewithadisability {
+	foreach var in households_wfnj_tanf households_otherlowinc households adults children individuals age_60 disabled {
  		capture confirm variable `var'
 		if !_rc {
 			replace `var' = ustrregexra(`var'," ","")
@@ -304,7 +305,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		assert households_wfnj_tanf + households_otherlowinc == households
 
 	// order and sort 
-	order county ym households individuals adults children /*age60plus peoplewithadisability*/ households_wfnj_tanf households_otherlowinc
+	order county ym households individuals adults children /*age_60 disabled*/ households_wfnj_tanf households_otherlowinc
 	sort county ym 
 
 	// save 
@@ -323,6 +324,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 }
 
+// fix one county name 
+replace county = "gloucester" if county == "glouceste"
+
 // replace njtotal = total 
 replace county = "total" if county == "njtotal"
 
@@ -332,9 +336,10 @@ assert dup == 0
 drop dup 
 
 // order and sort 
-order county ym households individuals adults children age60plus peoplewithadisability households_wfnj_tanf households_otherlowinc
+order county ym households individuals adults children age_60 disabled households_wfnj_tanf households_otherlowinc
 sort county ym 
 
 // save 
 save "${dir_root}/data/state_data/newjersey/newjersey.dta", replace 
+
 

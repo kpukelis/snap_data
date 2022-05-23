@@ -2,7 +2,7 @@
 // imports households and individuals from excel sheets
 
 local ym_start					= ym(2013,1)
-local ym_end 					= ym(2020,12)
+local ym_end 					= ym(2022,4)
 local prefix_2013 				"websnap"
 local prefix_2014 				"websnap"
 local prefix_2015 				"snap_"
@@ -11,6 +11,8 @@ local prefix_2017 				"snap_"
 local prefix_2018 				"snap_"
 local prefix_2019 				"snap_"
 local prefix_2020 				"snap_"
+local prefix_2021 				"snap_"
+local prefix_2022 				"snap_"
 local suffix_2013 				""
 local suffix_2014 				"_1"
 local suffix_2015 				""
@@ -19,6 +21,8 @@ local suffix_2017 				"_2"
 local suffix_2018 				"_3"
 local suffix_2019 				"_4"
 local suffix_2020 				"_5"
+local suffix_2021 				"_6"
+local suffix_2022 				"_7"
 
 ***************************************************************
 
@@ -88,9 +92,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if v1 == "County"
 	drop if v2 == "Totals"
 	drop if v1 == "a) Data not shown to avoid disclosure of information for particular individuals"
+	drop if strpos(v1,"SNAP Emergency Allotment expenditures are not included")
+	drop if strpos(v1,"SNAP Emergency Allotment & P-EBT expenditures are not included")
+	drop if strpos(v1,"SNAP Emergency Allotment")
+	drop if strpos(v1,"January 2020 Data")
 
 	// determine number of variables
-	if !inlist(`ym',ym(2016,7),ym(2019,12),ym(2020,8)) {
+	if !inlist(`ym',ym(2016,7),ym(2019,12),ym(2020,8)) & !inrange(`ym',ym(2021,1),ym(2022,4)) {
 		describe, varlist
 		assert r(k) == 9 | r(k) == 10
 		if r(k) == 9 & `ym' < ym(2017,1) {
@@ -192,5 +200,4 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/southdakota/southdakota.dta", replace 
-
 

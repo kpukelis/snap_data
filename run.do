@@ -31,7 +31,7 @@ local _clocks 				= 0
 local _waivers_quarter 		= 0
 local sipp_explore 			= 0 // KEEP GOING HERE 2021-03-06
 local pub78list 			= 0
-local irs990_explore		= 1 // KEEP GOING HERE 2021-10-18
+local irs990_explore		= 0 // KEEP GOING HERE 2021-10-18
 local mass_phd_dummydata	= 0
 local hia 					= 0 // KEEP GOING HERE 2021-02-04
 local massachusetts_waivers = 0 
@@ -39,7 +39,7 @@ local alabama				= 0 // not completed (fixed individual)
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
 local arkansas				= 0
-local california			= 0 // not completed (fixed individual)
+local california			= 0
 local colorado 				= 0
 local connecticut			= 0 // not completed (fixed individual)
 // local delaware			= 0 rolling clock
@@ -52,7 +52,7 @@ local indiana				= 0 // **KP: can go back further cleaning indiana data
 local iowa					= 0 // **KP: can go back further cleaning iowa data 
 local kansas				= 0 
 local kentucky				= 0
-local louisiana				= 0
+local louisiana				= 0 // apps part is not complete, as in not going back as many years as possible
 local maine					= 0 
 local maryland				= 0
 local massachusetts			= 0 // **KP: need to crosswalk zipcode to county
@@ -71,7 +71,7 @@ local northcarolina			= 0
 local northdakota			= 0 // not completed (rolling clock)
 local ohio					= 0
 local oklahoma				= 0 // not completed (fixed individual)
-local oregon				= 0 // NOT DONE YET
+local oregon				= 0
 local pennsylvania			= 0 
 // local rhodeisland 		= 0 fixed statewide
 local southcarolina			= 0
@@ -90,7 +90,7 @@ local wisconsin 			= 0
 **KP: 2020-02-09 missouri oregon left to be done 
 
 // combine 
-local combine_state_ym 		= 0
+local combine_state_ym 		= 1
 local combine_county_ym		= 0 // still more work here 
 
 // analyze
@@ -100,7 +100,7 @@ local event_study_plot 		= 0
 local analyze_arizona 		= 0
 local analyze_kansas 		= 0
 local analyze_massachusetts = 0 // KEEP GOING HERE 2021-03-13
-local analyze_newyork 		= 1 // KEEP GOING HERE 2021-12-06
+local analyze_newyork 		= 0 // KEEP GOING HERE 2021-12-06
 local analyze_southcarolina	= 0 
 local analyze_wisconsin 	= 0
 local newyork_southerntier 	= 0 // KEEP GOING HERE 2021-04-26

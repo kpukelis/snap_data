@@ -8,8 +8,8 @@ local year_start_part2			= 2007
 local year_end_part2			= 2019
 
 // cases part 
-local year_start				= 2000 
-local year_end					= 2019
+local year_start_cases			= 2000 
+local year_end_cases			= 2019
 local month_1 					July
 local month_2 					August
 local month_3 					September
@@ -24,8 +24,8 @@ local month_11 					May
 local month_12					June
 
 // age part.do 
-local year_start				= 2011
-local year_end					= 2019
+local year_start_age			= 2011
+local year_end_age				= 2021
 local month_1 					July
 local month_2 					August
 local month_3 					September
@@ -38,6 +38,11 @@ local month_9 					March
 local month_10 					April
 local month_11 					May
 local month_12					June
+
+// apps part 
+local year_start_apps			= 2018 // 2004
+local year_end_apps				= 2021 
+
 
 ********************************************************************
 // STATE TOTALS 1987-2006
@@ -272,7 +277,7 @@ save `louisiana_state'
 
 ********************************************************************
 
-forvalues year = `year_start'(1)`year_end' {
+forvalues year = `year_start_cases'(1)`year_end_cases' {
 	
 	display in red "`year'"
 
@@ -625,8 +630,8 @@ forvalues year = `year_start'(1)`year_end' {
 }
 
 ******************************************
-forvalues year = `year_start'(1)`year_end' {
-	if `year' == `year_start' {
+forvalues year = `year_start_cases'(1)`year_end_cases' {
+	if `year' == `year_start_cases' {
 		use `_`year'', clear
 	} 
 	else {
@@ -678,12 +683,12 @@ save `louisiana_cases'
 ****************************************************************************************************
 ****************************************************************************************************
 
-forvalues year = `year_start'(1)`year_end' {
+forvalues year = `year_start_age'(1)`year_end_age' {
 	
 	display in red "`year'"
 
-	if `year' == 2019 {
-		local month_num_end = 9 // change when more data is added
+	if `year' == 2021 {
+		local month_num_end = 10 // change when more data is added
 	}
 	else {
 		local month_num_end = 12
@@ -774,6 +779,124 @@ forvalues year = `year_start'(1)`year_end' {
 		tempfile _`year'
 		save `_`year''
 	}
+	else if inlist(`year',2020,2021) {
+		
+		drop if v1 == "PARISH"
+		count
+		local target_obsnum = 84*`month_num_end'
+		assert `r(N)' == `target_obsnum'
+
+		forvalues month_num = 1(1)`month_num_end' {
+
+			display in red "month_num `month_num'"
+
+			// preserve 
+			preserve 
+	
+			assert !missing(v1)
+			rename v1 county 
+
+			// months are listed in reverse order 
+			bysort county (obsnum): gen tempmonth = _n 
+			gen month = tempmonth
+			if `month_num_end' == 12 {
+				recode month (1=6) (2=5) (3=4) (4=3) (5=2) (6=1) (7=12) (8=11) (9=10) (10=9) (11=8) (12=7)	
+			}
+			else {
+				recode month (1=4) (2=3) (3=2) (4=1) (5=12) (6=11) (7=10) (8=9) (9=8) (10=7)
+			}
+			
+			gen year = .
+			replace year = `year' + 1 if inrange(month,1,6)
+			replace year = `year'     if inrange(month,7,12)
+			gen ym = ym(year,month)
+			format ym %tm 
+			drop year 
+			drop month 
+
+			// just keep data for that month
+			keep if tempmonth == `month_num'
+			drop tempmonth
+			drop obsnum
+
+			// clean up this data
+			dropmiss, force 
+			dropmiss, obs force 
+			order ym 
+				describe, varlist 
+				rename (`r(varlist)') (v#), addnumber
+			rename v1 ym 
+
+			// rename variables 
+			describe, varlist 
+			assert r(k) == 5
+			rename v2 county 
+			rename v3 children
+			rename v4 adults
+			rename v5 individuals 
+
+			// drop non data 
+			replace county = trim(county)
+			forvalues numbers = 1(1)12 {
+    			drop if strpos(county,"`month_`numbers''")
+    		}
+			replace county = strlower(county)
+			drop if strpos(county,"region 1") // orleans
+ 			drop if strpos(county,"region 2") // baton rouge
+    		drop if strpos(county,"region 3") // covington
+    		drop if strpos(county,"region 4") // thibodaux
+    		drop if strpos(county,"region 5") // lafayette
+			drop if strpos(county,"region 6") // lake charles
+  			drop if strpos(county,"region 7") // alexandria
+  			drop if strpos(county,"region 8") // shreveport
+    		drop if strpos(county,"region 9") // monroe
+    		drop if strpos(county,"snap recipients by children and adults")
+    		drop if strpos(county,"parish")
+    		drop if county == "by children and adults"
+
+    		// mark where data is a parish or not (there are also state totals and region totals)
+    		gen county_marker = 1
+    		replace county_marker = 0 if strpos(county,"region totals") | strpos(county,"state totals") | strpos(county,"others totals")
+				
+			// destring 
+			foreach var in children adults individuals {
+		
+				// destring
+				destring `var', replace
+		
+				// assert variable is numeric
+				confirm numeric variable `var'
+			}
+		
+			// sort and order 
+			order county ym 
+			sort county ym 
+
+			// save 
+			tempfile _`year'_`month_num'
+			save `_`year'_`month_num''
+
+			// restore 
+			restore 
+
+		} // ends month loop
+		
+		// appends months within year
+		forvalues month_num = 1(1)`month_num_end' {
+			if `month_num' == 1 {
+				use `_`year'_`month_num'', clear
+			} 
+			else {
+				append using `_`year'_`month_num''
+			}
+		}
+
+		// save year data 
+		tempfile _`year'
+		save `_`year''
+
+	} // ends if else for years 2020, 2021, etc.
+
 	else {
 
 		forvalues month_num = 1(1)`month_num_end' {
@@ -910,8 +1033,8 @@ forvalues year = `year_start'(1)`year_end' {
 } // ends year loop
 
 ******************************************
-forvalues year = `year_start'(1)`year_end' {
-	if `year' == `year_start' {
+forvalues year = `year_start_age'(1)`year_end_age' {
+	if `year' == `year_start_age' {
 		use `_`year'', clear
 	} 
 	else {
@@ -958,14 +1081,284 @@ save `louisiana_age'
 ****************************************************************************************************
 ****************************************************************************************************
 
+// APPLICATIONS 
+
+forvalues year = `year_start_apps'(1)`year_end_apps' {
+	
+	display in red "`year'"
+
+	if `year' == 2021 {
+		local month_num_end = 10 // change when more data is added
+	}
+	else {
+		local month_num_end = 12
+	}
+
+	// for filenames
+	local year_plus1 = `year' + 1
+	local year_short = `year' - 2000
+	local year_short_plus1 = `year_short' + 1
+	if `year_short' < 10 {
+		local year_short_name = "0" + "`year_short'"
+	}
+	else {
+		local year_short_name = "`year_short'"
+	}
+	if `year_short_plus1' < 10 {
+		local year_short_plus1_name = "0" + "`year_short_plus1'"
+	}
+	else {
+		local year_short_plus1_name = "`year_short_plus1'"
+	}
+	local yearnames = "`year_short_name'" + "`year_short_plus1_name'"
+
+
+
+
+	// just get state total for now
+	if `year' <= 2018 {
+
+		// import
+		import excel "${dir_root}/data/state_data/louisiana/excel/005_Applications Processed/fy`yearnames'_FS_Apps.xlsx", sheet("stateonly") firstrow case(lower) allstring clear
+		dropmiss, force
+		
+		// county
+		replace county = trim(county)
+		replace county = strlower(county)
+		
+	   	// mark where data is a parish or not (there are also state totals and region totals)
+	   	gen county_marker = 1
+	   	replace county_marker = 0 if strpos(county,"region totals") | strpos(county,"state totals")
+
+		// ym 
+		destring year, replace
+		destring month, replace 
+		confirm numeric variable year 
+		confirm numeric variable month 
+		gen ym = ym(year,month)
+		format ym %tm 
+		drop year month
+		order ym, after(county)
+
+		// destring 
+		foreach var of varlist apps_* {
+
+			// destring
+			destring `var', replace
+
+			// assert variable is numeric
+			confirm numeric variable `var'
+		}
+
+	}
+	else {
+		
+		// import
+		import excel "${dir_root}/data/state_data/louisiana/excel/005_Applications Processed/fy`yearnames'_FS_Apps.xlsx", allstring clear
+
+		// initial cleanup
+		dropmiss, force 
+		dropmiss, obs force 
+		describe, varlist 
+		rename (`r(varlist)') (v#), addnumber
+		gen obsnum = _n
+
+		// rename vars 
+		if inlist(`year',2019) {
+			describe, varlist
+			assert `r(k)' == 19
+			rename v1 county
+			rename v2 apps_received_npa
+			rename v3 apps_received_pa
+			rename v4 apps_received_snap
+			rename v5 apps_received_lacap
+			rename v6 apps_received
+			rename v7 apps_approved_npa
+			rename v8 apps_approved_pa
+			rename v9 apps_approved_snap
+			rename v10 apps_approved_lacap
+			rename v11 apps_approved
+			rename v12 apps_denied_npa
+			rename v13 apps_denied_pa
+			rename v14 apps_denied_snap
+			rename v15 apps_denied_lacap
+			rename v16 apps_denied
+			rename v17 apps_approved_perc 
+			rename v18 apps_denied_perc
+		}
+		else {
+			describe, varlist
+			assert `r(k)' == 13
+			rename v1 county
+			rename v2 apps_received_snap
+			rename v3 apps_received_lacap
+			rename v4 apps_received
+			rename v5 apps_approved_snap
+			rename v6 apps_approved_lacap
+			rename v7 apps_approved
+			rename v8 apps_denied_snap
+			rename v9 apps_denied_lacap
+			rename v10 apps_denied
+			rename v11 apps_approved_perc 
+			rename v12 apps_denied_perc
+		}
+
+
+		// drop non data 
+		replace county = trim(county)
+		replace county = strlower(county)
+		drop if county == "parish"
+		drop if county == ""
+		drop if county == "region 1 ‐ orleans"
+	 	drop if county == "region 2 ‐ baton rouge"
+	    drop if county == "region 3 ‐ covington"
+	    drop if county == "region 4 ‐ thibodaux"
+	    drop if county == "region 5 ‐ lafayette"
+		drop if county == "region 6 ‐ lake charles"
+	  	drop if county == "region 7 ‐ alexandria"
+	  	drop if county == "region 8 ‐ shreveport"
+	    drop if county == "region 9 ‐ monroe"
+	    drop if county == "others totals"
+		drop if strpos(county,"region 1") & strpos(county,"orleans")
+		drop if strpos(county,"region 2") & strpos(county,"baton rouge")
+		drop if strpos(county,"region 3") & strpos(county,"covington")
+		drop if strpos(county,"region 4") & strpos(county,"thibodaux")
+		drop if strpos(county,"region 5") & strpos(county,"lafayette")
+		drop if strpos(county,"region 6") & strpos(county,"lake charles")
+		drop if strpos(county,"region 7") & strpos(county,"alexandria")
+		drop if strpos(county,"region 8") & strpos(county,"shreveport")
+		drop if strpos(county,"region 9") & strpos(county,"monroe")
+
+	   	// mark where data is a parish or not (there are also state totals and region totals)
+	   	gen county_marker = 1
+	   	replace county_marker = 0 if strpos(county,"region totals") | strpos(county,"state totals")
+		
+	    // 12 months of data, named correctly
+	    if `year' != 2021 {
+	    	bysort county (obsnum): assert _N == 12	
+	    }
+	    else {
+	    	bysort county (obsnum): assert _N == `month_num_end'
+	    }
+		bysort county (obsnum): gen withincounty_obsnum = _n
+		gen month = withincounty_obsnum
+		recode month (1 = 7) (2 = 8) (3 = 9) (4 = 10) (5 = 11) (6 = 12) (7 = 1) (8 = 2) (9 = 3) (10 = 4) (11 = 5) (12 = 6)
+		gen year = .
+		replace year = `year' if inrange(month,7,12)
+		replace year = `year_plus1' if inrange(month,1,6)
+		gen ym = ym(year,month)
+		format ym %tm 
+		drop year month withincounty_obsnum obsnum
+
+		// pre destring 
+		foreach var in apps_approved_perc apps_denied_perc {
+			replace `var' = "" if `var' == "NA"	
+		}
+		
+		// destring 
+		foreach var of varlist apps_* {
+
+			// destring
+			destring `var', replace
+
+			// assert variable is numeric
+			confirm numeric variable `var'
+		} // end of destring 
+	} // end of else bracket 
+	
+	// sort and order 
+	order county ym 
+	sort county ym 
+
+	// save 
+	tempfile _`year'
+	save `_`year''
+	
+} // ends year loop
+
+******************************************
+forvalues year = `year_start_apps'(1)`year_end_apps' {
+	if `year' == `year_start_apps' {
+		use `_`year'', clear
+	} 
+	else {
+		append using `_`year''
+	}
+}
+
+// standardize county names 
+gen county_new = ""
+split county, parse(" ")
+gen countycode = county1 if county_marker == 1
+destring countycode, replace
+confirm numeric variable countycode
+replace county_new = county3 + " " + county4 + " " + county5 if county_marker == 1
+replace county_new = county1 + " " + county2 + " " + county3 + " " + county4 + " " + county5 if county_marker == 0
+replace county_new = trim(county_new)
+order county_marker county_new county countycode
+drop county county1 county2 county3 county4 county5
+rename county_new county
+
+// manually clean up some county names 
+*replace county = "sabine - many" if strpos(county,"sabine") & strpos(county,"many")
+*replace county = "sabine - zwolle" if strpos(county,"sabine") & strpos(county,"zwolle")
+
+// drop regions 
+drop if inlist(county,"alexandria region totals","baton rouge region totals","covington region totals","lafayette region totals") | ///
+		inlist(county,"lake charles region totals","monroe region totals","orleans region totals","others totals") | ///
+		inlist(county,"shreveport region totals","thibodaux region totals")
+
+// rename state total 
+replace county = "total" if county == "state totals"
+
+// sort and order 
+order county ym 
+sort county ym 
+
+// save 
+tempfile louisiana_apps
+save `louisiana_apps'
+
+
+
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+
+
 // append statewide data to county data 
 use `louisiana_cases', clear 
 append using `louisiana_state'
 merge 1:1 county ym using `louisiana_age'
+drop _m 
+merge 1:1 county ym using `louisiana_apps'
 drop _m
 
 // drop missing observations
-dropmiss county countycode households individuals avg_indiv_per_hh issuance avg_payment hh_with_earnedinc avg_earnedinc_per_hh children adults, force obs
+#delimit ;
+dropmiss county countycode households individuals avg_indiv_per_hh issuance avg_payment hh_with_earnedinc avg_earnedinc_per_hh children adults
+apps_received_npa
+apps_received_pa
+apps_received_snap
+apps_received_lacap
+apps_received
+apps_approved_npa
+apps_approved_pa
+apps_approved_snap
+apps_approved_lacap
+apps_approved
+apps_denied_npa
+apps_denied_pa
+apps_denied_snap
+apps_denied_lacap
+apps_denied
+apps_approved_perc 
+apps_denied_perc
+, force obs
+;
+#delimit cr 
 assert !missing(county)
 
 // order and sort

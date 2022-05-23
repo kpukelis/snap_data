@@ -2,13 +2,16 @@
 // Kelsey Pukelis
 
 local first_year 				= 2009
-local years 					2009 2012 2014 2016 2018 2019
+local years 					2009 2012 2014 2016 2018 2020 // 2019
+	// don't need 2019 since all the same info is in 2020 now
 local _2009_length 				= 36
 local _2012_length 				= 28
 local _2014_length 				= 27
 local _2016_length 				= 30
-local _2018_length 				= 31 // **KP: not sure if this is right note that this could change as more data gets added for 2021
+local _2018_length 				= 31 // **KP: not sure if this is right note that this could change as more data gets added for 2020
 local _2019_length 				= 26 // **KP: note that this could change as more data gets added for 2021
+local _2020_length 				= 31 // GUESS **KP: note that this could change as more data gets added for 2022
+
 local first_county 				Alcona
 #delimit ;
 local counties 					
@@ -84,7 +87,6 @@ Oscoda
 Otsego
 Ottawa
 Presque
-Isle
 Roscommon
 Saginaw
 Sanilac
@@ -120,7 +122,11 @@ foreach year of local years {
 	// drop monthly averages 
 	drop if strpos(v1,"Monthly Avg.")
 	// drop unnecessary lines 
+	drop if strpos(v1,"Fiscal Year")
 	drop if strpos(v2,"Fiscal Year")
+
+	// county list 
+	*list v1 if strpos(v1,"County")
 
 	// second cleanup
 	dropmiss, force 
@@ -199,6 +205,12 @@ foreach year of local years {
 
 		// generate county variables 
 		gen county = "`county'"
+			// fix names that have more than one word
+			replace county = "grand traverse" if county == "traverse"
+			replace county = "presque isle" if county == "presque"
+			replace county = "saint clair" if county == "clair"
+			replace county = "saint joseph" if county == "joseph"
+			replace county = "van buren" if county == "buren"
 
 		// destring 
 		foreach var in households individuals adults children issuance avg_pay_per_case avg_pay_per_person avg_recip_per_case {
@@ -275,8 +287,6 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/michigan/michigan.dta", replace 
-
-
 
 
 	

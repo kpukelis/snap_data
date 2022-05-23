@@ -3,7 +3,6 @@
 
 //	alabama			 // not completed (fixed individual)
 // 	alaska			 fixed statewide 
-//	california		 // not completed (fixed individual)
 //	connecticut		 // not completed (fixed individual)
 // 	delaware		 rolling clock
 //	hawaii			 // not completed (rolling clock)
@@ -19,12 +18,6 @@
 // 	westvirginia	 fixed statewide
 // 	wyoming			 fixed statewide
 // 	districtofcolumbia			 unclear clock
-
-
-//  missouri
-//	oregon			
-
-
 
 #delimit ;
 local first_state arizona
@@ -47,6 +40,7 @@ local states_withtotal
 	newyork
 	northcarolina
 	ohio
+	oregon
 	pennsylvania
 	southcarolina
 	southdakota
@@ -64,13 +58,14 @@ local states_only
 	indiana
 	kentucky
 	mississippi
-	missouri
+	missouri // county needs to be cleaned
 	nebraska		
 ; 
 #delimit cr 
 
 #delimit ;
 local states_collapse
+	california
 	florida
 	idaho
 	massachusetts
@@ -96,6 +91,9 @@ foreach state of local states_withtotal {
 	// state variable 
 	gen state = "`state'"
 
+	// drop all missing vars 
+	dropmiss, force 
+
 	// rename to combine 
 	capture rename issuancehousehold 	avg_issuance_households
 	capture rename issuance_percase 	avg_issuance_households
@@ -104,18 +102,61 @@ foreach state of local states_withtotal {
 	capture rename issuanceperson 		avg_issuance_individuals
 	capture rename issuance_perrecip	avg_issuance_individuals
 	capture rename avg_pay_per_person	avg_issuance_individuals
-	capture drop issuancehousehold
-	capture drop issuance_percase
-	capture drop avg_pay_per_case
-	capture drop avg_payment_percase
-	capture drop issuanceperson
-	capture drop issuance_perrecip
-	capture drop avg_pay_per_person
+	*capture drop issuancehousehold
+	*capture drop issuance_percase
+	*capture drop avg_pay_per_case
+	*capture drop avg_payment_percase
+	*capture drop issuanceperson
+	*capture drop issuance_perrecip
+	*capture drop avg_pay_per_person
 	capture rename avg_recip_per_case	avg_individuals_households
-	capture drop avg_recip_per_case
-	capture rename apps apps_received
-	capture drop apps 
-	
+	*capture drop avg_recip_per_case
+	// ***apps_received CA MO TX NM MD LA AK
+	// ***apps_approved CA MO NM MD LA AK
+	// apps_disposed CA 
+	// ***apps_denied CA MO MD LA AK
+	// apps_withdrawn CA
+	// apps_expedited CA MO
+	// apps_timely TX
+		// apps_nottimely CA
+		// pendingdays* AK
+		// avg_days_process?? MO
+	// recerts CA
+		// rename: recerts_disposed TX
+		// households_cert MD
+	// recerts_elig CA
+	// recerts_inelig CA
+	// recerts_overdue CA
+		// recert_timely TX 
+		// overdue* AK
+	// ***children MO  TX SD  OR  OH NM NJ LA KS AZ MI
+	// ***adults  (MO) TX SD (OR) OH NM NJ LA KS AZ MI
+	// ***generate infants 
+		// age_00_04 TX
+		if "`state'" == "texas" {
+			gen infants = age_00_04 	
+		}
+		// age_0_5 OR
+		if "`state'" == "oregon" {
+			gen infants = age_0_5
+		}
+	// age_05_17 TX
+	// age_18_59 MO TX
+	// ***generate elderly
+		// age_60_64 TX
+		// age_65    TX
+		if "`state'" == "texas" {
+			egen elderly = rowtotal(age_60_64 age_65)
+		}
+		// age_60    MO OR NJ
+		if "`state'" == "missouri" | "`state'" == "newjersey" {
+			gen elderly = age_60
+		}
+	// ***disabled MO NJ
+
+	// variables list 
+	noisily describe, varlist 
+
 	// save 
 	tempfile `state'
 	save ``state''
@@ -142,17 +183,60 @@ foreach state of local states_only {
 	capture rename issuanceperson 		avg_issuance_individuals
 	capture rename issuance_perrecip	avg_issuance_individuals
 	capture rename avg_pay_per_person	avg_issuance_individuals
-	capture drop issuancehousehold
-	capture drop issuance_percase
-	capture drop avg_pay_per_case
-	capture drop avg_payment_percase
-	capture drop issuanceperson
-	capture drop issuance_perrecip
-	capture drop avg_pay_per_person
+	*capture drop issuancehousehold
+	*capture drop issuance_percase
+	*capture drop avg_pay_per_case
+	*capture drop avg_payment_percase
+	*capture drop issuanceperson
+	*capture drop issuance_perrecip
+	*capture drop avg_pay_per_person
 	capture rename avg_recip_per_case	avg_individuals_households
-	capture drop avg_recip_per_case
-	capture rename apps apps_received
-	capture drop apps 
+	*capture drop avg_recip_per_case
+	// ***apps_received CA MO TX NM MD LA AK NC
+	// ***apps_approved CA MO NM MD LA AK
+	// apps_disposed CA 
+	// ***apps_denied CA MO MD LA AK
+	// apps_withdrawn CA
+	// apps_expedited CA MO
+	// apps_timely TX
+		// apps_nottimely CA
+		// pendingdays* AK
+		// avg_days_process?? MO
+	// recerts CA
+		// rename: recerts_disposed TX
+		// households_cert MD
+	// recerts_elig CA
+	// recerts_inelig CA
+	// recerts_overdue CA
+		// recert_timely TX 
+		// overdue* AK
+	// ***children MO  TX SD  OR  OH NM NJ LA KS AZ MI
+	// ***adults  (MO) TX SD (OR) OH NM NJ LA KS AZ MI
+	// ***generate infants 
+		// age_00_04 TX
+		if "`state'" == "texas" {
+			gen infants = age_00_04 	
+		}
+		// age_0_5 OR
+		if "`state'" == "oregon" {
+			gen infants = age_0_5
+		}
+	// age_05_17 TX
+	// age_18_59 MO TX
+	// ***generate elderly
+		// age_60_64 TX
+		// age_65    TX
+		if "`state'" == "texas" {
+			egen elderly = rowtotal(age_60_64 age_65)
+		}
+		// age_60    MO OR NJ
+		if "`state'" == "missouri" | "`state'" == "newjersey" {
+			gen elderly = age_60
+		}
+	// ***disabled MO NJ
+
+	// variables list 
+	noisily describe, varlist 
 
 	// save 
 	tempfile `state'
@@ -179,25 +263,74 @@ foreach state of local states_collapse {
 	capture rename issuanceperson 		avg_issuance_individuals
 	capture rename issuance_perrecip	avg_issuance_individuals
 	capture rename avg_pay_per_person	avg_issuance_individuals
-	capture drop issuancehousehold
-	capture drop issuance_percase
-	capture drop avg_pay_per_case
-	capture drop avg_payment_percase
-	capture drop issuanceperson
-	capture drop issuance_perrecip
-	capture drop avg_pay_per_person
+	*capture drop issuancehousehold
+	*capture drop issuance_percase
+	*capture drop avg_pay_per_case
+	*capture drop avg_payment_percase
+	*capture drop issuanceperson
+	*capture drop issuance_perrecip
+	*capture drop avg_pay_per_person
 	capture rename avg_recip_per_case	avg_individuals_households
-	capture drop avg_recip_per_case
-	capture rename apps apps_received
-	capture drop apps 
+	*capture drop avg_recip_per_case
+	// ***apps_received CA MO TX NM MD LA AK
+	// ***apps_approved CA MO NM MD LA AK
+	// apps_disposed CA 
+	// ***apps_denied CA MO MD LA AK
+	// apps_withdrawn CA
+	// apps_expedited CA MO
+	// apps_timely TX
+		// apps_nottimely CA
+		// pendingdays* AK
+		// avg_days_process?? MO
+	// recerts CA
+		// rename: recerts_disposed TX
+		// households_cert MD
+	// recerts_elig CA
+	// recerts_inelig CA
+	// recerts_overdue CA
+		// recert_timely TX 
+		// overdue* AK
+	// ***children MO  TX SD  OR  OH NM NJ LA KS AZ MI
+	// ***adults  (MO) TX SD (OR) OH NM NJ LA KS AZ MI
+	// ***generate infants 
+		// age_00_04 TX
+		if "`state'" == "texas" {
+			gen infants = age_00_04 
+			capture drop age_00_04	
+		}
+		// age_0_5 OR
+		if "`state'" == "oregon" {
+			gen infants = age_0_5
+			capture drop age_0_5
+		}
+	// age_05_17 TX
+	// age_18_59 MO TX
+	// ***generate elderly
+		// age_60_64 TX
+		// age_65    TX
+		if "`state'" == "texas" {
+			egen elderly = rowtotal(age_60_64 age_65)
+			capture drop age_60_64
+			capture drop age_65
+		}
+		// age_60    MO OR NJ
+		if "`state'" == "missouri" | "`state'" == "newjersey" {
+			gen elderly = age_60
+			capture drop age_60
+		}
+	// ***disabled MO NJ
+
+	// variables list 
+	noisily describe, varlist 
 
 	// setup varlist for later
 	describe, varlist
 	local variable_list "`r(varlist)'"
 
 	// collapse each var 
-	foreach v in individuals households issuance adults children {
-		
+	foreach v in households individuals issuance adults children apps_received apps_approved apps_denied infants elderly disabled {
+		display in red "`v'"
+
 		capture confirm variable `v' 
 		if !_rc {
 			preserve 
@@ -219,14 +352,31 @@ foreach state of local states_collapse {
 	}
 
 	// merge 
-	foreach v in individuals households issuance adults children {
+	if inlist("`state'","idaho") {
+		local keep_varlist individuals households issuance adults children apps_received apps_approved apps_denied infants elderly disabled
+	}
+	else {
+		local keep_varlist households individuals issuance adults children apps_received apps_approved apps_denied infants elderly disabled	
+	}
+	foreach v in `keep_varlist' {
 		if strpos("`variable_list'","`v'") {
-			if "`v'" == "individuals" {
-				use ``v'', clear
+			if inlist("`state'","idaho") {
+				if "`v'" == "individuals" {
+					use ``v'', clear
+				}
+				else {
+					merge 1:1 state ym using ``v'', assert(3) nogen
+				}
 			}
 			else {
-				merge 1:1 state ym using ``v'', assert(3) nogen
+				if "`v'" == "households" {
+					use ``v'', clear
+				}
+				else {
+					merge 1:1 state ym using ``v'', assert(3) nogen
+				}
 			}
+			
 		}
 	}
 
@@ -267,15 +417,31 @@ label var households "Households"
 label var issuance "Issuance"
 label var adults "Adults"
 label var children "Children"
+label var apps_received "Applications received"
+label var apps_approved "Applications approved"
+label var apps_denied "Applications denied"
+label var infants "Infants (age < 5)"
+label var elderly "Elderly (age > 60)"
+label var disabled "Disabled"
 
 // assert level of data 
 duplicates tag state ym, gen(dup)
 assert dup == 0
 drop dup 
 
+// calculate adults where needed 
+assert missing(adults) if inlist(state,"missouri","oregon")
+replace adults = individuals - children if inlist(state,"missouri","oregon")
+
 // order and sort 
-order state ym 
+order state ym individuals households issuance adults children apps_received apps_approved apps_denied infants elderly disabled
 sort state ym 
+
+// check where vars are nonmissing 
+foreach var in individuals households issuance adults children apps_received apps_approved apps_denied infants elderly disabled {
+	display in red "`var'"
+	tab state if !missing(`var')
+}
 
 // save 
 save "${dir_root}/data/state_data/state_ym.dta", replace 

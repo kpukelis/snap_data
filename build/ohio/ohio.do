@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start	 				= ym(2002,6)
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2022,2)
 
 ************************************************************
 
@@ -65,6 +65,9 @@ if `ym' != ym(2018,9) {
 	else if inrange(`ym',ym(2019,1),ym(2019,12)) {
 		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/Case Load Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
 	}
+	else if inrange(`ym',ym(2020,1),ym(2022,12)) {
+		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/Caseload Summary Report `monthname' `year'.xlsx", case(lower) allstring clear
+	}
 	else {
 		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/Caseload Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
 	}
@@ -106,6 +109,10 @@ if `ym' != ym(2018,9) {
 	drop if strpos(v1,"Page 19")
 	drop if strpos(v1,"Page 20")
 	drop if strpos(v1,"Page 21")
+	if `ym' == ym(2021,10) {
+		drop if strpos(v1,"Program Detail: Publicly Funded Child Care") 	
+	}
+	
 
 	// dropmiss remaining
 	dropmiss, force 
@@ -140,7 +147,7 @@ if `ym' != ym(2018,9) {
 	else if inrange(`ym',ym(2014,2),ym(2018,8)) {
 		assert `r(N)' == 91	
 	}
-	else if inlist(`ym',ym(2020,2),ym(2020,4)) {
+	else if inlist(`ym',ym(2020,2)) | inrange(`ym',ym(2020,4),ym(2022,2)) {
 		assert `r(N)' == 87 
 	}
 	else {
@@ -305,7 +312,7 @@ drop P*
 drop T*
 
 local ym_replace_start = ym(2014,2)
-local ym_replace_end = ym(2020,4) // **KP: should be ym_end from the state 
+local ym_replace_end = `ym_end' // **KP: should be ym_end from the state 
 
 // expand where observations don't exist 
 expand 3 if county == "defpaulding" & inrange(ym,ym(2018,9),`ym_replace_end')

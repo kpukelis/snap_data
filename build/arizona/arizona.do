@@ -3,7 +3,7 @@
 // Note: 2012m10 greenlee data missing from pdf
 
 local ym_start	 				= ym(2006,4)
-local ym_end 					= ym(2020,12) 
+local ym_end 					= ym(2022,4) 
 
 ************************************************************
 
@@ -39,25 +39,41 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inrange(`ym',ym(2018,1),ym(2018,12)) {
 		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme-statistical-bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear
 	}
-	else {
+	else if inrange(`ym',ym(2019,1),ym(2020,12)) {
 		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme-statistical_bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear		
+	}
+	else if inrange(`ym',ym(2021,1),ym(2022,4)) {
+		import excel using "${dir_root}/data/state_data/arizona/excel/dbme_statistical_bulletin-`month'-`year'.xlsx", case(lower) allstring clear 
+		describe, varlist 
+		rename (`r(varlist)') (v#), addnumber
+		// region 
+		drop v1 
 	}
 	dropmiss, force
 	egen nmcount = rownonmiss(_all), strok
 	drop if nmcount == 0
 	drop nmcount
-	count if missing(v1)
-	assert r(N) == 4 | r(N) == 3 | r(N) == 2
-	if r(N) == 4 {
-		drop in 1
-		drop in 1
+	if `ym' <= ym(2020,12) {
+		count if missing(v1)
+		assert r(N) == 4 | r(N) == 3 | r(N) == 2
+		if r(N) == 4 {
+			drop in 1
+			drop in 1
+		}
+		if r(N) == 3 {
+			drop in 1
+		}
+		if r(N) == 2 {
+		}
+		replace v1 = "county" if missing(v1)
 	}
-	if r(N) == 3 {
+	else {
 		drop in 1
+		dropmiss, force
+		describe, varlist 
+		rename (`r(varlist)') (v#), addnumber
+		replace v1 = "county" if missing(v1)
 	}
-	if r(N) == 2 {
-	}
-	replace v1 = "county" if missing(v1)
 
 	// turn first row into variable names 
 	foreach var of varlist * {
@@ -140,6 +156,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	capture rename paymenthousehold issuancehousehold
 	capture rename paymentperson issuanceperson
 	capture rename totalissuance issuance
+	capture rename averageissuancehousehold issuancehousehold
+	capture rename averageissuanceperson issuanceperson
 
 	// destring
 	foreach v in households individuals issuance issuancehousehold issuanceperson {
@@ -163,6 +181,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	gen ym = `ym'
 	format ym %tm 
 
+	// fix a fluke 
+	replace county = "grand total" if county == "county" & _n == _N 
+	
 	// save 
 	tempfile _`ym'
 	save `_`ym''

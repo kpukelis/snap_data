@@ -34,7 +34,7 @@ local legend_options 				off
 **************************************************************************************
 
 // loop over several outcomes: coefplot of the before and after terms
-foreach y in   individuals households issuance {
+foreach y in households  individuals  issuance {
 
 	// load data
 	use "${dir_root}/data/state_data/state_ym.dta", clear 
@@ -151,6 +151,11 @@ tab state_num
 	*reg log_`y' _*_months_before _*_months_after i.state_num /*i.state_num#c.r_1 i.state_num#c.r_2*/ /*i.state_num#c.zXr_1*/ /*i.state_num#c.r_2 i.state_num#c.r_3 i.state_num#c.r_4 i.state_num#c.r_5*/ , vce(cluster state_num) // nocons
 **KP: not sure if this is the right regression, with two-way FE
 
+reg log_`y' z i.state_num i.ym, vce(cluster state_num)
+areg log_`y' z i.ym, absorb(state_num) vce(cluster state_num)
+
+check
+
 	// fill-in matrix
 	local tail = (1 - (`ci'/100)) / 2
 	local tstat = invttail(e(df_r),`tail')
@@ -243,6 +248,9 @@ tab state_num
 		)
 	;
 	#delimit cr
+
+	regress 
+
 check
 	// save graph
 	graph export "${dir_graphs}/event_plot_`y'.png", as(png) replace
