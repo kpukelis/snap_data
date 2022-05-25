@@ -149,7 +149,7 @@ foreach state of local states_withtotal {
 			egen elderly = rowtotal(age_60_64 age_65)
 		}
 		// age_60    MO OR NJ
-		if "`state'" == "missouri" | "`state'" == "newjersey" {
+		if "`state'" == "missouri" | "`state'" == "newjersey" | "`state'" == "oregon" {
 			gen elderly = age_60
 		}
 	// ***disabled MO NJ
@@ -230,7 +230,7 @@ foreach state of local states_only {
 			egen elderly = rowtotal(age_60_64 age_65)
 		}
 		// age_60    MO OR NJ
-		if "`state'" == "missouri" | "`state'" == "newjersey" {
+		if "`state'" == "missouri" | "`state'" == "newjersey" | "`state'" == "oregon" {
 			gen elderly = age_60
 		}
 	// ***disabled MO NJ
@@ -314,7 +314,7 @@ foreach state of local states_collapse {
 			capture drop age_65
 		}
 		// age_60    MO OR NJ
-		if "`state'" == "missouri" | "`state'" == "newjersey" {
+		if "`state'" == "missouri" | "`state'" == "newjersey" | "`state'" == "oregon" {
 			gen elderly = age_60
 			capture drop age_60
 		}
@@ -423,6 +423,9 @@ label var apps_denied "Applications denied"
 label var infants "Infants (age < 5)"
 label var elderly "Elderly (age > 60)"
 label var disabled "Disabled"
+*label var gender_*
+*label var ethnicity_*
+*label var race_*
 
 // assert level of data 
 duplicates tag state ym, gen(dup)

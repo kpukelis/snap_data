@@ -112,7 +112,28 @@ for (month in months) {
 }
 #}
 
+# new mexico - race 
 
+dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
+dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_race"
+
+years <- 2019:2022
+#year <- 2018
+months <- c(
+  "January",
+  "February","March","April","May","June","July",
+  "August","September","October","November","December")
+page_range <- 5:5
+
+#month <- "January"
+for (year in years) {
+for (month in months) {
+  pdf_subset(#input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+    #input = paste0(dir_source,"/",year,"/","MSR_",month,year,"_Final.pdf"),
+    input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+    pages = page_range, output = paste0(dir_save,"/",year,"/","MSR_",month,"_",year,".pdf"))
+}
+}
 
 # new mexico
 

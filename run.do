@@ -90,7 +90,7 @@ local wisconsin 			= 0
 **KP: 2020-02-09 missouri oregon left to be done 
 
 // combine 
-local combine_state_ym 		= 1
+local combine_state_ym 		= 0
 local combine_county_ym		= 0 // still more work here 
 
 // analyze

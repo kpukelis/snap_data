@@ -7,7 +7,141 @@ local ym_end 					= ym(2020,11)
 local ym_start_apps 			= ym(2019,1) // could get data earlier
 local ym_end_apps 				= ym(2022,3)
 
+local ym_start_race 			= ym(2019,1) // could get data earlier
+local ym_end_race 				= ym(2022,3)
+
 **************************************************************************
+
+///////////////
+// RACE DATA //
+///////////////
+
+forvalues ym = `ym_start_race'(1)`ym_end_race' {
+
+	// display ym 
+	display in red "`ym'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year = year(dofm(`ym'))
+	gen month = month(dofm(`ym'))
+	tostring month, gen(monthname) 
+	tostring month, gen(monthname_var) 
+	replace monthname = "January" if monthname == "1"
+	replace monthname = "February" if monthname == "2"
+	replace monthname = "March" if monthname == "3"
+	replace monthname = "April" if monthname == "4"
+	replace monthname = "May" if monthname == "5"
+	replace monthname = "June" if monthname == "6"
+	replace monthname = "July" if monthname == "7"
+	replace monthname = "August" if monthname == "8"
+	replace monthname = "September" if monthname == "9"
+	replace monthname = "October" if monthname == "10"
+	replace monthname = "November" if monthname == "11"
+	replace monthname = "December" if monthname == "12"
+	local month = month
+	display in red "`month'"
+	local monthname = monthname
+	display in red "`monthname'"
+	local monthname_var = monthname_var
+	display in red "`monthname_var'"
+	local year = year
+	display in red "`year'"
+
+	// load data 
+	import excel "${dir_root}/data/state_data/newmexico/excel_race/`year'/MSR_`monthname'_`year'.xlsx", allstring case(lower) firstrow clear 
+
+	// initial cleanup
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+
+	// keep relevant cells 
+	drop if strpos(v1,"Medicaid demographic data can be found here:")
+	dropmiss, force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	assert `r(k)' == 6
+	assert inlist(`r(N)',31,32)
+	if `r(N)' == 31 {
+		keep if _n >= 16	
+	}
+	else if `r(N)' == 32 {
+		keep if _n >= 17
+	}
+	
+	drop v3
+	drop v4 
+	drop v5 
+	drop v6
+	drop if strpos(v1,"Demographic Profile")
+	drop if strpos(v1,"Gender of Recipients")
+	drop if strpos(v1,"Ethnicity 10")
+	drop if strpos(v1,"Race 10")
+	drop in 1
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	assert `r(k)' == 2
+	assert `r(N)' == 11
+	rename v1 variable 
+	rename v2 value 
+	replace variable = ustrregexra(variable," ","")
+	replace variable = ustrregexra(variable,"-","")
+	replace variable = ustrregexra(variable,"/","")
+	replace variable = strlower(variable)
+	replace variable = substr(variable,1,25)
+	*replace variable = "_" + variable
+	destring value, replace
+	confirm numeric variable value
+	rename value _
+	gen id = 1
+	reshape wide _, i(id) j(variable) string 
+	drop id 
+	rename _africanamericanorblack 			race_africanamericanorblack
+	rename _asian 							race_asian
+	rename _female 							gender_female
+	rename _hispanic 						ethnicity_hispanic
+	rename _male 							gender_male
+	rename _morethanonerace 				race_morethanonerace
+	rename _nativeamericanoralaskanna	 	race_nativeamericanoralaskanna
+	rename _nativehawaiianorpacificis		race_nativehawaiianorpacificis
+	rename _nonhispanic 					ethnicity_nonhispanic
+	rename _unknownnotdeclared 				race_unknownnotdeclared
+	rename _white 							race_white
+
+	// ym 
+	gen ym = `ym'
+	format ym %tm 
+	order ym 
+
+	// county 
+	gen county = "total"
+
+	// order 
+	order county ym gender_* ethnicity_* race_*
+	// save 
+
+	tempfile _`ym'
+	save `_`ym''
+	
+}
+
+// append 
+forvalues ym = `ym_start_race'(1)`ym_end_race' {
+	if `ym' == `ym_start_race' {
+		use `_`ym'', clear
+	}
+	else {
+		append using `_`ym''
+	}
+}
+
+// save 
+tempfile newmexico_race
+save `newmexico_race'
+
 //////////////
 // APP DATA //
 //////////////
@@ -447,6 +581,9 @@ save `newmexico_enrollment'
 
 // merge 
 use `newmexico_apps', clear
+merge 1:1 county ym using `newmexico_race'
+assert _m == 3 // this will not be the case if one of these datasets is updated 
+drop _m 
 
 // since households is in both, just use households from county 
 drop households 
