@@ -52,7 +52,7 @@ local indiana				= 0 // **KP: can go back further cleaning indiana data
 local iowa					= 0 // **KP: can go back further cleaning iowa data 
 local kansas				= 0 
 local kentucky				= 0
-local louisiana				= 0 // apps part is not complete, as in not going back as many years as possible
+local louisiana				= 1 // apps part is not complete, as in not going back as many years as possible
 local maine					= 0 
 local maryland				= 0
 local massachusetts			= 0 // **KP: need to crosswalk zipcode to county
@@ -73,7 +73,7 @@ local ohio					= 0
 local oklahoma				= 0 // not completed (fixed individual)
 local oregon				= 0
 local pennsylvania			= 0 
-// local rhodeisland 		= 0 fixed statewide
+local rhodeisland 			= 0 // fixed statewide
 local southcarolina			= 0
 local southdakota 			= 0
 local tennessee 			= 0
@@ -82,7 +82,7 @@ local texas	 				= 0
 local vermont 				= 0 // handful of data years 
 local virginia 				= 0 
 local washington 			= 0 // **not completed (fixed statewide, but yearly)
-// local westvirginia 		= 0 fixed statewide
+local westvirginia 			= 0 // fixed statewide
 local wisconsin 			= 0
 // local wyoming 			= 0 fixed statewide
 // local districtofcolumbia	= 0 unclear clock
@@ -233,7 +233,7 @@ foreach step in
 	oklahoma
 	oregon
 	pennsylvania
-/* 	rhodeisland*/
+ 	rhodeisland
 	southcarolina
 	southdakota
 	tennessee
@@ -242,7 +242,7 @@ foreach step in
 	vermont
 	virginia
 	washington
-/* 	westvirginia*/
+ 	westvirginia
 	wisconsin
 /* 	wyoming*/
 /* 	districtofcolumbia*/

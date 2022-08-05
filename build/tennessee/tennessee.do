@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start 					= ym(2011,1)
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2022,5)
 local prefix_2011 				"FSPP"
 local prefix_2012 				"FSPP"
 local prefix_2013 				"FSPP"
@@ -13,6 +13,8 @@ local prefix_2017 				"SNAP_Participation_"
 local prefix_2018 				"SNAP_Participation_"
 local prefix_2019 				""
 local prefix_2020 				""
+local prefix_2021 				""
+local prefix_2022 				""
 local middle_2011 				""
 local middle_2012 				""
 local middle_2013 				""
@@ -23,6 +25,8 @@ local middle_2017 				""
 local middle_2018 				""
 local middle_2019 				""
 local middle_2020 				""
+local middle_2021 				""
+local middle_2022 				""
 local suffix_2011 				"1"
 local suffix_2012 				"1"
 local suffix_2013 				"1"
@@ -33,6 +37,8 @@ local suffix_2017 				""
 local suffix_2018 				""
 local suffix_2019 				" SNAP Participation Report"
 local suffix_2020				" SNAP Participation Report"
+local suffix_2021				" SNAP Participation Report"
+local suffix_2022				" SNAP Participation Report"
 local yearname_2011				"11"
 local yearname_2012				"12"
 local yearname_2013				"13"
@@ -43,6 +49,8 @@ local yearname_2017				"_2017"
 local yearname_2018				"_2018"
 local yearname_2019				"2019-"
 local yearname_2020 			"2020-"
+local yearname_2021 			"2021-"
+local yearname_2022 			"2022-"
 
 *********************************************************************
 
@@ -83,7 +91,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	if inlist(`year',2011,2012,2013,2014,2015,2016,2017,2018) {
 		import excel using "${dir_root}/data/state_data/tennessee/excel/`year'/`prefix_`year''`monthname'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
 	}
-	else if inlist(`year',2019,2020) {
+	else if inlist(`year',2019,2020,2021,2022) {
 		import excel using "${dir_root}/data/state_data/tennessee/excel/`year'/`yearname_`year''`monthname'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 
@@ -175,7 +183,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		drop number
 
 	}
-	if inlist(`ym',ym(2013,9)) | inrange(`ym',ym(2016,4),ym(2016,12)) | inrange(`ym',ym(2017,6),ym(2020,4)) {
+	if inlist(`ym',ym(2013,9)) | inrange(`ym',ym(2016,4),ym(2016,12)) | inrange(`ym',ym(2017,6),ym(2022,5)) {
 
 		// drop title observations
 		drop if strpos(v2,"January")
@@ -240,7 +248,6 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 ******************************************
 
-
 forvalues ym = `ym_start'(1)`ym_end' {
 	if `ym' == `ym_start' {
 		use `_`ym'', clear
@@ -274,5 +281,61 @@ order county ym
 sort county ym 
 
 // save
+save "${dir_root}/data/state_data/tennessee/tennessee_county.dta", replace
+
+*******************************************************************************************
+*******************************************************************************************
+*******************************************************************************************
+
+// APPS DATA 
+
+// import 
+import excel using "${dir_root}/data/state_data/tennessee/tennessee_apps.xlsx", case(lower) firstrow allstring clear
+rename impute_flag imputed
+
+// destring
+foreach var in year month apps_received_snaptanf imputed {
+	destring `var', replace 
+	confirm numeric variable `var'
+}
+
+// ym 
+gen ym = ym(year,month)
+format ym %tm 
+drop year 
+drop month 
+
+// county
+gen county = "total"
+
+// order and sort 
+order county ym 
+sort county ym 
+
+// save 
+save "${dir_root}/data/state_data/tennessee/tennessee_apps.dta", replace
+
+*******************************************************************************************
+*******************************************************************************************
+*******************************************************************************************
+
+// MERGE DATASETS 
+
+// load data 
+use "${dir_root}/data/state_data/tennessee/tennessee_county.dta", clear 
+
+// merge 
+merge 1:1 county ym using "${dir_root}/data/state_data/tennessee/tennessee_apps.dta"
+assert inlist(_m,1,3)
+drop _m 
+
+// order and sort 
+order county ym 
+sort county ym 
+
+// save
 save "${dir_root}/data/state_data/tennessee/tennessee.dta", replace
+
+check
+
 

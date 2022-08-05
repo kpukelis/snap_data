@@ -4,144 +4,21 @@
 local ym_start 					= ym(2013,1) 
 local ym_end 					= ym(2020,11)
 
-local ym_start_apps 			= ym(2019,1) // could get data earlier
-local ym_end_apps 				= ym(2022,3)
+// This section no longer needed - get application data from apps_plus 
+// local ym_start_apps 			= ym(2019,1) // could get data earlier
+// local ym_end_apps 			= ym(2022,3)
 
-local ym_start_race 			= ym(2019,1) // could get data earlier
+local ym_start_apps_plus		= ym(2013,1)
+local ym_end_apps_plus			= ym(2022,5)
+
+// early data: 2014m2-2017m3, hand entered. Rest of the data format starts 2017m4
+// local ym_start_race 			= ym(2014,2) 
+local ym_start_race 			= ym(2017,4) 
 local ym_end_race 				= ym(2022,3)
 
 **************************************************************************
-
-///////////////
-// RACE DATA //
-///////////////
-
-forvalues ym = `ym_start_race'(1)`ym_end_race' {
-
-	// display ym 
-	display in red "`ym'"
-
-	// for file names
-	clear
-	set obs 1
-	gen year = year(dofm(`ym'))
-	gen month = month(dofm(`ym'))
-	tostring month, gen(monthname) 
-	tostring month, gen(monthname_var) 
-	replace monthname = "January" if monthname == "1"
-	replace monthname = "February" if monthname == "2"
-	replace monthname = "March" if monthname == "3"
-	replace monthname = "April" if monthname == "4"
-	replace monthname = "May" if monthname == "5"
-	replace monthname = "June" if monthname == "6"
-	replace monthname = "July" if monthname == "7"
-	replace monthname = "August" if monthname == "8"
-	replace monthname = "September" if monthname == "9"
-	replace monthname = "October" if monthname == "10"
-	replace monthname = "November" if monthname == "11"
-	replace monthname = "December" if monthname == "12"
-	local month = month
-	display in red "`month'"
-	local monthname = monthname
-	display in red "`monthname'"
-	local monthname_var = monthname_var
-	display in red "`monthname_var'"
-	local year = year
-	display in red "`year'"
-
-	// load data 
-	import excel "${dir_root}/data/state_data/newmexico/excel_race/`year'/MSR_`monthname'_`year'.xlsx", allstring case(lower) firstrow clear 
-
-	// initial cleanup
-	dropmiss, force 
-	dropmiss, obs force 
-	describe, varlist 
-	rename (`r(varlist)') (v#), addnumber
-
-	// keep relevant cells 
-	drop if strpos(v1,"Medicaid demographic data can be found here:")
-	dropmiss, force 
-	describe, varlist 
-	rename (`r(varlist)') (v#), addnumber
-	assert `r(k)' == 6
-	assert inlist(`r(N)',31,32)
-	if `r(N)' == 31 {
-		keep if _n >= 16	
-	}
-	else if `r(N)' == 32 {
-		keep if _n >= 17
-	}
-	
-	drop v3
-	drop v4 
-	drop v5 
-	drop v6
-	drop if strpos(v1,"Demographic Profile")
-	drop if strpos(v1,"Gender of Recipients")
-	drop if strpos(v1,"Ethnicity 10")
-	drop if strpos(v1,"Race 10")
-	drop in 1
-	describe, varlist 
-	rename (`r(varlist)') (v#), addnumber
-	assert `r(k)' == 2
-	assert `r(N)' == 11
-	rename v1 variable 
-	rename v2 value 
-	replace variable = ustrregexra(variable," ","")
-	replace variable = ustrregexra(variable,"-","")
-	replace variable = ustrregexra(variable,"/","")
-	replace variable = strlower(variable)
-	replace variable = substr(variable,1,25)
-	*replace variable = "_" + variable
-	destring value, replace
-	confirm numeric variable value
-	rename value _
-	gen id = 1
-	reshape wide _, i(id) j(variable) string 
-	drop id 
-	rename _africanamericanorblack 			race_africanamericanorblack
-	rename _asian 							race_asian
-	rename _female 							gender_female
-	rename _hispanic 						ethnicity_hispanic
-	rename _male 							gender_male
-	rename _morethanonerace 				race_morethanonerace
-	rename _nativeamericanoralaskanna	 	race_nativeamericanoralaskanna
-	rename _nativehawaiianorpacificis		race_nativehawaiianorpacificis
-	rename _nonhispanic 					ethnicity_nonhispanic
-	rename _unknownnotdeclared 				race_unknownnotdeclared
-	rename _white 							race_white
-
-	// ym 
-	gen ym = `ym'
-	format ym %tm 
-	order ym 
-
-	// county 
-	gen county = "total"
-
-	// order 
-	order county ym gender_* ethnicity_* race_*
-	// save 
-
-	tempfile _`ym'
-	save `_`ym''
-	
-}
-
-// append 
-forvalues ym = `ym_start_race'(1)`ym_end_race' {
-	if `ym' == `ym_start_race' {
-		use `_`ym'', clear
-	}
-	else {
-		append using `_`ym''
-	}
-}
-
-// save 
-tempfile newmexico_race
-save `newmexico_race'
-
+// This section no longer needed - get application data from apps_plus 
+/*
 //////////////
 // APP DATA //
 //////////////
@@ -266,9 +143,646 @@ forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 	}
 }
 
+// fix countyname to be uniform with other files
+replace county = ustrregexra(county,"n ","north ")
+replace county = ustrregexra(county,"sanorth ","san ") // undo 
+replace county = ustrregexra(county,"s ","south ")
+replace county = ustrregexra(county,"losouth ","los ") // undo
+replace county = ustrregexra(county,"ne ","northeast ")
+replace county = ustrregexra(county,"nw ","northwest ")
+replace county = ustrregexra(county,"se ","southeast ")
+replace county = ustrregexra(county,"sw ","southwest ")
+replace county = "eddy artesia" if county == "eddy/artesia"
+
 // save 
 tempfile newmexico_apps
 save `newmexico_apps'
+*/
+
+
+********************************************************************************************************************
+********************************************************************************************************************
+********************************************************************************************************************
+********************************************************************************************************************
+********************************************************************************************************************
+********************************************************************************************************************
+///////////////
+// RACE DATA //
+///////////////
+
+// early data: 2014m2-2017m3
+
+// load data 
+import excel "${dir_root}/data/state_data/newmexico/excel_race/newmexico_race_early.xlsx", firstrow clear 
+
+// ym 
+gen ym = ym(year,month)
+format ym %tm 
+drop year
+drop month 
+order ym 
+
+// drop rows that don't have data 
+assert missing(gender_female) & missing(gender_male) if inrange(ym,ym(2014,4),ym(2014,6))
+drop if inrange(ym,ym(2014,4),ym(2014,6))
+
+// county 
+gen county = "total"
+
+// order and sort 
+order county ym 
+sort county ym 
+
+// save 
+tempfile newmexico_race_early
+save `newmexico_race_early'
+
+***************************************************
+
+// later data: 2017m4 onwards 
+forvalues ym = `ym_start_race'(1)`ym_end_race' {
+
+	// display ym 
+	display in red "`ym'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year = year(dofm(`ym'))
+	gen month = month(dofm(`ym'))
+	tostring month, gen(monthname) 
+	tostring month, gen(monthname_var) 
+	if inrange(`ym',ym(2017,4),ym(2099,12)) {
+		replace monthname = "January" if monthname == "1"
+		replace monthname = "February" if monthname == "2"
+		replace monthname = "March" if monthname == "3"
+		replace monthname = "April" if monthname == "4"
+		replace monthname = "May" if monthname == "5"
+		replace monthname = "June" if monthname == "6"
+		replace monthname = "July" if monthname == "7"
+		replace monthname = "August" if monthname == "8"
+		replace monthname = "September" if monthname == "9"
+		replace monthname = "October" if monthname == "10"
+		replace monthname = "November" if monthname == "11"
+		replace monthname = "December" if monthname == "12"
+	}
+	else if inrange(`ym',ym(2013,1),ym(2017,3)) {
+		replace monthname = "0" + monthname if inrange(month,1,9)
+	}
+	else {
+		stop 
+	}
+	local month = month
+	display in red "`month'"
+	local monthname = monthname
+	display in red "`monthname'"
+	local monthname_var = monthname_var
+	display in red "`monthname_var'"
+	local year = year
+	display in red "`year'"
+
+	// load data 
+	import excel "${dir_root}/data/state_data/newmexico/excel_race/`year'/MSR_`monthname'_`year'.xlsx", allstring case(lower) firstrow clear 
+
+	// initial cleanup
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+
+	// keep relevant cells 
+	drop if strpos(v1,"Medicaid demographic data can be found here:")
+	dropmiss, force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	assert inlist(`r(k)',6,7)
+	assert inlist(`r(N)',31,32)
+	if `r(N)' == 31 {
+		keep if _n >= 16	
+	}
+	else if `r(N)' == 32 {
+		keep if _n >= 17
+	}
+	drop v3
+	drop v4 
+	drop v5 
+	drop v6
+	drop if strpos(v1,"Demographic Profile")
+	drop if strpos(v1,"Gender of Recipients")
+	drop if strpos(v1,"Ethnicity 10")
+	drop if strpos(v1,"Race 10")
+	drop if strpos(v1,"Ethnicity")
+	drop if strpos(v1,"Race") & !strpos(v1,"More than One")
+	drop if v1 == "5"
+	drop in 1
+	dropmiss, force 
+	dropmiss, force obs 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	capture drop v3 
+	dropmiss, force 
+	dropmiss, force obs 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	assert `r(k)' == 2
+	assert `r(N)' == 11
+	rename v1 variable 
+	rename v2 value 
+	replace variable = ustrregexra(variable," ","")
+	replace variable = ustrregexra(variable,"-","")
+	replace variable = ustrregexra(variable,"/","")
+	replace variable = strlower(variable)
+	replace variable = substr(variable,1,25)
+	*replace variable = "_" + variable
+	destring value, replace
+	confirm numeric variable value
+	rename value _
+	gen id = 1
+	reshape wide _, i(id) j(variable) string 
+	drop id 
+	rename _africanamericanorblack 			race_africanamericanorblack
+	rename _asian 							race_asian
+	rename _female 							gender_female
+	rename _hispanic 						ethnicity_hispanic
+	rename _male 							gender_male
+	rename _morethanonerace 				race_morethanonerace
+	rename _nativeamericanoralaskanna	 	race_nativeamericanoralaskanna
+	rename _nativehawaiianorpacificis		race_nativehawaiianorpacificis
+	rename _nonhispanic 					ethnicity_nonhispanic
+	rename _unknownnotdeclared 				race_unknownnotdeclared
+	rename _white 							race_white
+
+	// ym 
+	gen ym = `ym'
+	format ym %tm 
+	order ym 
+
+	// county 
+	gen county = "total"
+
+	// order 
+	order county ym gender_* ethnicity_* race_*
+	
+	// save 
+	tempfile _`ym'
+	save `_`ym''
+	
+}
+
+// append 
+forvalues ym = `ym_start_race'(1)`ym_end_race' {
+	if `ym' == `ym_start_race' {
+		use `_`ym'', clear
+	}
+	else {
+		append using `_`ym''
+	}
+}
+append using `newmexico_race_early'
+
+// fix countyname to be uniform with other files
+replace county = ustrregexra(county,"n ","north ")
+replace county = ustrregexra(county,"sanorth ","san ") // undo 
+replace county = ustrregexra(county,"s ","south ")
+replace county = ustrregexra(county,"losouth ","los ") // undo
+replace county = ustrregexra(county,"ne ","northeast ")
+replace county = ustrregexra(county,"nw ","northwest ")
+replace county = ustrregexra(county,"se ","southeast ")
+replace county = ustrregexra(county,"sw ","southwest ")
+replace county = "eddy artesia" if county == "eddy/artesia"
+
+// order and sort 
+order county ym gender_* ethnicity_* race_*
+sort county ym 
+
+// save 
+tempfile newmexico_race
+save `newmexico_race'
+
+******************************************************************************************************************
+******************************************************************************************************************
+******************************************************************************************************************
+******************************************************************************************************************
+******************************************************************************************************************
+
+////////////////////
+// APPS_PLUS DATA // 
+////////////////////
+
+*local ym = ym(2017,9)
+forvalues ym = `ym_start_apps_plus'(1)`ym_end_apps_plus' {
+if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
+ 
+	// display ym 
+	display in red "`ym'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year = year(dofm(`ym'))
+	gen month = month(dofm(`ym'))
+	tostring month, gen(monthname) 
+	replace monthname = "0" + monthname if strlen(monthname) == 1
+	tostring month, gen(monthname_var) 
+	if inrange(`ym',ym(2018,1),ym(2099,12)) {
+		replace monthname = "January" if monthname == "01" | monthname == "1"
+		replace monthname = "February" if monthname == "02" | monthname == "2"
+		replace monthname = "March" if monthname == "03" | monthname == "3"
+		replace monthname = "April" if monthname == "04" | monthname == "4"
+		replace monthname = "May" if monthname == "05" | monthname == "5"
+		replace monthname = "June" if monthname == "06" | monthname == "6"
+		replace monthname = "July" if monthname == "07" | monthname == "7"
+		replace monthname = "August" if monthname == "08" | monthname == "8"
+		replace monthname = "September" if monthname == "09" | monthname == "9"
+		replace monthname = "October" if monthname == "10"
+		replace monthname = "November" if monthname == "11"
+		replace monthname = "December" if monthname == "12"
+	}
+	else {
+
+	}
+	local month = month
+	display in red "`month'"
+	local monthname = monthname
+	display in red "`monthname'"
+	local monthname_var = monthname_var
+	display in red "`monthname_var'"
+	local year = year
+	display in red "`year'"
+
+
+	// load data 
+	if inrange(`ym',ym(2018,1),ym(2099,12)) {
+		import excel "${dir_root}/data/state_data/newmexico/excel_apps/`year'/MSR_`monthname'_`year'_apps.xlsx", allstring case(lower) firstrow clear 
+	}
+	else {
+		import excel "${dir_root}/data/state_data/newmexico/excel_apps/`year'/MSR_`monthname'_`year'_apps.xlsx", allstring case(lower) firstrow clear 
+	}
+
+	// initial cleanup
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+
+	// number of pages
+	if inrange(`ym',ym(2017,11),ym(2099,12)) {
+		local num_pages = 5
+	}
+	else if inrange(`ym',ym(2013,1),ym(2017,3)) {
+		local num_pages = 1
+	}
+	else if inrange(`ym',ym(2017,4),ym(2017,7)) {
+		local num_pages = 2
+	}
+	else if inlist(`ym',ym(2017,8)) {
+		local num_pages = 3
+	}
+	else if inrange(`ym',ym(2017,9),ym(2017,10)) {
+		local num_pages = 4
+	}
+	else {
+		stop 
+	}
+
+	// one page at a time 
+	forvalues p = 1(1)`num_pages' {
+*	local p = 2
+
+		// preserve 
+		preserve
+
+		// display 
+		display in red "page: `p'"
+
+		// keep the right rows
+		gen obsnum = _n
+		if inrange(`ym',ym(2017,11),ym(2099,12))  {
+			noisily sum obsnum if (strpos(v1,"Statewide") & strpos(v1,"Total")), detail	
+			assert `r(N)' == `num_pages'
+			if `p' == 1 {
+				local first_obsnum = 1
+				local last_obsnum = `r(min)'
+			}
+			else if `p' == 2 {
+				local first_obsnum = `r(min)' + 1
+				local last_obsnum = `r(p25)'
+			}
+			else if `p' == 3 {
+				local first_obsnum = `r(p25)' + 1
+				local last_obsnum = `r(p50)'
+			}
+			else if `p' == 4 {
+				local first_obsnum = `r(p50)' + 1
+				local last_obsnum = `r(p75)'	
+			}
+			else if `p' == 5 {			
+				local first_obsnum = `r(p75)' + 1
+				local last_obsnum = `r(max)'
+			}
+		}
+		else if inrange(`ym',ym(2013,1),ym(2017,3)) {
+			noisily sum obsnum if strpos(v1,"SNAP Applications") | strpos(v3,"Roosevelt") //| strpos(v10,"TOTAL")
+			assert `r(N)' == `num_pages'
+			if `p' == 1 {
+				local first_obsnum = 1
+				local last_obsnum = `r(min)'
+			}
+		}
+		else if inrange(`ym',ym(2017,4),ym(2017,7)) {
+			noisily sum obsnum if strpos(v1,"Total"), detail 
+			assert `r(N)' == `num_pages'
+			if `p' == 1 {
+				local first_obsnum = 1
+				local last_obsnum = `r(min)'
+			}
+			else if `p' == 2 {
+				local first_obsnum = `r(min)' + 1
+				local last_obsnum = `r(max)'
+			}
+		}
+		else if inrange(`ym',ym(2017,8),ym(2017,8)) {
+			noisily sum obsnum if strpos(v1,"Total"), detail 
+			assert `r(N)' == `num_pages'
+			if `p' == 1 {
+				local first_obsnum = 1
+				local last_obsnum = `r(min)'
+			}
+			else if `p' == 2 {
+				local first_obsnum = `r(min)' + 1
+				local last_obsnum = `r(p50)'
+			}
+			else if `p' == 3 {
+				local first_obsnum = `r(p50)' + 1
+				local last_obsnum = `r(max)'
+			}
+		}
+		else if inrange(`ym',ym(2017,9),ym(2017,10)) {
+			noisily sum obsnum if strpos(v1,"Total"), detail 
+			assert `r(N)' == `num_pages'
+			if `p' == 1 {
+				local first_obsnum = 1
+				local last_obsnum = `r(min)'
+			}
+			else if `p' == 2 {
+				local first_obsnum = `r(min)' + 1
+				local last_obsnum = 75 // manual
+			}
+			else if `p' == 3 {
+				local first_obsnum = 75 + 1 // manual
+				local last_obsnum = 110 // manual
+			}
+			else if `p' == 4 {
+				local first_obsnum = 110 + 1 // manual
+				local last_obsnum = `r(max)'
+			}
+
+		}
+		else {
+			stop
+		}
+		keep if inrange(obsnum,`first_obsnum',`last_obsnum')
+		drop obsnum
+
+		// initial cleanup
+		dropmiss, force 
+		dropmiss, obs force 
+		describe, varlist 
+		rename (`r(varlist)') (v#), addnumber
+
+		// drop bad obs 
+		drop if strpos(v1,"SNAP Initial Disposition Rates by Field Office")
+		drop if strpos(v1,"SNAP Expedite Timeliness by Field Office")
+		drop if strpos(v1,"SNAP Renewals Processed by Field Office") | (strpos(v1,"SNAP Renew") & strpos(v1,"als Processed by Field Office")) 
+		drop if strpos(v1,"SNAP Renewal Disposition Rates by Field Office") | (strpos(v1,"SNAP Renew") & strpos(v1,"al Disposition Rates by Field Office"))
+		drop if strpos(v1,"Note: Renewal dispositions based on COVID-19 extensions for periodic reviews are not included")
+		drop if strpos(v1,"CAP cases are reflected in the appro")
+		drop if strpos(v1,"priate administrative office.")
+		drop if strpos(v1,"SNAP Applications")
+
+		// initial cleanup
+		dropmiss, force 
+		dropmiss, obs force 
+		describe, varlist 
+		rename (`r(varlist)') (v#), addnumber
+
+		// make firstrow varnames 
+		foreach var of varlist * {
+			replace `var' = strlower(`var')
+			replace `var' = subinstr(`var', "`=char(9)'", " ", .) if _n == 1
+			replace `var' = subinstr(`var', "`=char(10)'", " ", .) if _n == 1
+			replace `var' = subinstr(`var', "`=char(13)'", " ", .) if _n == 1
+			replace `var' = subinstr(`var', "`=char(14)'", " ", .) if _n == 1
+			replace `var' = ustrregexra(`var',"\-","") if _n == 1
+			replace `var' = ustrregexra(`var',"\(","") if _n == 1
+			replace `var' = ustrregexra(`var',"\)","") if _n == 1
+			replace `var' = ustrregexra(`var',"\#","num") if _n == 1
+			replace `var' = ustrregexra(`var',"/","") if _n == 1
+			replace `var' = ustrregexra(`var'," ","") if _n == 1
+			if inrange(`ym',ym(2013,1),ym(2017,3)) {
+				describe, varlist 
+				assert `r(k)' == 12 | `r(k)' == 10 
+				if `r(k)' == 12	{
+					if inlist("`var'","v1","v2","v3","v4","v5","v6") {
+						replace `var' = `var' + "1" if _n == 1 	
+					}
+					if inlist("`var'","v7","v8","v9","v10","v11","v12") {
+						replace `var' = `var' + "2" if _n == 1 	
+					}
+				}
+				else if `r(k)' == 10 {
+					if inlist("`var'","v1","v2","v3","v4","v5") {
+						replace `var' = `var' + "1" if _n == 1 	
+					}
+					if inlist("`var'","v6","v7","v8","v9","v10") {
+						replace `var' = `var' + "2" if _n == 1 	
+					}
+				}
+
+			}
+			replace `var' = substr(`var',1,32) if _n == 1
+			label variable `var' "`=`var'[1]'"
+			rename `var' `=`var'[1]'
+		}
+		drop in 1
+
+		// reshape 
+		if inrange(`ym',ym(2013,1),ym(2017,3)) {
+			gen _id = _n
+			reshape long officenum office approved denied withdrawn total, i(_id) j(temp_num)
+			drop temp_num 
+			drop _id
+			sort officenum
+			drop officenum 
+		}
+
+		// rename vars 
+		if `p' == 1 {
+			describe, varlist 
+			assert `r(k)' == 5
+			rename office 					county 
+			rename approved 				apps_approved
+			rename denied 					apps_denied
+			rename withdrawn 				apps_withdrawn
+			cap rename totalcasesprocessed 	apps_received
+			cap rename total 				apps_received
+
+		}
+		else if `p' == 2 & !inrange(`ym',ym(2017,4),ym(2017,7)) {
+			describe, varlist 
+			assert `r(k)' == 5
+			rename office 					county 
+			rename approvalrate 			apps_approved_rate
+			rename denialrate				apps_denied_rate
+			rename needbaseddenialrate		apps_denied_needbased_rate
+			rename proceduraldenialrate		apps_denied_procedural_rate
+		}
+		else if `p' == 3 | (`p' == 2 & inrange(`ym',ym(2017,4),ym(2017,7))) {
+			describe, varlist 
+			assert `r(k)' == 5
+			rename office 					county 
+			rename totalexpeditedapprovals	apps_expedited
+			rename numtimely				apps_expedited_timely
+			rename numuntimely 				apps_expedited_untimely
+			rename percentagetimely			apps_expedited_timely_perc
+		}
+		else if `p' == 4 & !inlist(`ym',ym(2017,9),ym(2017,10)) {
+			describe, varlist 
+			assert `r(k)' == 5
+			rename office 					county
+			rename approvals 				recert_approved
+			rename closures 				recert_denied
+			rename needbasedclosures		recert_denied_needbased
+			rename proceduralclosures 		recert_denied_procedural
+		}
+		else if `p' == 5 | (`p' == 4 & inlist(`ym',ym(2017,9),ym(2017,10))) {
+			describe, varlist 
+			assert `r(k)' == 5
+			rename office 					county
+			rename approvalrate 			recert_approved_rate
+			capture rename closurerate 				recert_denied_rate
+			capture rename denialrate 				recert_denied_rate // inlist(`ym',ym(2017,9),ym(2017,10))
+			capture rename needbasedclosurerate 	recert_denied_needbased_rate
+			capture rename needbaseddenialrate 		recert_denied_needbased_rate // inlist(`ym',ym(2017,9),ym(2017,10))
+			capture rename proceduralclosurerate	recert_denied_procedural_rate		
+			capture rename proceduraldenialrate		recert_denied_procedural_rate // inlist(`ym',ym(2017,9),ym(2017,10))		
+		}
+		else {
+			stop 
+		}
+
+		// clean up county 
+		replace county = strlower(county)
+		replace county = ustrregexra(county,"county isd","")
+		replace county = ustrregexra(county," isd","")
+		replace county = trim(county)
+		replace county = stritrim(county)
+		replace county = "total" if county == "statewide total"
+			// fix countyname to be uniform with other files
+			replace county = ustrregexra(county,"n ","north ")
+			replace county = ustrregexra(county,"sanorth ","san ") // undo 
+			replace county = ustrregexra(county,"s ","south ")
+			replace county = ustrregexra(county,"losouth ","los ") // undo
+			replace county = ustrregexra(county,"ne ","northeast ")
+			replace county = ustrregexra(county,"nw ","northwest ")
+			replace county = ustrregexra(county,"se ","southeast ")
+			replace county = ustrregexra(county,"sw ","southwest ")
+			replace county = "eddy artesia" if county == "eddy/artesia"
+
+		// destring
+		if `p' == 1 {
+			local destring_vars apps_approved apps_denied apps_withdrawn apps_received
+		}
+		else if `p' == 2 & !inrange(`ym',ym(2017,4),ym(2017,7)) {
+			local destring_vars apps_approved_rate apps_denied_rate apps_denied_needbased_rate apps_denied_procedural_rate
+		}
+		else if `p' == 3 | (`p' == 2 & inrange(`ym',ym(2017,4),ym(2017,7))) {
+			local destring_vars apps_expedited apps_expedited_timely apps_expedited_untimely apps_expedited_timely_perc
+		}
+		else if `p' == 4 & !inlist(`ym',ym(2017,9),ym(2017,10)) {
+			local destring_vars recert_approved recert_denied recert_denied_needbased recert_denied_procedural
+		}
+		else if `p' == 5 | (`p' == 4 & inlist(`ym',ym(2017,9),ym(2017,10))) {
+			local destring_vars recert_approved_rate recert_denied_rate recert_denied_needbased_rate recert_denied_procedural_rate
+		}
+		else {
+			stop 
+		}
+		foreach var in `destring_vars' {
+			replace `var' = "" if strpos(`var',"N/A") | strpos(`var',"n/a")
+			destring `var', replace ignore("-")
+			confirm numeric variable `var'
+		}
+
+		// ym 
+		gen ym = `ym'
+		format ym %tm 
+
+		// order and sort 
+		order county ym `destring_vars'
+		sort county ym 
+
+		// save 
+		tempfile _`ym'_page`p'
+		save `_`ym'_page`p''
+
+		// restore 
+		restore
+	}
+
+	// merge all pages 
+	forvalues p = 1(1)`num_pages' {
+		if `p' == 1 {
+			use `_`ym'_page`p'', clear
+		}
+		else {
+			merge 1:1 county ym using `_`ym'_page`p''
+			assert inlist(_m,1,3)
+			drop _m 
+		}
+	}
+	tempfile _`ym'
+	save `_`ym''
+
+}
+}
+
+
+// append 
+forvalues ym = `ym_start_apps_plus'(1)`ym_end_apps_plus' {
+if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
+	if `ym' == `ym_start_apps_plus' {
+		use `_`ym'', clear
+	}
+	else {
+		append using `_`ym''
+	}
+}
+}
+
+// prep: collapse counties with multiple offices into a single county  
+rename county county_og 
+gen county = county_og
+	// bernalillo = northeast bernalillo + northwest bernalillo
+	replace county = "bernalillo" if strpos(county,"bernalillo") & (strpos(county,"northeast") | strpos(county,"northwest") | strpos(county,"southeast") | strpos(county,"southwest")) 
+	// valencia = valencia north + valencia south 	
+	replace county = "valencia" if strpos(county,"valencia") & (strpos(county,"north") | strpos(county,"south"))
+	// dona ana = south dona ana + east dona ana + west dona ana 
+	replace county = "dona ana" if strpos(county,"dona ana") & (strpos(county,"east") | strpos(county,"south") | strpos(county,"west")) 
+	// eddy = eddy + eddy artesia + eddy carlsbad
+	replace county = "eddy" if county == "eddy artesia" | county == "eddy carlsbad"
+
+// collapse counties with multiple offices into a single county  
+drop county_og
+collapse (sum) apps_* recert_*, by(county ym)
+
+// order and sort 
+order county ym 
+sort county ym 
+
+// save 
+tempfile newmexico_apps_plus
+save `newmexico_apps_plus'
 
 
 **************************************************************************************************************
@@ -569,26 +1083,61 @@ bysort county ym: gen numobs_county = _N
 // assert level of the data
 assert numobs_county == 1 | numobs_office == 1
 
+// fix countyname to be uniform with other files
+replace county = ustrregexra(county,"n ","north ")
+replace county = ustrregexra(county,"sanorth ","san ") // undo 
+replace county = ustrregexra(county,"s ","south ")
+replace county = ustrregexra(county,"losouth ","los ") // undo 
+replace county = ustrregexra(county,"ne ","northeast ")
+replace county = ustrregexra(county,"nw ","northwest ")
+replace county = ustrregexra(county,"se ","southeast ")
+replace county = ustrregexra(county,"sw ","southwest ")
+replace county = "eddy artesia" if county == "eddy/artesia"
+
+// prep: collapse counties with multiple offices into a single county  
+rename county county_og 
+gen county = county_og
+	// bernalillo = northeast bernalillo + northwest bernalillo
+	replace county = "bernalillo" if strpos(county,"bernalillo") & (strpos(county,"northeast") | strpos(county,"northwest") | strpos(county,"southeast") | strpos(county,"southwest")) 
+	// valencia = valencia north + valencia south 	
+	replace county = "valencia" if strpos(county,"valencia") & (strpos(county,"north") | strpos(county,"south"))
+	// dona ana = south dona ana + east dona ana + west dona ana 
+	replace county = "dona ana" if strpos(county,"dona ana") & (strpos(county,"east") | strpos(county,"south") | strpos(county,"west")) 
+	// eddy = eddy + eddy artesia + eddy carlsbad
+	replace county = "eddy" if county == "eddy artesia" | county == "eddy carlsbad"
+
+// collapse counties with multiple offices into a single county  
+drop county_og
+drop office 
+drop numobs_office
+drop numobs_county
+drop source_ym
+collapse (sum) households, by(county ym)
+
 // order and sort 
-order office county ym households 
-sort office county ym 
+order /*office*/ county ym households 
+sort /*office*/ county ym 
 
 // save
 tempfile newmexico_enrollment
 save `newmexico_enrollment'
 
 ******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+
 
 // merge 
-use `newmexico_apps', clear
+use `newmexico_apps_plus', clear
+// merge 1:1 county ym using `newmexico_apps'
 merge 1:1 county ym using `newmexico_race'
-assert _m == 3 // this will not be the case if one of these datasets is updated 
+assert inlist(_m,3,1) // this may not be the case if one of these datasets is updated 
 drop _m 
-
-// since households is in both, just use households from county 
-drop households 
 merge 1:1 county ym using `newmexico_enrollment', update 
-assert _m !=5 
+assert _m != 5 
 drop _m 
 
 // assert level of the data 
@@ -596,7 +1145,16 @@ duplicates tag county ym, gen(dup)
 assert dup == 0
 drop dup 
 
+// drop all missing obs 
+dropmiss county gender_* ethnicity_* race_* apps_* recert_* households, force obs
+
 // save 
 save "${dir_root}/data/state_data/newmexico/newmexico.dta", replace
 
+// review county 
+tab county
+tab ym if inlist(county,"catron","de baca","harding","los alamos","mora")
+	// 2012m1-2013m6
+tab ym if inlist(county,"union")
+	// 2012m1-2017m3
 

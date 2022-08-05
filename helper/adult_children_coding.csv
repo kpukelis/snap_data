@@ -1,6 +1,6 @@
 State,age range,classification,classification,notes
 Texas,0-4,children,children,
-Texas,5-17,children,children,
+Texas,17-May,children,children,
 Texas,18-59,adults,adults,
 Texas,60-64,adults,elderly,
 Texas,65+,adults,elderly,
@@ -25,3 +25,7 @@ Oregon ,,children,,no age definition made in report; might be online
 Oregon ,,adults,,no age definition made in report; might be online; calculate from individuals - persons
 New Mexico,,adults,,no age definition made in report; might be online
 New Mexico,,children,,no age definition made in report; might be online
+Wisconsin,65+,,elderly,
+Wisconsin,0-5,,infants,
+Wisconsin,under age 18,children,,
+Wisconsin,age 18 and over,adults,,

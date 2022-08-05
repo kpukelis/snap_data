@@ -1,0 +1,157 @@
+// new_variables.txt
+// applications and recerts
+// 2022-07-26
+// Kelsey Pukelis
+
+// arkansas
+	// (one page cleaned)
+	// **KP** (should clean "expedited" page) BUT data only goes through 2019....so less of a priority
+	// (there are other details on timeliness and fraud investigations, those seem less relevant)
+	// apps_*
+	// pendingdays_*
+	// overdue_*
+	// will have: expedited applications (indication for needier households)
+	// **clean timeliness stuff as a measure of congestion?** But, timeliness with subsitute workers could still lead to higher rates of denials. How can I measure Type I and Type II errors??? Need the truth for comparison.
+
+// california (pretty much everything is useful) **************************************************
+	// (already cleaned)
+	// apps_*
+	// recerts_*
+	// households_*
+
+// colorado ********************************
+	// (excel data, just needs to be imported)
+	// has:
+	// total applications
+	// expedited applications
+	// total recerts (redeterminations)
+	// timeliness of each. 
+
+// hawaii XXXXX
+	// not going to clean, since data is only by year. 
+
+// indiana ****************
+	// one more row in the table I'm already cleaning, so a slight modification to the code should catch this variable
+	// only has total applications
+	// right now, period covered is Jan 2021 - May 2021+, Dec 2021- May 2022, with months in between to be filled in by the end of 2022
+
+// louisiana **************************************************
+	// new pages to clean: 
+		// 007_Applications Processed by Month (state-month level)
+			// (005_Applications Processed includes county-month data)
+			// includes:
+			// applications received
+			// applications approved ("certified")
+			// applications denied ("rejected")
+		// 011_Cases Closed by Reason (state-month)
+			// **very detailed** including:
+			// failed net income test
+			// failed gross income test
+			// failure to provide required info within specific timeframe
+			// failure to complete redeterm
+			// failed to complete interview
+			// failure to complete SR (**KP: what does SR stand for?)
+			// client request
+		// (less priority) 013_Food Stamp Households with Earned Income (for targeting analysis) (county-month level)
+			// includes:
+			// households with earned income
+			// estimated amount of earned income (total across state)
+			// estimated amount of earned income (average amount per hh)
+
+
+	// Promising: but don't use
+		// 008_Recipiency Rate with Map OR and Poverty Level **KP: some measure of eligibility, but I don't know their methods. I might as well do eligibility myself, using CPS data or something.
+		// 009_Redeterminations Processed (county-month) **data only goes through 2012-13** :(
+			// includes:
+			// redeterminations approved / certified
+			// redeterminations rejected / closed
+**KP: KEEP GOING HERE, upward, cleaning 
+2022-07-29
+
+// missouri ************************************************** (adults and children)
+	// cleaned already
+	// apps_received                   
+	// apps_approved                   
+	// apps_denied                     
+	// apps_expedited                  
+	// avg_days_proc~s 
+	// **KP: create adults and children variables, from variables that already exist and include it in the 
+	analysis**
+
+// nebraska XXXXXXXXX
+	// some info on days to process
+	// not detailed enough to be worth doing anything with 
+
+// new mexico **************************************************
+	// CLEANED
+	// total apps processed
+	// apps approved
+	// apps denied
+	// apps withdrawn
+	// apps initial disposition approval vs. denial rates
+	// apps initial disposition "need-based" denial rate vs. "procedural" denial rate
+	// apps expedited 
+	// renewals
+		// approved
+		// closures
+			// need-based closures
+			// procedural closures
+
+	// online vs. paper applications per year in screenshot (very telling apps fewering applications) - could probably take screenshots directly for evidence **********
+
+
+// northcarolina ********************
+	// CLEANED
+	// applications (county-week) - from "timeliness" folder
+	// because these data are county-week, should linearly interpolate for the month, and see how the applications approved numbers compare to the applications received variable already in the data (// all approved week ending auguest 15,2021 was 5447)
+		// apps expedited (approved only)
+		// apps approved (does not appear to have 	total applications)
+	// recertifications (county-month) - from "timeliness" folder
+		// total recerts
+		// [timely recerts]
+		// [untimely recerts]
+		// **NOTE: the reports generally are only reflective of cases that were not included in the automatic certification extensions as a result of COVID-19, so there are VERY FEW (< 50 recerts across the state) each month during the beginning of the pandemic
+
+// oregon
+	// some extra info on apps, in FOOD BENEFITS pdf, could probably ****take screenshots directly for evidence of congestion*****
+		// online applications by month; Jan 2020 - Sep 2020
+		// applications waiting to be processed -- weekly, 4/22/2020 - 10/28/2020
+		// approximate days to process applications -- weekly, 7/2020 - 11/2020
+
+
+// rhodeisland
+	// cleaned
+	// limited data on total applications, taken from the graphs
+
+// tennessee
+	// cleaned
+	// some info for 2019-2020, in picture; includes SNAP and TANF combined, but it is estimated that 261,800 / (78,249+96,590+48,860+56,209) = 261,800 / 279,908 = 93.5 % of those are SNAP applications. (Quote from report: "During the months of March 2020 through June 2020, approximately 261,800 applications were received")
+
+// texas
+	// already cleaned
+	// includes:
+	// apps_received
+	// [apps_timely]
+	// [apps_perc_timely]
+	// recerts_disposed
+	// [recerts_timely]
+	// [recerts_perc_timely]
+					
+// wisconsin
+	// raw age groups -> adults, children **********not yet cleaned***********
+	// raw age groups -> infants, elderly DONE
+	// raw gender -> male, female DONE
+	// firsttime households DONE
+	// households in different issuance brackets
+	// households with minor: 0, 1 or 2 parents
+	// ****analyze in the style of NM
+	
+
+
+
+
+
+
+
+
+		

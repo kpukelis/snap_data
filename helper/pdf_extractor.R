@@ -117,13 +117,20 @@ for (month in months) {
 dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_race"
 
-years <- 2019:2022
+years <- 2015:2017
 #year <- 2018
 months <- c(
   "January",
   "February","March","April","May","June","July",
   "August","September","October","November","December")
-page_range <- 5:5
+months <- c(
+"01",
+"02","03",
+"04","05","06",
+"07",
+"08","09",
+"10","11","12")
+page_range <- 4:4
 
 #month <- "January"
 for (year in years) {
@@ -148,11 +155,51 @@ months <- c(
             "August","September","October","November","December")
 
 #month <- "January"
-#for (year in years) {
+for (year in years) {
   for (month in months) {
     pdf_subset(#input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
                 #input = paste0(dir_source,"/",year,"/","MSR_",month,year,"_Final.pdf"),
                 input = paste0(dir_source,"/",year,"/","MSR_",month,year,"_Final.pdf"),
                pages = 3:3, output = paste0(dir_save,"/",year,"/","MSR_",month,"_",year,"-3.pdf"))
   }
-#}
+}
+
+# new mexico - apps
+
+dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
+dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_apps"
+
+years <- 2019:2022
+#year <- 2018
+months <- c(
+  "January",
+  "February","March","April","May","June","July",
+  "August","September",
+  "October",
+  "November","December")
+#months <- c(
+  #"01","02","03")
+#"04","05","06",
+#"06","07",
+#"08","09",
+#"10","11","12")
+
+page_range <- 5:5
+page_range <- c(23,25,27,34,35) # for 2018m10-2022m5+
+#page_range <- c(21,23,25,31,32) # for 2017m11-2018m9
+# 2017m4-2017m10 is complicated, do it manually
+page_range <- 20:20 # for 2016m7-2017m3
+page_range <- 21:21 # for 2014m8-2016m6
+page_range <- 23:23 # for 2014m2-2014m7
+page_range <- 43:43 # for 2013m1-2013m6
+
+
+
+for (year in years) {
+for (month in months) {
+  pdf_subset(#input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+    #input = paste0(dir_source,"/",year,"/","MSR_",month,year,"_Final.pdf"),
+    input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+    pages = page_range, output = paste0(dir_save,"/",year,"/","MSR_",month,"_",year,"_apps.pdf"))
+}
+}

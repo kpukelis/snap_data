@@ -4,11 +4,15 @@
 local files 					assistance benefits recipients
 local file_first 				assistance
 local year_start 				= 2011
-local year_end 					= 2020
+local year_end 					= 2022
 local year_end_unduplicated 	= 2019
 local numvars_assistance 		= 14
 local numvars_benefits 			= 15
 local numvars_recipients 		= 14
+local ym_start_oldformat 		= ym(2010,1)
+local ym_end_oldformat 			= ym(2017,3)
+local ym_start_newformat 		= ym(2017,4)
+local ym_end_newformat 			= ym(2022,5)
 
 *********************************************************************
 
@@ -195,7 +199,7 @@ sort county year
 
 // save 
 save "${dir_root}/data/state_data/wisconsin/wisconsin_unduplicated-recipients.dta", replace
-
+*/
 *********************************************************************
 // other files 
 
@@ -231,7 +235,10 @@ foreach file of local files {
 		drop if strpos(v1,"Note: February 2019 benefits were issued on January 20, 2019 for a majority of assistance groups due to the federal government shutdown")
         drop if strpos(v1,"Note: January 2019 includes January benefit issuance and a majority of February's benefit issuance due to the federal government shutdown.")
 		drop if strpos(v1,"Note: February 2019 benefits were issued on January 20, 2019 for a majority of recipients due to the federal government shutdown")
-		
+		drop if strpos(v1,"* Beginning in July 2021, the State Total is an unduplicated count of assistance groups. Assistance groups that move within the month may be counted as receiving benefits in more than one county or tribe, but are only counted once statewide. Because of this, the sum of all counties and tribes may be greater than the State Total.")
+		drop if strpos(v1,"* Beginning in July 2021, the State Total is an unduplicated count of recipients. Recipients that move within the month may be counted as receiving benefits in more than one county or tribe, but are only counted once statewide. Because of this, the sum of all counties and tribes may be greater than the State Total.")
+		drop if strpos(v1,"During the COVID-19 Public Health Emergency, emergency FoodShare allotments have been issued. These emergency allotments take FoodShare households to their maximum allowable amount, and can increase the statewide monthly issuance of FoodShare benefits by more than 50%.")
+
 		// shorten county name 
 		gen v1_copy = v1 
 		drop v1 
@@ -294,6 +301,7 @@ foreach file of local files {
 
 	// standardize county names 
 	replace county = "Milwaukee" if county == "Milwaukee Total"
+	replace county = "State Total" if county == "State Total*"
 
 	// order and sort 
 	order county ym 
@@ -303,6 +311,122 @@ foreach file of local files {
 	save "${dir_root}/data/state_data/wisconsin/wisconsin_`file'.dta", replace
 }
  
+*************************************************************************
+// ataglance - old format
+
+// import 
+import excel using "${dir_root}/data/state_data/wisconsin/excel_ataglance/wisconsin_ataglance.xlsx", sheet("old_format") allstring firstrow clear
+capture	drop MONTHYEAR
+
+// destring
+#delimit ;
+foreach var in 
+	year
+	month
+	households
+	individuals
+	female_children_perc
+	female_adults_perc
+	male_children_perc
+	male_adults_perc
+	households_withminors_perc
+	households_withminor_0parent_per
+	households_withminor_1parent_per
+	households_withminor_2parent_per
+	firsttimehouseholds
+	ebd_perc
+	households_withebd_perc
+	avg_alottment_hh_ebd
+	avg_alottment_hh 
+	{ ;
+		destring `var', replace ;
+		confirm numeric variable `var' ;
+} ;
+#delimit cr 
+
+// ym
+gen ym = ym(year,month)
+format ym %tm 
+drop year
+drop month 
+
+// check data 
+assert inrange(ym,`ym_start_oldformat',`ym_end_oldformat')
+
+// county 
+gen county = "total"
+
+// order and sort 
+order county ym 
+sort county ym 
+
+// save 
+save "${dir_root}/data/state_data/wisconsin/wisconsin_ataglance_oldformat.dta", replace
+
+*************************************************************************
+// ataglance - new format
+
+// import 
+import excel using "${dir_root}/data/state_data/wisconsin/excel_ataglance/wisconsin_ataglance.xlsx", sheet("new_format") allstring firstrow clear
+
+// destring
+#delimit ;
+foreach var in 
+	year
+	month
+	households
+	firsttimehouseholds
+	individuals
+	households_withminors_perc
+	households_withebd_perc
+	female_00_05
+	male_00_05
+	female_06_17
+	male_06_17
+	female_18_34
+	male_18_34
+	female_35_49
+	male_35_49
+	female_50_64
+	male_50_64
+	female_65plus
+	male_65plus
+	households_withminor_2parent
+	households_withminor_1parent
+	households_withminor_0parent
+	households_ebd_issuance_00_20
+	households_ebd_issuance_21_40
+	households_ebd_issuance_41_60
+	households_ebd_issuance_61_80
+	households_ebd_issuance_81_100
+	households_ebd_issuance_100plus
+	avg_alottment_hh
+	avg_alottment_hh_ebd
+	{ ;
+		destring `var', replace ignore("X") ;
+		confirm numeric variable `var' ;
+} ;
+#delimit cr 
+
+// ym
+gen ym = ym(year,month)
+format ym %tm 
+drop year
+drop month 
+
+// check data 
+assert inrange(ym,`ym_start_newformat',`ym_end_newformat')
+
+// county 
+gen county = "total"
+
+// order and sort 
+order county ym 
+sort county ym 
+
+// save 
+save "${dir_root}/data/state_data/wisconsin/wisconsin_ataglance_newformat.dta", replace
+
 *************************************************************************
 
 // merge across data sets 
@@ -352,6 +476,13 @@ rename assistance households
 rename benefits issuance 
 rename recipients individuals
 
+// merge in new and old formats 
+// note: this order matters, after replacing the county name and renaming the variables
+merge 1:1 county ym using "${dir_root}/data/state_data/wisconsin/wisconsin_ataglance_oldformat.dta", update // want update only, not update replace 
+drop _m 
+merge 1:1 county ym using "${dir_root}/data/state_data/wisconsin/wisconsin_ataglance_newformat.dta", update // want update only, not update replace
+drop _m 
+
 // order and sort 
 order county ym 
 sort county ym
@@ -359,9 +490,10 @@ sort county ym
 // save 
 save "${dir_root}/data/state_data/wisconsin/wisconsin.dta", replace 
 
+/*
 keep if county == "total"
 local statewide_nowaiver = ym(2015,4)
 twoway connected households ym, xline(`statewide_nowaiver')
 twoway connected individuals ym, xline(`statewide_nowaiver')
-
+*/
 

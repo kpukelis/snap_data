@@ -140,6 +140,11 @@ foreach state of local states_withtotal {
 		if "`state'" == "oregon" {
 			gen infants = age_0_5
 		}
+		// female_00_05 WI
+		// male_00_05 WI 
+		if "`state'" == "wisconsin" {
+			gen infants = rowtotal(female_00_05 male_00_05)
+		}
 	// age_05_17 TX
 	// age_18_59 MO TX
 	// ***generate elderly
@@ -152,7 +157,33 @@ foreach state of local states_withtotal {
 		if "`state'" == "missouri" | "`state'" == "newjersey" | "`state'" == "oregon" {
 			gen elderly = age_60
 		}
+		// female_65plus WI
+		// male_65plus WI
+		if "`state'" == "wisconsin" {
+			egen elderly = rowtotal(female_65plus male_65plus)
+		}
 	// ***disabled MO NJ
+	// ***generate female, male
+		// gender_female NM
+		// gender_male NM
+		// female_00_05 WI
+		// female_06_17 WI
+		// female_18_34 WI
+		// female_35_49 WI
+		// female_50_64 WI
+		// female_65plus WI
+		if "`state'" == "wisconsin" {
+			egen gender_female = rowtotal(female_00_05 female_06_17 female_18_34 female_35_49 female_50_64 female_65plus)
+		}
+		// male_00_05 WI
+		// male_06_17 WI
+		// male_18_34 WI
+		// male_35_49 WI
+		// male_50_64 WI
+		// male_65plus WI
+		if "`state'" == "wisconsin" {
+			egen gender_male = rowtotal(male_00_05 male_06_17 male_18_34 male_35_49 male_50_64 male_65plus)
+		}																	
 
 	// variables list 
 	noisily describe, varlist 
