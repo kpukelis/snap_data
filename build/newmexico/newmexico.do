@@ -166,6 +166,7 @@ save `newmexico_apps'
 ********************************************************************************************************************
 ********************************************************************************************************************
 ********************************************************************************************************************
+
 ///////////////
 // RACE DATA //
 ///////////////
@@ -772,9 +773,83 @@ gen county = county_og
 	// eddy = eddy + eddy artesia + eddy carlsbad
 	replace county = "eddy" if county == "eddy artesia" | county == "eddy carlsbad"
 
+// drop vars which I could always just recalculate 
+// this vars would also be hard to work with the collapse 
+drop recert_approved_rate
+drop recert_denied_rate
+drop recert_denied_needbased_rate
+drop recert_denied_procedural_rate
+drop apps_expedited_timely_perc
+*drop apps_approved_rate
+*drop apps_denied_rate
+
+// generate counts where there are rates 
+// this is to make the data collapse-friendly
+foreach type in approved denied denied_needbased denied_procedural {
+	gen apps_`type'_calc = apps_received * apps_`type'_rate
+	drop apps_`type'_rate
+}
+
+// for variables where there is a recorded version, make sure they are "close", for validity (< X% error rate)
+foreach type in approved denied {
+	gen perc_error_apps_`type'_rate = abs(apps_`type'_calc - apps_`type') / apps_`type' * 100
+	sum perc_error_apps_`type'_rate, detail 
+	*order *apps_`type'*
+	*assert perc_error_apps_`type'_rate < 5 if !missing(apps_approved_rate)
+	drop perc_error_apps_`type'_rate
+}
+
 // collapse counties with multiple offices into a single county  
 drop county_og
-collapse (sum) apps_* recert_*, by(county ym)
+#delimit ;
+collapse (sum) 
+	apps_approved apps_denied apps_withdrawn apps_received 
+	apps_expedited apps_expedited_timely apps_expedited_untimely
+	recert_approved recert_denied recert_denied_needbased recert_denied_procedural
+	apps_approved_calc apps_denied_calc
+	apps_denied_needbased_calc apps_denied_procedural_calc
+	(count)
+	n_apps_approved = apps_approved
+	n_apps_denied = apps_denied
+	n_apps_withdrawn = apps_withdrawn
+	n_apps_received = apps_received
+	n_apps_expedited = apps_expedited
+	n_apps_expedited_timely = apps_expedited_timely
+	n_apps_expedited_untimely = apps_expedited_untimely
+	n_recert_approved = recert_approved
+	n_recert_denied = recert_denied
+	n_recert_denied_needbased = recert_denied_needbased
+	n_recert_denied_procedural = recert_denied_procedural
+	n_apps_approved_calc = apps_approved_calc
+	n_apps_denied_calc = apps_denied_calc
+	n_apps_denied_needbased_calc = apps_denied_needbased_calc
+	n_apps_denied_procedural_calc = apps_denied_procedural_calc
+	, by(county ym)
+;
+#delimit cr 
+
+// replace zeros with missings 
+#delimit ;
+foreach var in apps_approved apps_denied apps_withdrawn apps_received 
+	apps_expedited apps_expedited_timely apps_expedited_untimely
+	recert_approved recert_denied recert_denied_needbased recert_denied_procedural
+	apps_approved_calc apps_denied_calc
+	apps_denied_needbased_calc apps_denied_procedural_cal
+	{ ;
+		replace `var' = . if n_`var' == 0 ;
+		drop n_`var' ;
+	} ;
+#delimit cr 
+
+// assert denied sums are close 
+// original version 
+gen perc_error_apps_denied 		= abs(apps_denied - apps_denied_needbased_calc - apps_denied_procedural_calc) / apps_denied * 100
+sum perc_error_apps_denied, detail
+drop perc_error_apps_denied
+// calculated version
+gen perc_error_apps_denied_calc = abs(apps_denied_calc - apps_denied_needbased_calc - apps_denied_procedural_calc) / apps_denied_calc * 100
+sum perc_error_apps_denied_calc, detail
+drop perc_error_apps_denied_calc
 
 // order and sort 
 order county ym 
@@ -783,7 +858,6 @@ sort county ym
 // save 
 tempfile newmexico_apps_plus
 save `newmexico_apps_plus'
-
 
 **************************************************************************************************************
 **************************************************************************************************************

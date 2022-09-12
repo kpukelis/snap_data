@@ -487,8 +487,17 @@ drop _m
 order county ym 
 sort county ym
 
+// drop observations that are all missing 
+dropmiss households issuance individuals female_children_perc female_adults_perc male_children_perc male_adults_perc households_withminors_perc households_withminor_0parent_per households_withminor_1parent_per households_withminor_2parent_per firsttimehouseholds ebd_perc households_withebd_perc avg_alottment_hh_ebd avg_alottment_hh female_00_05 male_00_05 female_06_17 male_06_17 female_18_34 male_18_34 female_35_49 male_35_49 female_50_64 male_50_64 female_65plus male_65plus households_withminor_2parent households_withminor_1parent households_withminor_0parent households_ebd_issuance_00_20 households_ebd_issuance_21_40 households_ebd_issuance_41_60 households_ebd_issuance_61_80 households_ebd_issuance_81_100 households_ebd_issuance_100plus, obs force 
+
+// assert level of data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
 // save 
 save "${dir_root}/data/state_data/wisconsin/wisconsin.dta", replace 
+
 
 /*
 keep if county == "total"

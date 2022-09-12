@@ -38,7 +38,7 @@ local massachusetts_waivers = 0
 local alabama				= 0 // not completed (fixed individual)
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
-local arkansas				= 0
+local arkansas				= 1 // KEEP GOING HERE 2022-09-02
 local california			= 0
 local colorado 				= 0
 local connecticut			= 0 // not completed (fixed individual)
@@ -52,7 +52,7 @@ local indiana				= 0 // **KP: can go back further cleaning indiana data
 local iowa					= 0 // **KP: can go back further cleaning iowa data 
 local kansas				= 0 
 local kentucky				= 0
-local louisiana				= 1 // apps part is not complete, as in not going back as many years as possible
+local louisiana				= 0
 local maine					= 0 
 local maryland				= 0
 local massachusetts			= 0 // **KP: need to crosswalk zipcode to county
@@ -90,7 +90,7 @@ local wisconsin 			= 0
 **KP: 2020-02-09 missouri oregon left to be done 
 
 // combine 
-local combine_state_ym 		= 0
+local combine_state_ym 		= 1 // KEEP GOING HERE 2022-09-09
 local combine_county_ym		= 0 // still more work here 
 
 // analyze
@@ -104,7 +104,8 @@ local analyze_newyork 		= 0 // KEEP GOING HERE 2021-12-06
 local analyze_southcarolina	= 0 
 local analyze_wisconsin 	= 0
 local newyork_southerntier 	= 0 // KEEP GOING HERE 2021-04-26
-
+local louisiana_analyze_closures = 0
+local california_analyze_apps = 0
 
 ***********************************************
 
@@ -278,6 +279,8 @@ foreach step in
 	analyze_southcarolina	
 	analyze_wisconsin
 	newyork_southerntier
+	louisiana_analyze_closures
+	california_analyze_apps
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/analyze/`step'.do" ;

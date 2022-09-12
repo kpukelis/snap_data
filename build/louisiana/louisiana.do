@@ -39,14 +39,14 @@ local month_10 					April
 local month_11 					May
 local month_12					June
 
-// apps part 
-local year_start_apps			= 2018 // 2004 - could go back further
+// apps part - county level (005) - would need to rework code below
+
+// apps part - state level (007)
+local year_start_apps			= 2004 
 local year_end_apps				= 2021 
 
 // cases closed (11)
-KEEP GOING HERE 2022-08-05, looking at list of reasons and going back further than 2014 
-local year_start_closed 		= 2014 // 2002 - could go back further 
-*local year_start_closed 		= 2019 // 2002 - could go back further 
+local year_start_closed 		= 2002 
 local year_end_closed 			= 2021 
 
 *********************************************************************************************
@@ -60,6 +60,7 @@ local year_end_closed 			= 2021
 // 011_Cases Closed by Reason //
 //////////////////////////////// 
 
+// gotothis
 *local year = 2014
 forvalues year = `year_start_closed'(1)`year_end_closed' {
 	
@@ -141,20 +142,93 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 	
 	// page by page, month by month 
 	forvalues p = 1(1)`month_num_end' {
-*	local p = 1
-
+*	local p = 7
+	// gotothis
 		// display page number 
 		display in red "`year'"
 		display in red "page: `p' of `month_num_end'"
 
 		// preserve
 		preserve
+		// gotothis
 
 		// about X observations per month - differs by year 
 		if inlist(`year',2002) {
-			local obs_perpage_approx = 
+			local obs_perpage_approx = 43
 		}
-		else if inlist(`year',2014) {
+		else if inlist(`year',2003) {
+			local obs_perpage_approx = 43
+		}
+		else if inlist(`year',2004) & inrange(`p',1,6) {
+			local obs_perpage_approx = 42
+		}
+		else if inlist(`year',2004) & inrange(`p',7,9) {
+			local obs_perpage_approx = 38
+		}
+		else if inlist(`year',2004) & inrange(`p',10,12) {
+			local obs_perpage_approx = 42
+		}
+		else if inlist(`year',2005) & inrange(`p',1,2) {
+			local obs_perpage_approx = 32
+		}
+		else if inlist(`year',2005) & inrange(`p',3,4) {
+			local obs_perpage_approx = 34
+		}
+		else if inlist(`year',2005) & inrange(`p',5,6) {
+			local obs_perpage_approx = 36 
+		}
+		else if inlist(`year',2005) & inrange(`p',7,11) {
+			local obs_perpage_approx = 32
+		}		
+		else if inlist(`year',2005) & inrange(`p',12,12) {
+			local obs_perpage_approx = 37
+		}		
+		else if inlist(`year',2006) & inrange(`p',1,4) {
+			local obs_perpage_approx = 43
+		}
+		else if inlist(`year',2006) & inrange(`p',5,5) {
+			local obs_perpage_approx = 31
+		}
+		else if inlist(`year',2006) & inrange(`p',6,6) {
+			local obs_perpage_approx = 42 
+		}
+		else if inlist(`year',2006) & inrange(`p',7,12) {
+			local obs_perpage_approx = 49
+		}
+		else if inlist(`year',2007) & inrange(`p',1,5) {
+			local obs_perpage_approx = 50
+		}
+		else if inlist(`year',2007) & inrange(`p',6,12) {
+			local obs_perpage_approx = 52
+		}
+		else if inlist(`year',2008,2009,2010) {
+			local obs_perpage_approx = 53
+		}
+		else if inlist(`year',2011) & inrange(`p',1,2) {
+			local obs_perpage_approx = 41
+		}
+		else if inlist(`year',2011) & inrange(`p',3,6) {
+			local obs_perpage_approx = 52
+		}
+		else if inlist(`year',2011) & inrange(`p',7,8) {
+			local obs_perpage_approx = 41 
+		}
+		else if inlist(`year',2011) & inrange(`p',9,11) {
+			local obs_perpage_approx = 44
+		}
+		else if inlist(`year',2011) & inrange(`p',12,12) {
+			local obs_perpage_approx = 41
+		}
+		else if inlist(`year',2012) & inrange(`p',1,3) {
+			local obs_perpage_approx = 41
+		}
+		else if inlist(`year',2012) & inrange(`p',4,10) {
+			local obs_perpage_approx = 50
+		}
+		else if inlist(`year',2012) & inrange(`p',11,12) {
+			local obs_perpage_approx = 43 
+		}
+		else if inlist(`year',2013,2014) {
 			local obs_perpage_approx = 53
 		}
 		else if inlist(`year',2015) {
@@ -164,10 +238,10 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 			local obs_perpage_approx = 56
 		}
 		else if inlist(`year',2019) & inrange(`p',1,4) {
-			local obs_perpage_approx = 56	
+			local obs_perpage_approx = 58	
 		}
 		else if inlist(`year',2019) & inrange(`p',5,12) {
-			local obs_perpage_approx = 37
+			local obs_perpage_approx = 40
 		}
 		else if inlist(`year',2020) & inrange(`p',1,2) {
 			local obs_perpage_approx = 37
@@ -190,9 +264,9 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 		
 		// this phrase marks the beginning of a month 
 		if inlist(`year',2019) & inrange(`p',5,12) {
-			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 5)*`obs_perpage_approx' + 56*4, detail
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 5)*`obs_perpage_approx' + 58*4, detail
 			local first_obsnum = `r(min)'
-			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 4)*`obs_perpage_approx' + 56*4, detail
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 4)*`obs_perpage_approx' + 58*4, detail
 		}
 		else if inlist(`year',2020) & inrange(`p',3,6) {
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 3)*`obs_perpage_approx' + 37*2, detail
@@ -208,6 +282,86 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 9)*`obs_perpage_approx' + 37*2 + 35*4 + 37*2, detail
 			local first_obsnum = `r(min)'
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 8)*`obs_perpage_approx' + 37*2 + 35*4 + 37*2, detail
+		}
+		else if inlist(`year',2012) & inrange(`p',4,10) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 4)*`obs_perpage_approx' + 41*3, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 3)*`obs_perpage_approx' + 41*3, detail
+		}
+		else if inlist(`year',2012) & inrange(`p',11,12) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 11)*`obs_perpage_approx' + 41*3 + 50*7, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 10)*`obs_perpage_approx' + 41*3 + 50*7, detail
+		}
+		else if inlist(`year',2011) & inrange(`p',3,6) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 3)*`obs_perpage_approx' + 41*2, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 2)*`obs_perpage_approx' + 41*2, detail
+		}
+		else if inlist(`year',2011) & inrange(`p',7,8) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 7)*`obs_perpage_approx' + 41*2 + 52*4, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 6)*`obs_perpage_approx' + 41*2 + 52*4, detail
+		}
+		else if inlist(`year',2011) & inrange(`p',9,11) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 9)*`obs_perpage_approx' + 41*2 + 52*4 + 41*2, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 8)*`obs_perpage_approx' + 41*2 + 52*4 + 41*2, detail
+		}
+		else if inlist(`year',2011) & inrange(`p',12,12) {
+			*qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 12)*`obs_perpage_approx' + 41*2 + 52*4 + 41*2 + 44*2, detail
+			local first_obsnum = 505
+			*qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 11)*`obs_perpage_approx' + 41*2 + 52*4 + 41*2 + 44*2, detail
+		}
+		else if inlist(`year',2007) & inrange(`p',6,12) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 6)*`obs_perpage_approx' + 50*5, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 5)*`obs_perpage_approx' + 50*5, detail
+		}
+		else if inlist(`year',2006) & inrange(`p',5,5) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 5)*`obs_perpage_approx' + 43*4, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 4)*`obs_perpage_approx' + 43*4, detail
+		}
+		else if inlist(`year',2006) & inrange(`p',6,6) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 6)*`obs_perpage_approx' + 43*4 + 31*1, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 5)*`obs_perpage_approx' + 43*4 + 31*1, detail
+		}
+		else if inlist(`year',2006) & inrange(`p',7,12) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 7)*`obs_perpage_approx' + 43*4 + 31*1 + 42*1, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 6)*`obs_perpage_approx' + 43*4 + 31*1 + 42*1, detail
+		}
+		else if inlist(`year',2005) & inrange(`p',3,4) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 3)*`obs_perpage_approx' + 32*2, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 2)*`obs_perpage_approx' + 32*2, detail
+		}
+		else if inlist(`year',2005) & inrange(`p',5,6) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 5)*`obs_perpage_approx' + 32*2 + 34*2, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 4)*`obs_perpage_approx' + 32*2 + 34*2, detail
+		}
+		else if inlist(`year',2005) & inrange(`p',7,11) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 7)*`obs_perpage_approx' + 32*2 + 34*2 + 36*2, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 6)*`obs_perpage_approx' + 32*2 + 34*2 + 36*2, detail
+		}
+		else if inlist(`year',2005) & inrange(`p',12,12) {
+			*qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 12)*`obs_perpage_approx' + 32*2 + 34*2 + 36*2 + 32*4, detail
+			local first_obsnum = 370
+			*qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 11)*`obs_perpage_approx' + 32*2 + 34*2 + 36*2 + 32*4, detail
+		}
+		else if inlist(`year',2004) & inrange(`p',7,9) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 7)*`obs_perpage_approx' + 42*6, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 6)*`obs_perpage_approx' + 42*6, detail
+		}
+		else if inlist(`year',2004) & inrange(`p',10,12) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 10)*`obs_perpage_approx' + 42*6 + 38*3, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 9)*`obs_perpage_approx' + 42*6 + 38*3, detail
 		}
 		else {
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 1)*`obs_perpage_approx', detail
@@ -234,12 +388,11 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 		else {
 			stop 
 		}
-**KP: I'm not sure I'm capturing all observations
 
 		// keep observations for this month only 
 		gen keep = 0
 		replace keep = 1 if inrange(obsnum,`first_obsnum',`last_obsnum')
-		*tab keep 
+		*tab keep check
 		keep if keep == 1
 		drop keep 
 
@@ -273,19 +426,53 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 		assert !missing(month)
 
 		// mark year 
-		// "april report - closures effective may 2022"
+		// Note: this corresponds with the choice above: 
+		// "april report - closures effective may 2022" - treated as april
+		assert inrange(`p',1,12)
 		gen year = .
+		if inlist(`year',2020,2021) {
+			// these pages are in reverse order 
+			replace year = `year' + 1 if inrange(`p',1,6)
+			replace year = `year' if inrange(`p',7,12)
+		}
+		else {
+			replace year = `year' if inrange(`p',1,6)
+			replace year = `year' + 1 if inrange(`p',7,12)
+		}
+		assert !missing(year)
+		// "april report - closures effective may 2022"
+		gen year2 = .
 		local year_end_closed_plus1 = `year_end_closed' + 1
 		forvalues y = `year_start_closed'(1)`year_end_closed_plus1' {
-			qui replace year = `y' if ustrregexm(v2,"`y'") == 1
-			qui replace year = `y' - 1 if month == 12 // relies on december / january being treated as december (month 12)
+			*if inlist(`year',2020,2021) {
+			*	qui replace year2 = `y' if ustrregexm(v2,"`y'") == 1
+			*	qui replace year2 = `y' - 1 if ustrregexm(v2,"`y'") == 1 & month == 12 // relies on december / january being treated as december (month 12)
+			*}
+			*else {
+				qui replace year2 = `y' if ustrregexm(v2,"`y'") == 1
+				qui replace year2 = `y' - 1 if ustrregexm(v2,"`y'") == 1 & month == 12 // relies on december / january being treated as december (month 12)
+			*}
 		}
 		gsort -obsnum
-		qui carryforward year, replace
+		qui carryforward year2, replace
 		sort obsnum 
-		qui carryforward year, replace 
-		assert !missing(year)
-
+		qui carryforward year2, replace 
+		*assert !missing(year2)
+		// fix special cases where there was a mistake in the data 
+		if `year' == 2016 & `p' == 12 {
+			replace year2 = 2017
+		}
+		if `year' == 2019 & `p' == 6 {
+			replace year2 = 2019
+		}
+		if `year' == 2020 & `p' == 7 {
+			replace year2 = 2020
+		}
+		// corroborate years 
+		assert year == year2 if !missing(year) & !missing(year2)
+		replace year = year2 if missing(year) & !missing(year2)
+		drop year2 
+		
 		// ym 
 		gen ym = ym(year,month)
 		format ym %tm 
@@ -306,7 +493,7 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 
 		// move observations over if an extra column 
 		qui describe, varlist 
-		assert inlist(`r(k)',5,6)
+		assert inlist(`r(k)',4,5,6) // supposed to be 5
 		if `r(k)' == 6 {
 			// possible case 1
 			replace v4 = v5 if missing(v4) & !missing(v5)
@@ -320,7 +507,30 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 			rename v1 obsnum
 			rename v2 ym 
 		}
-		
+		// split reason name from number, if needed
+		else if `r(k)' == 4 { // & inlist(`year',2012) & inlist(`p',2) {
+			gen number = ustrregexra(v3," ","")
+			replace number = ustrregexra(v3,`"[A-Za-z()/"]"',`""')
+			replace number = trim(number)
+			replace number = ustrregexra(number,",","")
+			// manual
+			*replace number = "550" if number == ".                                                     550"
+			replace number = ustrregexra(number,"\.                                                    ","")
+			replace number = ustrregexra(number,"‐                    ","")
+			// go to this 
+			replace number = trim(number)
+			order number, after(v3)
+			gen new= ustrregexra(v3,`"[0-9,]"',`""')
+			replace new = trim(new)
+			order new, after(v3)
+			drop v3 
+			rename new v3 
+			qui describe, varlist 
+			rename (`r(varlist)') (v#), addnumber
+			rename v1 obsnum
+			rename v2 ym 
+		}
+
 		// rename vars 
 		qui describe, varlist 
 		assert `r(k)' == 5
@@ -331,7 +541,7 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 
 		// destring
 		foreach var in total perc {
-			destring `var', replace 
+			destring `var', replace ignore(",")
 			confirm numeric variable `var'
 		}
 
@@ -340,12 +550,21 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 
 		// clean up the closure_reason variable 
 		
+		// manual drop 
+		drop if strpos(closure_reason,"percentage") & strpos(closure_reason,"reason") & strpos(closure_reason,"of total")
+
 		// categorize the closure_reasons into groups based on how fine they are 
 			// overall group: total 
 			gen group_total = 0
 			replace group_total = 1 if closure_reason == "state total"
 			// headings group
 			gen group_heading = 0
+			// standardize fine categories
+				// code from xwalk excel file
+				gen closure_reason_og = closure_reason
+				// one alternative
+				replace closure_reason = `"voluntary withdrawal"' if closure_reason == `"application withdrawal"'
+		
 			#delimit ;
 			replace group_heading = 1 
 				if inlist(	closure_reason,
@@ -393,7 +612,7 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 							closure_reason == `"convicted of ipv"' |
 							closure_reason == `"drug conviction"' |
 							closure_reason == `"no longer in living arrangement code "a""' |
-							closure_reason == `"selected regular fs because of excess shelter or medical ex"' |
+							strpos(closure_reason,`"selected regular fs because of excess shelter or medic"') |
 							closure_reason == `"other (disaster closures included)"' |
 							closure_reason == `"living with spouse (lacap only)"' |
 							closure_reason == `"age requirement not met"' |
@@ -401,19 +620,280 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 							closure_reason == `"failed/refused to provide verification"' |
 							closure_reason == `"failed to timely reapply"' |
 							closure_reason == `"failed to keep appointment"' |
-							closure_reason == `"failed to provide complete semi-annual rpt by due date"' |
+							strpos(closure_reason,`"failed to provide complete semi-annual rpt by due dat"') |
 							closure_reason == `"refused to comply with qc"' |
 							closure_reason == `"refused to comply with eligibility requirement"' |
 							closure_reason == `"failed to comply with lajet"' |
-							closure_reason == `"originally ineligible"'
+							closure_reason == `"originally ineligible"' | 
+							//
+							closure_reason == `"does not meet abawd work requirement"' |
+							closure_reason == `"living with child under age 22 (lacap only)"' |
+							closure_reason == `"failed to comply with lwc"' |
+							closure_reason == `"other"' |
+							closure_reason == `"failed to register for work - hire"' |
+							//////
+							closure_reason == `"failed net income test"' |
+							//
+							closure_reason == `"failed gross income test"' |
+							closure_reason == `"individual is not receiving ssi"' |
+							//
+							closure_reason == `"failed resource test"' |
+							closure_reason == `"failed due to resource transfer"' |
+							closure_reason == `"failure due to voluntary withdrawal"' |
+							closure_reason == `"failed residency requirement"' |
+							closure_reason == `"individual is out of home"' |
+							closure_reason == `"failed due to incarcerated applicant"' |
+							closure_reason == `"no eligible children"' |
+							closure_reason == `"case name deceased"' |
+							closure_reason == `"failed citizenship requirement"' |
+							closure_reason == `"individual does not purchase and prepare meals together"' |
+							closure_reason == `"disqualified due to an ipv"' |
+							closure_reason == `"individual does not meet program requirement"' |
+							closure_reason == `"individual does not meet age requirement"' |
+							closure_reason == `"individual is receiving benefits in another case"' |
+							closure_reason == `"abawd individual failed to meet requirements to work 20 hrs/week"' |
+							closure_reason == `"not a one person household ineligible for lacap"' |
+							//
+							closure_reason == `"failed to provide required information within specific timeframe"' |
+							closure_reason == `"failure to complete redet"' |
+							closure_reason == `"failed to complete interview"' |
+							closure_reason == `"failure to complete sr"' |
+							//
+							closure_reason == `"failure due to e&t sanction"' |
+							closure_reason == `"failure due to non cooperation with quality control"' |
+							closure_reason == `"fail to register for work - hire"' |
+							//
+							closure_reason == `"client request"' |
+							//
+							strpos(closure_reason,`"abawd individual failed to meet requirements to work 20 hrs/w"') |
+							strpos(closure_reason,`"fail to register for work ‐ hire"') |
+							// 
+							closure_reason == `"failed to provide complete semi‐annual rpt by due date"' |
+							//
+							closure_reason == `"refused to comply with pres"' |
+							// 
+							strpos(closure_reason,`"does not purchase prepare meals separ"') | 
+ 							strpos(closure_reason,`"selected regular fs because of excess s"') | 
+ 							strpos(closure_reason,`"failed to provide complete semi-annual"') | 
+ 							strpos(closure_reason,`"refused to comply with eligibility require"') |
+ 							strpos(closure_reason,`"no longer in living arrangement code"') |
+ 							//
+ 							strpos(closure_reason,`"refused to comply with quality control"')
+							// closure_reason == `""' |
+							// gotothis
 			;
 			#delimit cr 
 
 		// make sure all reasons are accounted for 
 		gen has_a_category = (group_total == 1 | group_heading == 1 | group_finecategory == 1)  
+		list closure_reason obsnum if has_a_category == 0
 		assert has_a_category == 1
-		*br if has_a_category == 0
 		drop has_a_category
+
+		// standardize fine categories
+		// code from xwalk excel file
+		*	gen closure_reason_og = closure_reason
+			// one alternative
+			replace closure_reason = `"death of applicant/head of household"' if closure_reason == `"case name deceased"'
+			replace closure_reason = `"convicted of ipv"' if closure_reason == `"disqualified due to an ipv"'
+			replace closure_reason = `"citizenship not met"' if closure_reason == `"failed citizenship requirement"'
+			replace closure_reason = `"institutionalization/incarceration"' if closure_reason == `"failed due to incarcerated applicant"'
+			replace closure_reason = `"transferred resources"' if closure_reason == `"failed due to resource transfer"'
+			replace closure_reason = `"gross income ineligible"' if closure_reason == `"failed gross income test"'
+			replace closure_reason = `"residence requirement not met"' if closure_reason == `"failed residency requirement"'
+			replace closure_reason = `"resources over limit"' if closure_reason == `"failed resource test"'
+			replace closure_reason = `"failed to keep appointment"' if closure_reason == `"failed to complete interview"'
+			replace closure_reason = `"failed/refused to provide verification"' if closure_reason == `"failed to provide required information within specific timeframe"'
+			replace closure_reason = `"failed to timely reapply"' if closure_reason == `"failure to complete redet"'
+			replace closure_reason = `"does not receive ssi"' if closure_reason == `"individual is not receiving ssi"'
+			replace closure_reason = `"head of hh (payee) left home"' if closure_reason == `"individual is out of home"'
+			replace closure_reason = `"included in another certification"' if closure_reason == `"individual is receiving benefits in another case"'
+			replace closure_reason = `"no eligible child/member in the home"' if closure_reason == `"no eligible children"'
+			replace closure_reason = `"no longer in living arrangement code "a""' if strpos(closure_reason,`"no longer in living arrangement code"')
+			replace closure_reason = `"refused to comply with eligibility requirement"' if strpos(closure_reason,`"refused to comply with eligibility require"')
+			replace closure_reason = `"selected regular fs because of excess shelter or medical expenses"' if strpos(closure_reason,`"selected regular fs because of excess s"')
+			replace closure_reason = `"individual does not meet age requirement"' if closure_reason == `"age requirement not met"'
+			replace closure_reason = `"other (disaster closures included)"' if closure_reason == `"other"'
+			// two alternatives
+			replace closure_reason = `"abawd individual failed to meet requirements to work 20 hrs/week"' if strpos(closure_reason,`"abawd individual failed to meet requirements to work 20 hrs/w"') | closure_reason == `"does not meet abawd work requirement"'
+			replace closure_reason = `"does not purchase prepare meals separately"' if strpos(closure_reason,`"does not purchase prepare meals separ"') | closure_reason == `"individual does not purchase and prepare meals together"'
+			replace closure_reason = `"failed to register for work - hire"' if strpos(closure_reason,`"fail to register for work ‐ hire"') | closure_reason == `"fail to register for work - hire"'
+			replace closure_reason = `"failed to provide complete semi‐annual rpt by due date"' if strpos(closure_reason,`"failed to provide complete semi-annual"') | closure_reason == `"failure to complete sr"'
+			// three alternatives
+			replace closure_reason = `"refused to comply with quality control"' if strpos(closure_reason,`"refused to comply with quality control"') | closure_reason == `"refused to comply with qc"' | closure_reason == `"failure due to non cooperation with quality control"'
+
+		// assert that all the closure_reasons are in my list 
+		#delimit ;
+		 list closure_reason if !(
+			inlist(closure_reason,
+			`"state total"') | 
+			inlist(closure_reason,
+			`"earned income total"',
+			`"unearned income total"',
+			`"other eligibility total"',
+			`"procedural reasons total"',
+			`"sanction reasons total"',
+			`"voluntary withdrawal"',
+			`"other reasons total"') |
+			inlist(closure_reason,
+			`"gross inc. eligibility net exceeds limit"',
+			`"increase in wages or new employment"',
+			`"gross income ineligible"',
+			`"increase in contributions"',
+			`"increase in child support"') |
+			inlist(closure_reason,
+			`"increase in social security or ssi"',
+			`"increase in other federal benefits"',
+			`"increase in other state benefits"',
+			`"does not receive ssi"',
+			`"resources over limit"') |
+			inlist(closure_reason,
+			`"transferred resources"',
+			`"decrease need or expenses"',
+			`"unable to locate"',
+			`"residence requirement not met"',
+			`"residence out of parish"') |
+			inlist(closure_reason,
+			`"moved out of state"',
+			`"head of hh (payee) left home"',
+			`"institutionalization/incarceration"',
+			`"voluntary quit without good cause"',
+			`"no eligible child/member in the home"') |
+			inlist(closure_reason,
+			`"death of applicant/head of household"',
+			`"citizenship not met"',
+			`"change in state law or policy"',
+			`"expired redetermination"',
+			`"questionable information not provided"') |
+			inlist(closure_reason,
+			`"household member disqualified"',
+			`"does not purchase prepare meals separately"',
+			`"convicted of ipv"',
+			`"drug conviction"',
+			`"no longer in living arrangement code "a""') |
+			inlist(closure_reason,
+			`"selected regular fs because of excess shelter or medical expenses"'
+			`"other (disaster closures included)"',
+			`"living with spouse (lacap only)"',
+			`"living with child under age 22 (lacap only)"',
+			`"not a one person household ineligible for lacap"') |
+			inlist(closure_reason,
+			`"other"',
+			`"included in another certification"',
+			`"failed/refused to provide verification"',
+			`"failed to timely reapply"',
+			`"failed to keep appointment"') |
+			inlist(closure_reason,
+			`"failed to provide complete semi‐annual rpt by due date"',
+			`"refused to comply with quality control"',
+			`"refused to comply with eligibility requirement"',
+			`"failed to comply with lajet"',
+			`"failed to comply with lwc"') |
+			inlist(closure_reason,
+			`"refused to comply with pres"',
+			`"originally ineligible"',
+			`"abawd individual failed to meet requirements to work 20 hrs/week"',
+			`"failed to register for work - hire"',
+			`"failure due to e&t sanction"') |
+			inlist(closure_reason,
+			`"individual does not meet program requirement"',
+			`"failure due to voluntary withdrawal"',
+			`"failed net income test"',
+			`"client request"',
+			`"individual does not meet age requirement"',
+			`"other (disaster closures included)"') // )
+			)
+		;
+		#delimit cr 
+
+		// assert that all the closure_reasons are in my list 
+		#delimit ;
+		assert  
+			inlist(closure_reason,
+			`"state total"') | 
+			inlist(closure_reason,
+			`"earned income total"',
+			`"unearned income total"',
+			`"other eligibility total"',
+			`"procedural reasons total"',
+			`"sanction reasons total"',
+			`"voluntary withdrawal"',
+			`"other reasons total"') |
+			inlist(closure_reason,
+			`"gross inc. eligibility net exceeds limit"',
+			`"increase in wages or new employment"',
+			`"gross income ineligible"',
+			`"increase in contributions"',
+			`"increase in child support"') |
+			inlist(closure_reason,
+			`"increase in social security or ssi"',
+			`"increase in other federal benefits"',
+			`"increase in other state benefits"',
+			`"does not receive ssi"',
+			`"resources over limit"') |
+			inlist(closure_reason,
+			`"transferred resources"',
+			`"decrease need or expenses"',
+			`"unable to locate"',
+			`"residence requirement not met"',
+			`"residence out of parish"') |
+			inlist(closure_reason,
+			`"moved out of state"',
+			`"head of hh (payee) left home"',
+			`"institutionalization/incarceration"',
+			`"voluntary quit without good cause"',
+			`"no eligible child/member in the home"') |
+			inlist(closure_reason,
+			`"death of applicant/head of household"',
+			`"citizenship not met"',
+			`"change in state law or policy"',
+			`"expired redetermination"',
+			`"questionable information not provided"') |
+			inlist(closure_reason,
+			`"household member disqualified"',
+			`"does not purchase prepare meals separately"',
+			`"convicted of ipv"',
+			`"drug conviction"',
+			`"no longer in living arrangement code "a""') |
+			inlist(closure_reason,
+			`"selected regular fs because of excess shelter or medical expenses"'
+			`"other (disaster closures included)"',
+			`"living with spouse (lacap only)"',
+			`"living with child under age 22 (lacap only)"',
+			`"not a one person household ineligible for lacap"') |
+			inlist(closure_reason,
+			`"other"',
+			`"included in another certification"',
+			`"failed/refused to provide verification"',
+			`"failed to timely reapply"',
+			`"failed to keep appointment"') |
+			inlist(closure_reason,
+			`"failed to provide complete semi‐annual rpt by due date"',
+			`"refused to comply with quality control"',
+			`"refused to comply with eligibility requirement"',
+			`"failed to comply with lajet"',
+			`"failed to comply with lwc"') |
+			inlist(closure_reason,
+			`"refused to comply with pres"',
+			`"originally ineligible"',
+			`"abawd individual failed to meet requirements to work 20 hrs/week"',
+			`"failed to register for work - hire"',
+			`"failure due to e&t sanction"') |
+			inlist(closure_reason,
+			`"individual does not meet program requirement"',
+			`"failure due to voluntary withdrawal"',
+			`"failed net income test"',
+			`"client request"',
+			`"individual does not meet age requirement"',
+			`"other (disaster closures included)"') 
+		;
+		#delimit cr 
+
+		// copy closure_reason to shorten variable 
+		rename closure_reason closure_reason_copy
+		gen closure_reason = closure_reason_copy
+		order closure_reason, before(closure_reason_copy)
+		drop closure_reason_copy
 
 		// assert the level of data 
 		duplicates tag county ym closure_reason, gen(dup)
@@ -469,17 +949,68 @@ duplicates drop
 duplicates tag county ym closure_reason, gen(dup)
 assert dup == 0
 drop dup 
-check 
 
+// order and sort 
+order county ym group_total group_heading group_finecategory closure_reason total perc closure_reason_og
+gsort county ym -group_total -group_heading -group_finecategory closure_reason
 
-		// standardize closures reasons
-**KP: COME BACK TO THIS 
+// save 
+save "${dir_root}/data/state_data/louisiana/louisiana_closure.dta", replace 
 
-**KP: I'm not sure if I'm capturing all observations 
+****************************************************************************************************
+****************************************************************************************************
 
+// create a county ym level version of the closure data
+// by each level separately  
+use "${dir_root}/data/state_data/louisiana/louisiana_closure.dta", clear 
+keep if group_total == 1 
+drop group_*
+drop perc 
+drop closure_reason_og
+replace closure_reason = ustrregexra(closure_reason," ","")
+replace closure_reason = substr(closure_reason,1,28)
+rename total c_1_
+reshape wide c_1_, i(county ym) j(closure_reason) string
+tempfile louisiana_closure_group_total 
+save `louisiana_closure_group_total'
+
+use "${dir_root}/data/state_data/louisiana/louisiana_closure.dta", clear 
+keep if group_heading == 1 
+drop group_*
+drop perc 
+drop closure_reason_og
+replace closure_reason = ustrregexra(closure_reason," ","")
+replace closure_reason = substr(closure_reason,1,28)
+rename total c_2_
+reshape wide c_2_, i(county ym) j(closure_reason) string
+tempfile louisiana_closure_group_heading 
+save `louisiana_closure_group_heading'
+
+use "${dir_root}/data/state_data/louisiana/louisiana_closure.dta", clear 
+keep if group_finecategory == 1 
+drop group_*
+drop perc 
+drop closure_reason_og
+replace closure_reason = ustrregexra(closure_reason," ","")
+replace closure_reason = ustrregexra(closure_reason,"/","")
+replace closure_reason = ustrregexra(closure_reason,"\(","")
+replace closure_reason = ustrregexra(closure_reason,"\)","")
+replace closure_reason = ustrregexra(closure_reason,"\-","")
+replace closure_reason = ustrregexra(closure_reason,"\&","and")
+replace closure_reason = ustrregexra(closure_reason,"\.","")
+replace closure_reason = substr(closure_reason,1,27)
+rename total c_3_
+reshape wide c_3_, i(county ym) j(closure_reason) string
+tempfile louisiana_closure_group_fine 
+save `louisiana_closure_group_fine'
 
 ********************************************************************
-/*
+********************************************************************
+********************************************************************
+********************************************************************
+********************************************************************
+********************************************************************
+
 // STATE TOTALS 1987-2006
 // Part 1
 
@@ -1509,15 +2040,302 @@ sort county ym
 // save 
 tempfile louisiana_age
 save `louisiana_age'
-*/
+
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
+// APPLICATIONS - state total 
+forvalues year = `year_start_apps'(1)`year_end_apps' {
+	
+	display in red "`year'"
+
+	if `year' == 2021 {
+		local month_num_end = 10 // change when more data is added
+	}
+	else {
+		local month_num_end = 12
+	}
+
+	// for filenames
+	local year_plus1 = `year' + 1
+	local year_short = `year' - 2000
+	local year_short_plus1 = `year_short' + 1
+	if `year_short' < 10 {
+		local year_short_name = "0" + "`year_short'"
+	}
+	else {
+		local year_short_name = "`year_short'"
+	}
+	if `year_short_plus1' < 10 {
+		local year_short_plus1_name = "0" + "`year_short_plus1'"
+	}
+	else {
+		local year_short_plus1_name = "`year_short_plus1'"
+	}
+	local yearnames = "`year_short_name'" + "`year_short_plus1_name'"
+
+	// import
+	import excel "${dir_root}/data/state_data/louisiana/excel/007_Applications Processed by Month/fy`yearnames'_FS_Apps_Mon.xlsx", allstring clear
+	
+	// initial cleanup
+	dropmiss, force 
+	dropmiss, obs force 
+	qui describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	*gen obsnum = _n
+
+	// drop titles 
+	drop if strpos(v1,"STATE FISCAL YEAR")
+	drop if strpos(v1,"Applications Received")
+	drop if strpos(v1,"Applications Certified")
+	drop if strpos(v1,"Applications Rejected")
+	drop if strpos(v14,"Applications Received")
+	dropmiss, force 
+	dropmiss, obs force 
+	qui describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+
+	// assert shape 
+	qui describe, varlist 
+	assert `r(N)' == 15 | `r(N)' == 45
+	if `r(N)' == 15 {
+		assert `r(k)' == 35 | `r(k)' == 27 | `r(k)' == 25 | `r(k)' == 24
+
+		// drop average
+		drop if _n == 15 | strpos(v1,"AVERAGE")
+	
+		// transpose data 
+		gen varname = ""
+		replace varname = "variable" if _n == 1
+		replace varname = "m7" if _n == 2
+		replace varname = "m8" if _n == 3
+		replace varname = "m9" if _n == 4
+		replace varname = "m10" if _n == 5
+		replace varname = "m11" if _n == 6
+		replace varname = "m12" if _n == 7
+		replace varname = "m1" if _n == 8
+		replace varname = "m2" if _n == 9
+		replace varname = "m3" if _n == 10
+		replace varname = "m4" if _n == 11
+		replace varname = "m5" if _n == 12
+		replace varname = "m6" if _n == 13
+		replace varname = "total" if _n == 14
+		order varname
+		sxpose, clear firstnames
+		drop total 
+	
+		// drop months rows
+		drop if variable == "MONTH" | strpos(variable,"MONTH")
+	
+		// drop rows with percentage
+		drop if strpos(variable,"% Cert")
+		drop if strpos(variable,"% Rejected") | (strpos(variable,"Rej") & strpos(variable,"%"))
+	
+		// drop rows with percent increase / decrease
+		drop if strpos(variable,"Inc") & strpos(variable,"Dec")
+	
+		// drop rows with lacap, snap  
+		drop if strpos(variable,"LACAP")
+		drop if strpos(variable,"SNAP")	
+		drop if strpos(variable,"NP")
+		drop if strpos(variable,"PA")
+		drop if strpos(variable,"LCAP")
+
+		// assert shape 
+		qui describe, varlist 
+		assert `r(N)' == 3
+	
+		// variable names 
+		replace variable = strlower(variable)
+		replace variable = "_received_" + variable if _n == 1
+		replace variable = "_approved_" + variable if _n == 2
+		replace variable = "_denied_" + variable if _n == 3
+		replace variable = ustrregexra(variable,"_total","")
+	
+		// reshape long by months 
+		reshape long m, i(variable) j(month)
+		rename m value 
+	
+		// reshape wide by variables 
+		rename value apps 
+		reshape wide apps, i(month) j(variable) string
+	
+		// year
+		gen year = .
+		replace year = `year' if inrange(month,7,12)
+		replace year = `year' + 1 if inrange(month,1,6)
+	
+		// ym 
+		gen ym = ym(year,month)
+		format ym %tm 
+		drop year 
+		drop month 
+	
+		// destring 
+		foreach var in apps_approved apps_received apps_denied {
+			destring `var', replace 
+			confirm numeric variable `var' 
+		}
+	
+		// county 
+		gen county = "total"
+
+	}
+	else if `r(N)' == 45 {
+
+		local page1_range "inrange(_n,1,15)"
+		local page2_range "inrange(_n,16,30)"
+		local page3_range "inrange(_n,31,45)"
+
+		forvalues page = 1(1)3 {
+	*	local page = 2
+			display in red "page `page' of 3"
+
+			// preserve
+			preserve
+			
+			// keep observations 
+			keep if `page`page'_range'
+
+			// drop average
+			drop if _n == 15 | strpos(v1,"AVERAGE")
+			
+			// drop total 
+			drop if _n == 14 | strpos(v1,"TOTALS")
+
+			// clean up 
+			dropmiss, force 
+			dropmiss, force obs 
+			qui describe, varlist
+			rename (`r(varlist)') (v#), addnumber
+
+			// assert shape again 
+			assert `r(N)' == 13
+			assert inlist(`r(k)',7,9,10,13)
+			if `r(k)' == 7 {
+				local keepvar v6
+			}
+			else if inlist(`r(k)',9,10) {
+				local keepvar v8 
+			}
+			else if inlist(`r(k)',13) {
+				local keepvar v11
+			}
+
+			// gen month 
+			gen month = .
+			replace month = 7 if _n == 2
+			replace month = 8 if _n == 3
+			replace month = 9 if _n == 4
+			replace month = 10 if _n == 5
+			replace month = 11 if _n == 6
+			replace month = 12 if _n == 7
+			replace month = 1 if _n == 8
+			replace month = 2 if _n == 9
+			replace month = 3 if _n == 10
+			replace month = 4 if _n == 11
+			replace month = 5 if _n == 12
+			replace month = 6 if _n == 13
+
+			// year 
+			gen year = .
+			replace year = `year' if inrange(month,7,12)
+			replace year = `year' + 1 if inrange(month,1,6)
+
+			// ym 
+			gen ym = ym(year,month)
+			format ym %tm 
+			drop year 
+			drop month 
+
+			// destring 
+			drop in 1 
+			foreach var in `keepvar' {
+				destring `var', replace 
+				confirm numeric variable `var' 
+			}
+
+			// keep variable I want 
+			**assert `keepvar' = "TOTAL" if _n == 1
+			keep ym `keepvar'
+			if `page' == 1 {
+				rename `keepvar' apps_received 	
+			}
+			else if `page' == 2 {
+				rename `keepvar' apps_approved
+			}
+			else if `page' == 3 {
+				rename `keepvar' apps_denied
+			}
+			
+			// county 
+			gen county = "total"
+
+			// save 
+			tempfile _`year'_page`page'
+			save `_`year'_page`page''
+
+			// restore 
+			restore 
+
+		}
+
+		forvalues page = 1(1)3 {
+			if `page' == 1 {
+				use `_`year'_page`page'', clear
+			}
+			else {
+				merge 1:1 county ym using `_`year'_page`page''
+				assert _m == 3
+				drop _m 
+			}
+		}
+	}
+
+	// order and sort 
+	order county ym apps_received* apps_approved* apps_denied*
+	sort county ym 
+
+	// save 
+	tempfile _`year'_apps
+	save `_`year'_apps'
+
+}
+******************************************
+forvalues year = `year_start_apps'(1)`year_end_apps' {
+	if `year' == `year_start_apps' {
+		use `_`year'_apps', clear
+	} 
+	else {
+		append using `_`year'_apps'
+	}
+}
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
+// sort and order 
+order county ym 
+sort county ym 
+
+// save 
+tempfile louisiana_apps
+save `louisiana_apps'
+
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+
+**THIS CODE IS OLDER, AND WOULD NEED TO BE MODIFIED TO GET COUNTY-LEVEL APPLICATIONS DATA **
+/*
 
 // APPLICATIONS 
-
 forvalues year = `year_start_apps'(1)`year_end_apps' {
 	
 	display in red "`year'"
@@ -1753,9 +2571,7 @@ sort county ym
 // save 
 tempfile louisiana_apps
 save `louisiana_apps'
-
-
-
+*/
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
@@ -1770,27 +2586,19 @@ merge 1:1 county ym using `louisiana_age'
 drop _m 
 merge 1:1 county ym using `louisiana_apps'
 drop _m
+merge 1:1 county ym using `louisiana_closure_group_total'
+drop _m
+merge 1:1 county ym using `louisiana_closure_group_heading'
+drop _m
+merge 1:1 county ym using `louisiana_closure_group_fine'
+drop _m
 
 // drop missing observations
 #delimit ;
 dropmiss county countycode households individuals avg_indiv_per_hh issuance avg_payment hh_with_earnedinc avg_earnedinc_per_hh children adults
-apps_received_npa
-apps_received_pa
-apps_received_snap
-apps_received_lacap
 apps_received
-apps_approved_npa
-apps_approved_pa
-apps_approved_snap
-apps_approved_lacap
 apps_approved
-apps_denied_npa
-apps_denied_pa
-apps_denied_snap
-apps_denied_lacap
 apps_denied
-apps_approved_perc 
-apps_denied_perc
 , force obs
 ;
 #delimit cr 
@@ -1802,6 +2610,4 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/louisiana/louisiana.dta", replace 
-
-
 

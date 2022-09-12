@@ -5,7 +5,7 @@
 
 // arkansas
 	// (one page cleaned)
-	// **KP** (should clean "expedited" page) BUT data only goes through 2019....so less of a priority
+	// cleaned "expedited" page -- BUT data only goes through 2019
 	// (there are other details on timeliness and fraud investigations, those seem less relevant)
 	// apps_*
 	// pendingdays_*
@@ -31,19 +31,22 @@
 	// not going to clean, since data is only by year. 
 
 // indiana ****************
-	// one more row in the table I'm already cleaning, so a slight modification to the code should catch this variable
+	// CLEANED
 	// only has total applications
 	// right now, period covered is Jan 2021 - May 2021+, Dec 2021- May 2022, with months in between to be filled in by the end of 2022
+
 
 // louisiana **************************************************
 	// new pages to clean: 
 		// 007_Applications Processed by Month (state-month level)
+		// CLEANED
 			// (005_Applications Processed includes county-month data)
 			// includes:
 			// applications received
 			// applications approved ("certified")
 			// applications denied ("rejected")
 		// 011_Cases Closed by Reason (state-month)
+		// CLEANED
 			// **very detailed** including:
 			// failed net income test
 			// failed gross income test
@@ -53,6 +56,7 @@
 			// failure to complete SR (**KP: what does SR stand for?)
 			// client request
 		// (less priority) 013_Food Stamp Households with Earned Income (for targeting analysis) (county-month level)
+			// DID NOT CLEAN
 			// includes:
 			// households with earned income
 			// estimated amount of earned income (total across state)
@@ -61,12 +65,12 @@
 
 	// Promising: but don't use
 		// 008_Recipiency Rate with Map OR and Poverty Level **KP: some measure of eligibility, but I don't know their methods. I might as well do eligibility myself, using CPS data or something.
+		// DID NOT CLEAN
 		// 009_Redeterminations Processed (county-month) **data only goes through 2012-13** :(
 			// includes:
 			// redeterminations approved / certified
 			// redeterminations rejected / closed
-**KP: KEEP GOING HERE, upward, cleaning 
-2022-07-29
+
 
 // missouri ************************************************** (adults and children)
 	// cleaned already
