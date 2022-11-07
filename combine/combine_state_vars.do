@@ -19,10 +19,11 @@ display in red "${state}"
 	*capture drop avg_pay_per_person
 	capture rename avg_recip_per_case	avg_individuals_households
 	*capture drop avg_recip_per_case
-	// ***apps_received CA MO TX NM MD LA AK NC CO IN RI TN
+	// ***apps_received CA MO TX NM MD LA AK NC CO IN RI TN MA
 		// TN
 		// some info for 2019-2020, from picture; includes SNAP and TANF combined, but it is estimated that 261,800 / (78,249+96,590+48,860+56,209) = 261,800 / 279,908 = 93.5 % of those are SNAP applications. (Quote from report: "During the months of March 2020 through June 2020, approximately 261,800 applications were received")
 		capture rename apps_received_snaptanf apps_received 
+	// apps_received_* MA 
 	// ***apps_approved CA MO NM MD LA AK NC
 	// apps_disposed CA 
 	// ***apps_denied CA MO MD LA AK
@@ -45,23 +46,51 @@ display in red "${state}"
 	// ***apps_expedited CA MO CO NM NC AK
 	// ***apps_expedited_elig CA only
 	// ***apps_expedited_notelig CA only
-	// apps_timely TX
-		// apps_nottimely CA
+	// ***apps_timely, ***apps_untimely CA CO NM NC TX - not AK or MO 
+		if "${state}" == "california" {
+			// apps_nottimely CA - "denominator" here is approved apps
+			// apps_denied_nottimely CA 
+			egen apps_untimely = rowtotal(apps_nottimely apps_denied_nottimely), missing
+			gen apps_timely = apps_received - apps_untimely
+		}
+		// apps_received_timely CO 
+		capture rename apps_received_timely apps_timely
+		// apps_received_untimely CO 
+		capture rename apps_received_untimely apps_untimely
+		// apps_approved_timely NC 
+		capture rename apps_approved_timely apps_timely
+		// apps_approved_untimely NC 
+		capture rename apps_approved_untimely apps_untimely
+		// apps_timely TX
 		// pendingdays* AK
-		// avg_days_process?? MO
-	// ***children MO  TX SD  OR  OH NM NJ LA KS AZ MI (WI)
+		// avg_days_process?? MO - not enough to do anything with 
+	// ***apps_timely_perc CO 
+		// apps_received_timely_perc CO 
+		capture rename apps_received_timely_perc apps_timely_perc 
+		// apps_perc_timely TX 
+		capture rename apps_perc_timely apps_timely_perc
+	// ***apps_expedited_timely NM NC CA
+		if "${state}" == "california" {
+			egen apps_expedited_timely = rowtotal(apps_expedited_elig_days1_3 apps_expedited_elig_days4_7), missing
+		}
+	// ***apps_expedited_untimely NM NC CA 
+		// apps_expedited_elig_days8 CA 
+		capture rename apps_expedited_elig_days8 apps_expedited_untimely
+	// ***apps_notexpedited_timely NC 
+	// ***apps_notexpedited_untimely NC 	
+	// ***children MO  TX SD  OR  OH NM NJ LA KS AZ MI (WI) MA 
 		// calculate for WI
 		if "${state}" == "wisconsin" {
-			egen children = rowtotal(female_00_05 male_00_05 female_06_17 male_06_17)	
+			egen children = rowtotal(female_00_05 male_00_05 female_06_17 male_06_17), missing
 		}
-	// ***adults  (MO) TX SD (OR) OH NM NJ LA KS AZ MI (WI)
-		// calculate for MO, OR 
-		if inlist("${state}","missouri","oregon") {
+	// ***adults  (MO) TX SD (OR) OH NM NJ LA KS AZ MI (WI) MA 
+		// calculate for MO, OR, MA 
+		if inlist("${state}","missouri","oregon","massachusetts") {
 			gen adults = individuals - children
 		}
 		// calculate for WI
 		if "${state}" == "wisconsin" {
-			egen adults = rowtotal(female_18_34 male_18_34 female_35_49 male_35_49 female_50_64 male_50_64 female_65plus male_65plus)
+			egen adults = rowtotal(female_18_34 male_18_34 female_35_49 male_35_49 female_50_64 male_50_64 female_65plus male_65plus), missing
 		}
 	// ***generate infants TX OR WI
 		// age_00_04 TX
@@ -75,26 +104,26 @@ display in red "${state}"
 		// female_00_05 WI
 		// male_00_05 WI 
 		if "${state}" == "wisconsin" {
-			egen infants = rowtotal(female_00_05 male_00_05)
+			egen infants = rowtotal(female_00_05 male_00_05), missing
 		}
 	// age_05_17 TX
 	// age_18_59 MO TX
-	// ***generate elderly MO NJ OR TX WI 
+	// ***generate elderly MO NJ OR TX WI MA 
 		// age_60_64 TX
 		// age_65    TX
 		if "${state}" == "texas" {
-			egen elderly = rowtotal(age_60_64 age_65)
+			egen elderly = rowtotal(age_60_64 age_65), missing
 		}
-		// age_60    MO OR NJ
+		// age_60    MO OR NJ MA
 		if "${state}" == "missouri" | "${state}" == "newjersey" | "${state}" == "oregon" {
 			gen elderly = age_60
 		}
 		// female_65plus WI
 		// male_65plus WI
 		if "${state}" == "wisconsin" {
-			egen elderly = rowtotal(female_65plus male_65plus)
+			egen elderly = rowtotal(female_65plus male_65plus), missing
 		}
-	// ***disabled MO NJ
+	// ***disabled MO NJ MA 
 	// ***generate female, male NM WI
 		// gender_female NM
 		// gender_male NM
@@ -105,7 +134,7 @@ display in red "${state}"
 		// female_50_64 WI
 		// female_65plus WI
 		if "${state}" == "wisconsin" {
-			egen gender_female = rowtotal(female_00_05 female_06_17 female_18_34 female_35_49 female_50_64 female_65plus)
+			egen gender_female = rowtotal(female_00_05 female_06_17 female_18_34 female_35_49 female_50_64 female_65plus), missing
 		}
 		// male_00_05 WI
 		// male_06_17 WI
@@ -114,7 +143,7 @@ display in red "${state}"
 		// male_50_64 WI
 		// male_65plus WI
 		if "${state}" == "wisconsin" {
-			egen gender_male = rowtotal(male_00_05 male_06_17 male_18_34 male_35_49 male_50_64 male_65plus)
+			egen gender_male = rowtotal(male_00_05 male_06_17 male_18_34 male_35_49 male_50_64 male_65plus), missing
 		}	
 	// race and ethnicity
 	// NM only
@@ -140,7 +169,7 @@ display in red "${state}"
 		// ***households: “Cases open” = Total cases open during the month
 	// ***firsttimehouseholds WI only 
 	// RECERTIFICATIONS
-	// ***recerts, total CA CO NM NC TX 
+	// ***recerts, total CA CO NM NC TX MA 
 		// CA recerts
 		// NC recerts
 		// CO recert
@@ -149,10 +178,12 @@ display in red "${state}"
 		capture rename recerts_disposed recerts 
 		// NM recert_approved + recert_denied
 		if "${state}" == "newmexico" {
-			egen recerts = rowtotal(recert_approved recert_denied)
+			egen recerts = rowtotal(recert_approved recert_denied), missing
 		}
 		// LA XXXX data only goes through 2013
 		// households_cert MD - not sure what this is and it only goes through 2005
+		// MA recerts_due 
+		capture rename recerts_due recerts 
 	// ***recerts_approved CA, NM, (LA doesn't have this)
 		// CA
 		capture rename recerts_elig recerts_approved
@@ -162,7 +193,7 @@ display in red "${state}"
 	// ***recerts_denied
 		// CA 
 		if "${state}" == "california" {
-			egen recerts_denied = rowtotal(recerts_inelig recerts_overdue)
+			egen recerts_denied = rowtotal(recerts_inelig recerts_overdue), missing
 			gen recerts_deniedB = recerts - recerts_approved
 		}
 **maybe check to see if these numbers are close: recerts_denied & recerts_deniedB
@@ -180,7 +211,7 @@ display in red "${state}"
 				c_2_voluntarywithdrawal 
 				c_2_proceduralreasonstotal 
 				c_2_sanctionreasonstotal
-				)
+				), missing
 			;
 			#delimit cr 
 		}
@@ -191,7 +222,7 @@ display in red "${state}"
 		capture rename recert_denied_procedural recerts_denied_procedural
 		// LA 
 		if "${state}" == "louisiana" {
-			egen recerts_denied_procedural = rowtotal (c_2_proceduralreasonstotal c_2_sanctionreasonstotal)
+			egen recerts_denied_procedural = rowtotal(c_2_proceduralreasonstotal c_2_sanctionreasonstotal), missing
 		}
 	// ***recerts_denied_needbased
 		// CA 
@@ -202,7 +233,7 @@ display in red "${state}"
 		// Justification for including other reasons here: other reasons is just client request, which suggests the household no longer needs benefits
 		// Justification for including voluntary withdrawals here: similar to above
 		if "${state}" == "louisiana" {
-			egen recerts_denied_needbased = rowtotal(c_2_earnedincometotal c_2_unearnedincometotal c_2_othereligibilitytotal c_2_otherreasonstotal c_2_voluntarywithdrawal)
+			egen recerts_denied_needbased = rowtotal(c_2_earnedincometotal c_2_unearnedincometotal c_2_othereligibilitytotal c_2_otherreasonstotal c_2_voluntarywithdrawal), missing
 		}
 	// closure details from LA: 
 		// ***c_1_statetotal
@@ -288,7 +319,7 @@ display in red "${state}"
 		// MD ssi 
 		// MD ma_mchp_assistanceunits
 	if "${state}" == "maryland" {
-		egen medicaid_households = rowtotal(ma_commcare_cases ma_longterm_cases ssi ma_mchp_assistanceunits)
+		egen medicaid_households = rowtotal(ma_commcare_cases ma_longterm_cases ssi ma_mchp_assistanceunits), missing
 	}
 // ***medicaid_apps_received MD
 	// MD 
@@ -297,7 +328,7 @@ display in red "${state}"
 		// MD ssi_apps_received
 		// MD ma_mchp_apps_received ** leave this category out since it is not in the approved categories
 	if "${state}" == "maryland" {
-		egen medicaid_apps_received = rowtotal(ma_commcare_apps_received ma_longterm_apps_received ssi_apps_received)
+		egen medicaid_apps_received = rowtotal(ma_commcare_apps_received ma_longterm_apps_received ssi_apps_received), missing
 	}
 // ***medicaid_apps_approved MD 
 	// MD 
@@ -305,30 +336,43 @@ display in red "${state}"
 		// MD ma_longterm_apps_approved
 		// MD ssi_apps_approved
 	if "${state}" == "maryland" {
-		egen medicaid_apps_approved = rowtotal(ma_commcare_apps_approved ma_longterm_apps_approved ssi_apps_approved)
+		egen medicaid_apps_approved = rowtotal(ma_commcare_apps_approved ma_longterm_apps_approved ssi_apps_approved), missing
 	}
 // TANF ENROLLMENT
 // possibly available in more states
-// ***tanf_households KS ME MD NE 
+// ***tanf_households KS ME MD NE MA 
 	// KS tanf_households
 	// ME tanf_cases
 	// MD tanf_cases
 	capture rename tanf_cases tanf_households
 	// NE adc_families
-	capture rename adc_families tanf_cases 
-// ***tanf_individuals KS MD 
+	capture rename adc_families tanf_households 
+	// MA tanf_households
+// ***tanf_individuals KS MD MA 
 	// KS tanf_persons
 	capture rename tanf_persons tanf_individuals
 	// MD tanf_recipients
-// ***tanf_children KS ME MD  
+	// MA tanf_recipients
+	capture rename tanf_recipients tanf_individuals
+// ***tanf_children KS ME MD MA 
 	// KS tanf_children
 	// ME tanf_children
 	// MD tanf_children
-// ***tanf_adults KS MD 
+	// MA tanf_children 
+// ***tanf_adults KS MD MA 
 	// KS tanf_adults
 	// MD tanf_adults
-// ***tanf_apps_received MD 
+	// MA 
+	if "${state}" == "massachusetts" {
+		gen tanf_adults = tanf_individuals - tanf_children
+	}
+// tanf_elderly MA 
+// tanf_disabled MA 
+// ***tanf_apps_received MD MA 
 	// MD tanf_apps_received
+	// MA apps_received_tanf 
+	capture rename apps_received_tanf tanf_apps_received
+// MA apps_received_tanf_*
 // ***tanf_apps_approved MD 
 	// MD tanf_apps_approved
 // ***tanf_apps_denied
@@ -341,3 +385,11 @@ display in red "${state}"
 // NE ccsubsidy_children
 // KS childcare_children
 // KS childcare_households
+// MA eaedc_recipients
+// MA eaedc_households
+// MA eaedc_elderly
+// MA eaedc_disabled
+// MA eaedc_children
+// MA apps_received_eaedc
+// MA apps_received_eaedc_*
+

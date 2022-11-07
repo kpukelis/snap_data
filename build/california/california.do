@@ -33,13 +33,13 @@ foreach year_short of local year_short_list {
 
 	// make firstrow varnames 
 	foreach var of varlist _all {
-		replace `var' = subinstr(`var', "`=char(9)'", " ", .) if _n == 1
-		replace `var' = subinstr(`var', "`=char(10)'", " ", .) if _n == 1
-		replace `var' = subinstr(`var', "`=char(13)'", " ", .) if _n == 1
-		replace `var' = subinstr(`var', "`=char(14)'", " ", .) if _n == 1
-		replace `var' = trim(`var')
-		replace `var' = stritrim(`var')
-		replace `var' = strlower(`var')
+		qui replace `var' = subinstr(`var', "`=char(9)'", " ", .) if _n == 1
+		qui replace `var' = subinstr(`var', "`=char(10)'", " ", .) if _n == 1
+		qui replace `var' = subinstr(`var', "`=char(13)'", " ", .) if _n == 1
+		qui replace `var' = subinstr(`var', "`=char(14)'", " ", .) if _n == 1
+		qui replace `var' = trim(`var')
+		qui replace `var' = stritrim(`var')
+		qui replace `var' = strlower(`var')
 		rename `var' `=`var'[1]'
 	}
 	drop in 1
@@ -50,47 +50,91 @@ foreach year_short of local year_short_list {
 	drop item 
 	drop item1
 	rename item2 item 
-	replace item = ustrregexra(item,"brought forward at the ","brought at ")
+	qui replace item = ustrregexra(item,"brought forward at the ","brought at ")
 
 	// column
-	replace column = "pacf" if column == "a. pacf"
-	replace column = "nacf" if column == "b. nacf"
-	replace column = "total" if column == "c. total"
+	qui replace column = "pacf" if column == "a. pacf"
+	qui replace column = "nacf" if column == "b. nacf"
+	qui replace column = "total" if column == "c. total"
 	// part 
-	replace part = substr(part,1,1)
-	tab part 
+	qui replace part = substr(part,1,1)
+	*tab part 
 	// remove parentheses
 	foreach var in column item {
-		replace `var' = ustrregexra(`var',"\-","")
-		replace `var' = ustrregexra(`var',"\(","")
-		replace `var' = ustrregexra(`var',"\)","")
-		replace `var' = ustrregexra(`var',"/","")
-		replace `var' = ustrregexra(`var',"\:","")
-		replace `var' = ustrregexra(`var',"\'","")
-		replace `var' = ustrregexra(`var',"\_","")
-		replace `var' = ustrregexra(`var',"\,","")
-		replace `var' = ustrregexra(`var'," ","")
+		qui replace `var' = ustrregexra(`var',"\-","")
+		qui replace `var' = ustrregexra(`var',"\(","")
+		qui replace `var' = ustrregexra(`var',"\)","")
+		qui replace `var' = ustrregexra(`var',"/","")
+		qui replace `var' = ustrregexra(`var',"\:","")
+		qui replace `var' = ustrregexra(`var',"\'","")
+		qui replace `var' = ustrregexra(`var',"\_","")
+		qui replace `var' = ustrregexra(`var',"\,","")
+		qui replace `var' = ustrregexra(`var'," ","")
 	}
 
 	// generate variable name 
-	gen varname = part + column + item 
-	replace varname = stritrim(varname)
-	replace varname = substr(varname,1,32)
+	qui gen varname = part + column + item 
+	qui replace varname = stritrim(varname)
+	qui replace varname = substr(varname,1,32)
 
 	// initial varname 
-	destring cell, replace 
+	qui destring cell, replace 
 	confirm numeric variable cell 
-	replace cell = cell + 6 // since there are year variables to start 
-	tostring cell, gen(v)
-	replace v = "v" + v 
+	qui replace cell = cell + 6 // since there are year variables to start 
+	qui tostring cell, gen(v)
+	qui replace v = "v" + v 
 
 	// get text for renaming 
+	display in red "`year_short'"
 	list v varname
+
+	rename varname varname_`year_short'
 
 	// save
 	*tempfile varnames
 	save "${dir_root}/data/state_data/california/varnames_`year_short'.dta", replace
 
+
+}
+/*
+// check consistency of variable names 
+foreach year_short of local year_short_list {
+	if `year_short' == `first_year_short' {
+		use "${dir_root}/data/state_data/california/varnames_`year_short'.dta", clear 
+	}
+	else {
+		merge 1:1 v using "${dir_root}/data/state_data/california/varnames_`year_short'.dta", keepusing(varname_`year_short')
+		drop _m 
+	}
+}
+
+assert varname_16 == varname_17
+assert varname_16 == varname_18
+assert varname_16 == varname_19
+assert varname_16 == varname_20
+assert varname_16 == varname_21
+
+*check
+*/
+
+foreach year_short of local year_short_list {
+
+	// display ym 
+	display in red "`year'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year_short = `year_short'
+	gen year_short_plus1 = `year_short' + 1
+	gen year = 2000 + `year_short'
+	local year_short = year_short
+	display in red "`year_short'"
+	local year_short_plus1 = year_short_plus1
+	display in red "`year_short_plus1'"
+	local year = year
+	display in red "`year'"
+	
 	/////////////////
 	// ACTUAL DATA //
 	/////////////////
@@ -428,6 +472,10 @@ foreach year_short of local year_short_list {
 
 // drop countycode for now; it's not throughout 
 drop countycode
+
+save "${dir_root}/data/state_data/california/california_TEMP.dta", replace 
+
+check
 
 // drop statewide totals; data is not consistent enough
 drop if county == "statewide"

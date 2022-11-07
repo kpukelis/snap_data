@@ -38,7 +38,7 @@ local massachusetts_waivers = 0
 local alabama				= 0 // not completed (fixed individual)
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
-local arkansas				= 1 // KEEP GOING HERE 2022-09-02
+local arkansas				= 0 // KEEP GOING HERE 2022-09-02
 local california			= 0
 local colorado 				= 0
 local connecticut			= 0 // not completed (fixed individual)
@@ -90,8 +90,8 @@ local wisconsin 			= 0
 **KP: 2020-02-09 missouri oregon left to be done 
 
 // combine 
-local combine_state_ym 		= 1 // KEEP GOING HERE 2022-09-09
-local combine_county_ym		= 0 // still more work here 
+local combine_state_ym 		= 0
+local combine_county_ym		= 1 // still more work here 
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04

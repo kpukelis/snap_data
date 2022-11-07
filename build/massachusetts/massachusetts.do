@@ -5,8 +5,76 @@
 // E.g. file with name March 2020 contains data for December 2019
 local ym_start					= ym(2017,11)
 local ym_end 					= ym(2020,4)
+local ym_start_scorecard 		= ym(2005,1)
+local ym_end_scorecard 			= ym(2022,8)
 
 ****************************************************************
+
+//////////////////////////////////
+// SCORECARD DATA (STATE LEVEL) //
+//////////////////////////////////
+
+// import excel 
+import excel using "${dir_root}/data/state_data/massachusetts/excel_gov_agencies/massachusetts_performance_scorecard.xlsx", sheet("data") firstrow allstring clear 
+
+// preserve variable order 
+describe, varlist 
+local varlist_order `r(varlist)'
+
+// label vars 
+renamefrom using "${dir_root}/data/state_data/massachusetts/excel_gov_agencies/massachusetts_performance_scorecard.xlsx", sheet("variable definitions") filetype(excel) raw(variable_name) clean(variable_name) label(variable_description) keepx
+
+// reorder after renamefrom 
+order `varlist_order'
+
+// drop miss 
+dropmiss, force 
+dropmiss, force obs 
+
+// wait time 
+split calls_avg_waittime, parse(":")
+order calls_avg_waittime?, after(calls_avg_waittime)
+rename calls_avg_waittime1 zero 
+rename calls_avg_waittime2 calls_avg_waittime_min
+rename calls_avg_waittime3 calls_avg_waittime_sec
+drop calls_avg_waittime
+
+// destring vars 
+foreach var of varlist _all {
+	destring `var', replace
+	confirm numeric variable `var'
+}
+
+// drop vars 
+assert inlist(zero,0,.)
+drop zero 
+
+// date 
+gen ym = ym(year,month)
+format ym %tm 
+drop year 
+drop month 
+
+// city 
+gen city = "total"
+gen zipcode = "00000"
+
+// order and sort 
+order zipcode city ym 
+sort zipcode ym 
+
+// assert level of the data
+duplicates tag zipcode ym, gen(dup)
+assert dup == 0
+drop dup 
+
+// save 
+tempfile massachusetts_scorecard
+save `massachusetts_scorecard'
+
+////////////////////////////////
+// ENROLLMENT - ZIPCODE LEVEL //
+//////////////////////////////// 
 
 forvalues ym = `ym_start'(1)`ym_end' {
 
@@ -200,7 +268,49 @@ order zipcode city ym
 sort zipcode ym 
 
 // save 
-save "${dir_root}/data/state_data/massachusetts/massachusetts.dta", replace
+tempfile massachusetts_zipcode 
+save `massachusetts_zipcode'
 
 tab ym 
 tab zipcode
+
+
+****************************************************************
+****************************************************************
+****************************************************************
+****************************************************************
+
+// COLLAPSE TO STATE TOTAL AND COMBINE WTIH SCORECARD DATA 
+
+// collapse 
+use `massachusetts_zipcode', clear 
+collapse (sum) households individuals, by(ym)
+gen city = "total"
+gen zipcode = "00000"
+tempfile massachusetts_zipcode_collapsed
+save `massachusetts_zipcode_collapsed'
+
+// combine zipcode level with collapsed data 
+use `massachusetts_zipcode', clear 
+append using `massachusetts_zipcode_collapsed'
+
+// merge in scorecard data 
+merge 1:1 zipcode ym using `massachusetts_scorecard', update replace 
+
+// check merge 
+local ym_end_data = `ym_end' - 3
+local ym_end_data_plus1 = `ym_end_data' + 1
+local ym_start_data = `ym_start' - 3
+local ym_start_data_minus1 = `ym_start_data' - 1
+assert inlist(_m,3,4,5) if inrange(ym,`ym_start',`ym_end_data') & zipcode == "00000"
+assert inlist(_m,2) if inrange(ym,`ym_start_scorecard',`ym_start_data_minus1') | inrange(ym,`ym_end_data_plus1',`ym_end_scorecard')
+assert inlist(_m,1) if zipcode != "00000"
+drop _m 
+
+// order and sort 
+order zipcode city ym 
+sort zipcode ym 
+
+// save
+save "${dir_root}/data/state_data/massachusetts/massachusetts.dta", replace
+

@@ -75,17 +75,17 @@ local states_collapse
 #delimit cr 
 
 // conditions to combine observations together into a single county 
-local county_collapse_list 	pulaski eastbatonrouge jefferson orleans sabine mahnomen doñaana eddy bernalillo valencia
+local county_collapse_list 	pulaski eastbatonrouge jefferson orleans sabine mahnomen /*doñaana eddy bernalillo valencia*/
 local cond_pulaski 			`"state == "arkansas" & inlist(county,"pulaskieast","pulaskijville","pulaskinorth","pulaskisw","pulaskisouth")"'
 local cond_eastbatonrouge	`"state == "louisiana" & inlist(county,"eastbatonrougenorth","eastbatonrougesouth")"'
 local cond_jefferson		`"state == "louisiana" & inlist(county,"jeffersoneastbank","jeffersonwestbank")"'
-local cond_orleans			`"state == "louisiana" & inlist(county,"orleansalgiers","orleansmidtown")"'
+local cond_orleans			`"state == "louisiana" & inlist(county,"orleansalgiers","orleansmidtown","orleansgentilly","orleansuptown")"'
 local cond_sabine			`"state == "louisiana" & inlist(county,"sabinemany","sabinezwolle")"'
 local cond_mahnomen			`"state == "minnesota" & inlist(county,"mahnomen","whiteearthnation")"'
-local cond_doñaana			`"state == "newmexico" & inlist(county,"eastdonaana","westdonaana","southdonaana")"'
-local cond_eddy				`"state == "newmexico" & inlist(county,"eddyartesia","eddycarlsbad")"'
-local cond_bernalillo		`"state == "newmexico" & inlist(county,"northeastbernalillo","northwestbernalillo","southeastbernalillo","southwestbernalillo")"'
-local cond_valencia			`"state == "newmexico" & inlist(county,"valencianorth","valenciasouth")"'
+*local cond_doñaana			`"state == "newmexico" & inlist(county,"eastdonaana","westdonaana","southdonaana")"'
+*local cond_eddy				`"state == "newmexico" & inlist(county,"eddyartesia","eddycarlsbad")"'
+*local cond_bernalillo		`"state == "newmexico" & inlist(county,"northeastbernalillo","northwestbernalillo","southeastbernalillo","southwestbernalillo")"'
+*local cond_valencia			`"state == "newmexico" & inlist(county,"valencianorth","valenciasouth")"'
 *local cond_	`"state == "" & inlist(county,)"'
 
 ***********************************************************************************
@@ -106,6 +106,7 @@ foreach state of local states_withtotal {
 	gen state = "`state'"
 
 	// rename to combine 
+	**KP: look at combine_state_vars.do to update this
 	capture rename issuancehousehold 	avg_issuance_households
 	capture rename issuance_percase 	avg_issuance_households
 	capture rename avg_pay_per_case 	avg_issuance_households
@@ -237,6 +238,8 @@ replace county = ustrregexra(county,`"/"',"")
 replace county = strlower(county)
 
 // drop data that is not actually a county 
+drop if state == "arkansas" 	& county == "acpu"
+drop if state == "arkansas" 	& county == "acpuvi"
 drop if state == "iowa" 		& county == "dhs"
 drop if state == "maine" 		& county == "countyunknown"
 drop if state == "michigan" 	& county == "unassigned"
@@ -245,11 +248,13 @@ drop if state == "minnesota"	& county == "other"
 drop if state == "newmexico" 	& county == "centralizedunits"
 drop if state == "newyork"		& county == "newyorkcity"
 drop if state == "newyork"		& county == "restofstate"
+drop if state == "northcarolina" & county== "notassigned"
 drop if state == "ohio" 		& county == "nocaseworkerassigned"
 drop if state == "texas"		& county == "callcenters"
 drop if state == "texas"		& county == "stateoffice"
 drop if state == "wisconsin"	& inlist(county,"enrollmentservices*","enrollmentservices")
 drop if state == "wisconsin"	& county == "stateagency"
+drop if state == "louisiana"	& county == "downtown" // dropping it because I don't know where it belongs
 drop if state == "minnesota" 	& county == "mnprairie" // dropping it because I don't know where it belongs
 drop if state == "minnesota" 	& county == "millelacsbandtribe" // potentially combine with millelacs county instead
 drop if state == "minnesota" 	& county == "redlakeindianresv" // potentially combine with redlake county instead
@@ -266,6 +271,7 @@ drop if state == "wisconsin" 	& county == "stockbridgemunsee" // dropping it bec
 // manually rename counties to match with fips data 
 replace county = "stjohnthebaptist" if state == "louisiana" & county == "stjohn"
 replace county = "baltimorecounty"	if state == "maryland" & county == "baltimoreco"
+replace county = "stmarys"			if state == "maryland" & county == "saintmarys"
 replace county = "vanburen" 		if state == "michigan" & county == "buren"
 replace county = "stclair"	 		if state == "michigan" & county == "clair"
 replace county = "stjoseph" 		if state == "michigan" & county == "joseph"
@@ -342,7 +348,7 @@ foreach county of local county_collapse_list {
 // merge in fips county codes
 recast str32 county 
 merge m:1 statefips county using "${dir_root}/data/state_data/_fips/countyfips_2019.dta", keepusing(countyfips county_og county_type)
-*bysort state: tab county if _m == 1
+bysort state: tab county if _m == 1
 drop if _m == 2
 assert inlist(_m,3) | (inlist(_m,1) & state == "southdakota" & county == "shannon") // this didn't merge because of the year (only in 2014 fips data)
 replace countyfips = 114 if state == "southdakota" & county == "shannon" 
@@ -351,9 +357,9 @@ replace county_type = "county" if state == "southdakota" & county == "shannon"
 drop _m 
 
 // make sure one observation per county ym 
-duplicates tag state county ym, gen(dup)
-drop if dup == 1 & source_ym > ym(2021,1) & !missing(source_ym)
-drop dup 
+*duplicates tag state county ym, gen(dup)
+*drop if dup == 1 & source_ym > ym(2021,1) & !missing(source_ym)
+*drop dup 
 duplicates tag state county ym, gen(dup)
 assert dup == 0
 drop dup

@@ -32,6 +32,7 @@ local states_withtotal
 	kansas
 	louisiana
 	maine
+	massachusetts // moved here because I collapsed things sooner 
 	minnesota
 	montana
 	newjersey
@@ -68,7 +69,6 @@ local states_collapse
 	florida
 	idaho
    	maryland // moved here because not all variables have a state total 
-	massachusetts
 	michigan		
 ; 
 #delimit cr 
@@ -88,9 +88,15 @@ foreach state of local states_withtotal {
 	use "${dir_root}/data/state_data/`state'/`state'.dta", clear
 
 	// keep total 
-	keep if county == "total"
-	drop county
-
+	if "`state'" == "massachusetts" {
+		keep if city == "total"
+		drop city 
+	}
+	else {
+		keep if county == "total"
+		drop county
+	}
+	
 	// state variable 
 	gen state = "`state'"
 
@@ -157,12 +163,7 @@ foreach state of local states_collapse {
 	}
 
 	// make sure there are no totals 
-	if "`state'" == "massachusetts" {
-		count if zipcode == "total"
-	}
-	else {
-		count if county == "total"	
-	}
+	count if county == "total"	
 	assert `r(N)' == 0
 
 	// code to combine / standardize variable names across states 
@@ -207,6 +208,15 @@ foreach state of local states_collapse {
 	apps_expedited
 	apps_expedited_elig
 	apps_expedited_notelig
+	/**/
+	apps_timely 
+	apps_untimely
+	apps_timely_perc
+	apps_expedited_timely
+	apps_expedited_untimely
+	apps_notexpedited_timely
+	apps_notexpedited_untimely
+	/**/
 	households_carryover_start
 	households_new 
 	households_new_apps
