@@ -5,7 +5,7 @@
 
 **new format**
 local ym_start 					= ym(2016,7)
-local ym_end 					= ym(2020,12)
+local ym_end 					= ym(2022,9)
 
 ********************************************************************
 // STATE TOTALS 
@@ -35,7 +35,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display "`yearminus1'"
 
 	// import data 
-	import excel "${dir_root}/data/state_data/iowa/csvs/newformat/FA-F1-2016 `year'-`month'.xlsx", allstring case(lower) clear
+	if inrange(`ym',ym(2016,7),ym(2020,12)) {
+		import excel "${dir_root}/data/state_data/iowa/csvs/newformat/FA-F1-2016 `year'-`month'.xlsx", allstring case(lower) clear	
+	}
+	else if inrange(`ym',ym(2021,1),ym(2022,9)) {
+		import excel "${dir_root}/data/state_data/iowa/csvs/newformat/SNAP-F1-2016 - `year'-`month'.xlsx", allstring case(lower) clear
+	}
+	
 	dropmiss, force
 	foreach v of varlist _all {
 		replace `v' = trim(`v')
@@ -65,6 +71,36 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		dropmiss snap_fip_households snap_fip_individuals snap_fip_issuance snap_medassist_households snap_medassist_individuals snap_medassist_issuance snap_hawki_households /*snap_hawki_individuals*/ snap_hawki_issuance snap_only_households snap_only_individuals snap_only_issuance households individuals issuance participation_rate, force obs
 	}
 	drop if inlist(county,"area total") 
+	drop if strpos(county,"area 1 - western")
+	drop if strpos(county,"area 3 - eastern")
+	drop if strpos(county,"area 5") & strpos(county,"des moines")
+	// drop titles of variables 
+	drop if county == "total households"
+	drop if strpos(county,"*recipients") & strpos(county,"snap/fip")
+	drop if county == "snap/medical assistance"
+	drop if county == "snap/hawki"
+	drop if county == "snap only"
+	drop if county == "total recipients"
+	drop if strpos(county,"*allotments") & strpos(county,"snap/fip")
+	drop if county == "snap/medical assistance"
+	drop if county == "snap/hawki"
+	drop if county == "snap only"
+	drop if county == "total allotments"
+	drop if strpos(county,"*average allotment per household") & strpos(county,"snap/fip")
+	drop if county == "snap/medical assistance"
+	drop if county == "snap/hawki"
+	drop if county == "snap only"
+	drop if county == "overall average per household"
+	drop if strpos(county,"*average allotment per recipient") & strpos(county,"snap/fip")
+	drop if county == "snap/medical assistance"
+	drop if county == "snap/hawki"
+	drop if county == "snap only"
+	drop if county == "overall average per recipient"
+	drop if county == "snap/fip"
+	drop if county == "snap/medical assistance"
+	drop if county == "snap/hawki"
+	drop if county == "snap only"
+	drop if county == "total allotment"
 
 	// assert size of the resulting dataset
 	describe, varlist

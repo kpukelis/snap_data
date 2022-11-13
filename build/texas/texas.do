@@ -2,11 +2,11 @@
 // Kelsey Pukelis 
 
 local ym_start_state			= ym(2005,9)
-local ym_end_state				= ym(2020,12)
+local ym_end_state				= ym(2022,9)
 local ym_start 					= ym(2014,1)
-local ym_end 					= ym(2022,4)
+local ym_end 					= ym(2022,9)
 local ym_start_apps				= ym(2014,1)
-local ym_end_apps 				= ym(2022,3)
+local ym_end_apps 				= ym(2022,9)
 local prefix_2014 				"SNAP-Enrollment-"
 local prefix_2015 				"SNAP-Enrollment-"
 local prefix_2016 				"snap-enrollment-"
@@ -180,7 +180,7 @@ forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 		tempfile _`ym'
 		save `_`ym''
 	}
-	else if inrange(`ym',ym(2018,8),ym(2019,6)) | inrange(`ym',ym(2019,8),ym(2022,3)) {
+	else if inrange(`ym',ym(2018,8),ym(2019,6)) | inrange(`ym',ym(2019,8),ym(2022,9)) {
 		
 		if inrange(`ym',ym(2020,1),ym(2020,3)) {
 			local total = 38
@@ -551,6 +551,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"Revised 12/7/2020")
 	drop if strpos(v1,"Prepared by: Human Services Programs")
 	drop if strpos(v1,"Total SNAP Payments = sum of dollar benefits issued in the month for the month across cases. This figure does not include supplemental or retroactively issued benefits.")
+	drop if strpos(v1,"The count of eligible individuals in Matagorda County was updated in August 2022; the state total has also been updated to reflect this change.")
+	drop if strpos(v1,"Revised:  8/16/2022")
 	replace v9 = "" if v9 == "`"
 	dropmiss, force 
 	dropmiss, obs force 
@@ -608,14 +610,21 @@ forvalues ym = `ym_start'(1)`ym_end' {
 }
 
 // replace county
-replace county = "total" if county == "State Total"
+replace county = "total" if county == "State Total" | county == "State Total1" | county == "State Total 1" 
+replace county = "matagorda" if county == "Matagorda1" | county == "Matagorda 1" 
+replace county = strlower(county)
 
 // append statewide data 
-append using `statewide'
+*append using `statewide'
+merge 1:1 county ym using `statewide', update replace 
+assert inrange(ym,`ym_start_state',ym(2013,12)) | inrange(ym,ym(2022,6),ym(2022,9)) if _m == 2
+assert county != "total" & inrange(ym,`ym_start',`ym_end') if _m == 1
+assert county == "total" if inlist(_m,3,5)
+drop _m 
 
 // drop duplicates 
-duplicates drop 
-duplicates drop county ym households individuals age_00_04 age_05_17 age_18_59 age_60_64 age_65, force // needed since there was some rounding issue with avg_payment_percase and issuance
+*duplicates drop 
+*duplicates drop county ym households individuals age_00_04 age_05_17 age_18_59 age_60_64 age_65, force // needed since there was some rounding issue with avg_payment_percase and issuance
 
 // assert no duplicates
 duplicates tag county ym, gen(dup)

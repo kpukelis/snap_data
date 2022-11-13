@@ -2,7 +2,7 @@
 // imports households and individuals from excel sheets
 
 local ym_start					= ym(2008,3)
-local ym_end 					= ym(2020,12)
+local ym_end 					= ym(2022,9)
 local prefix_2008 				"fs-"
 local prefix_2009 				"fs-"
 local prefix_2010 				"fs-"
@@ -16,6 +16,8 @@ local prefix_2017 				"fs_"
 local prefix_2018 				"fs_"
 local prefix_2019 				"fs_"
 local prefix_2020 				"fs_"
+local prefix_2021 				""
+local prefix_2022 				""
 local middle_2008 				""
 local middle_2009 				""
 local middle_2010 				""
@@ -41,6 +43,8 @@ local suffix_2017 				""
 local suffix_2018 				""
 local suffix_2019 				""
 local suffix_2020				""
+local suffix_2021				"tab13"
+local suffix_2022				"tab13_1"
 local yearname_2008				"08"
 local yearname_2009				"09"
 local yearname_2010				"10"
@@ -54,6 +58,8 @@ local yearname_2017				"2017"
 local yearname_2018				"2018"
 local yearname_2019				"2019"
 local yearname_2020 			"2020"
+local yearname_2021 			"2021"
+local yearname_2022 			"2022"
 
 ***************************************************************
 
@@ -69,6 +75,20 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	local month = month
 	local year = year 
 	display in red  "`year' `month'" 
+	gen monthname = ""
+	replace monthname = "jan" if month == "01"
+	replace monthname = "feb" if month == "02"
+	replace monthname = "mar" if month == "03"
+	replace monthname = "apr" if month == "04"
+	replace monthname = "may" if month == "05"
+	replace monthname = "jun" if month == "06"
+	replace monthname = "jul" if month == "07"
+	replace monthname = "aug" if month == "08"
+	replace monthname = "sep" if month == "09"
+	replace monthname = "oct" if month == "10"
+	replace monthname = "nov" if month == "11"
+	replace monthname = "dec" if month == "12"
+	local monthname = monthname
 
 	if inrange(`ym',ym(2008,3),ym(2012,9)) | inrange(`ym',ym(2013,7),ym(2014,8)) {
 		local firstvar foodstampparticipation
@@ -78,7 +98,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// import 
-	import excel using "${dir_root}/data/state_data/southcarolina/excel/`year'/`prefix_`year''`yearname_`year''`middle_`year''`month'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
+	if !inlist(`year',2021,2022) {
+		import excel using "${dir_root}/data/state_data/southcarolina/excel/`year'/`prefix_`year''`yearname_`year''`middle_`year''`month'`suffix_`year''.xlsx", firstrow case(lower) allstring clear	
+	}
+	else {
+		import excel using "${dir_root}/data/state_data/southcarolina/excel/`year'/`monthname'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
+	}
+	
 	dropmiss, force
 	dropmiss, obs force
 	replace `firstvar' = trim(`firstvar')

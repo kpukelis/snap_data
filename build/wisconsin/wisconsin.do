@@ -12,7 +12,7 @@ local numvars_recipients 		= 14
 local ym_start_oldformat 		= ym(2010,1)
 local ym_end_oldformat 			= ym(2017,3)
 local ym_start_newformat 		= ym(2017,4)
-local ym_end_newformat 			= ym(2022,5)
+local ym_end_newformat 			= ym(2022,9)
 
 *********************************************************************
 
@@ -40,6 +40,7 @@ while !strpos(v1,"UNDUPLICATED STATE TOTAL") {
 // manual drop 
 drop if v1 == "AGENCY"
 drop if strpos(v1,"* County counts do no sum to State total because clients/cases served in two counties are counted in each, but are counted only once in state total. This difference is substantial in 2011 because  many cases were served both by their county of residence as well as the Enrollment Services Center")
+drop if strpos(v1,"* County counts do no sum to State total because clients/cases served in two counties are counted in each, but are counted only once in state total. This difference is substantial in 2011 because many cases were served both by their county of residence as well as the Enrollment Services Center")
 
 // shorten county name 
 gen v1_copy = v1 
@@ -49,7 +50,7 @@ order v1
 
 // rename and reshape 
 describe, varlist 
-assert r(k) == 26
+assert r(k) == 28
 assert r(N) == 81
 rename v1 county
 rename v2 _1995
@@ -77,6 +78,8 @@ rename v23 _2016
 rename v24 _2017
 rename v25 _2018
 rename v26 _2019
+rename v27 _2020
+rename v28 _2021
 reshape long _, i(county) j(year)
 rename _ cases1 
 

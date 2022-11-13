@@ -1,11 +1,13 @@
 // alabama.do
 
 local ym_start	 				= ym(2001,1)
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2022,6)
+local num_counties 				= 68 // including total 
 
 ************************************************************
-KEEP RUNNING AND FIXING LITTLE THINGS
+
 forvalues ym = `ym_start'(1)`ym_end' {
+if `ym' != ym(2015,8) {
 
 	dis in red `ym'
 
@@ -55,10 +57,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// import 
 	if inrange(`ym',ym(2001,1),ym(2010,7)) {
-		import excel using "${dir_root}/excel/`year'/`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/alabama/excel/`year'/`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	else if `ym' >= ym(2010,8) {
-		import excel using "${dir_root}/excel/`year'/STAT`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/alabama/excel/`year'/STAT`monthname'`year_short'.pdf_short.xlsx", case(lower) allstring clear
 	}
 	
 	// initial cleanup
@@ -104,7 +106,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// destring
 	foreach v in households individuals issuance individuals_npa individuals_pa {
-		destring `v', replace
+		replace `v' = ustrregexra(`v',"\,","")
+		destring `v', replace ignore("$")
 		confirm numeric variable `v'
 	}
 	
@@ -129,9 +132,11 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	save `_`ym''
 
 }
+}
 
 // append years 
 forvalues ym = `ym_start'(1)`ym_end' {
+if `ym' != ym(2015,8) {
 	if `ym' == `ym_start' {
 		use `_`ym'', clear
 	}
@@ -139,10 +144,31 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		append using `_`ym''
 	}
 }
+}
+
+// expand to include ym(2015,8)
+encode county, gen(county_num)
+tsset county_num ym 
+tsfill, full 
+gsort county_num -ym 
+by county_num: carryforward county, replace 
+gsort county_num ym 
+by county_num: carryforward county, replace 
+drop county_num
+
+// assert number of observations 
+local num_months = `ym_end' - `ym_start' + 1
+local target_obs = `num_months' * `num_counties'
+count 
+display in red "actual obs:" `r(N)'
+display in red "target obs:" `target_obs'
+assert `r(N)' == `target_obs'
 
 // order and sort 
 order county ym households individuals issuance individuals_npa individuals_pa
 sort county ym 
 
 // save 
-save "${dir_data}/alabama.dta", replace 
+save "${dir_root}/data/state_data/alabama/alabama.dta", replace
+
+check

@@ -35,10 +35,10 @@ local irs990_explore		= 0 // KEEP GOING HERE 2021-10-18
 local mass_phd_dummydata	= 0
 local hia 					= 0 // KEEP GOING HERE 2021-02-04
 local massachusetts_waivers = 0 
-local alabama				= 0 // not completed (fixed individual)
+local alabama				= 0 
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
-local arkansas				= 0 // KEEP GOING HERE 2022-09-02
+local arkansas				= 0
 local california			= 0
 local colorado 				= 0
 local connecticut			= 0 // not completed (fixed individual)
@@ -47,19 +47,19 @@ local florida				= 0
 local georgia				= 0
 local hawaii				= 0 // not completed (rolling clock)
 local idaho					= 0
-local illinois				= 0 // STILL REMAINING ISSUES WITH THE STATE TOTAL TIME SERIES
+local illinois				= 0
 local indiana				= 0 // **KP: can go back further cleaning indiana data 
 local iowa					= 0 // **KP: can go back further cleaning iowa data 
 local kansas				= 0 
 local kentucky				= 0
-local louisiana				= 0
-local maine					= 0 
-local maryland				= 0
-local massachusetts			= 0 // **KP: need to crosswalk zipcode to county
+local louisiana				= 0 // county apps data still more years to clean
+local maine					= 0
+local maryland				= 0 // **KP: some variable called "_" is unlabeled
+local massachusetts			= 0 // **KP: need to crosswalk zipcode to county for data before 2021m7
 local michigan				= 0
 local minnesota				= 0 
 local mississippi			= 0 
-local missouri				= 0 // **KP: right now only state level, come back to clean county-level 
+local missouri				= 0 
 local montana				= 0 
 local nebraska				= 0
 // local nevada				= 0 fixed individual
@@ -87,11 +87,9 @@ local wisconsin 			= 0
 // local wyoming 			= 0 fixed statewide
 // local districtofcolumbia	= 0 unclear clock
 
-**KP: 2020-02-09 missouri oregon left to be done 
-
 // combine 
 local combine_state_ym 		= 0
-local combine_county_ym		= 1 // still more work here 
+local combine_county_ym		= 0 
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04

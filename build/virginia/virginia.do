@@ -2,10 +2,10 @@
 // imports households and individuals from excel sheets
 
 local ym_start 					= ym(2001,9)
-local ym_end 					= ym(2020,4)
+local ym_end 					= ym(2022,10)
 
 ***********************************************************************************
-/*
+
 forvalues ym = `ym_start'(1)`ym_end' {
 
 	dis in red `ym'
@@ -21,6 +21,22 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red "`month'"
 	local year = year 
 	display in red "`year'"
+	gen monthname = ""
+	replace monthname = "Jan" if month == "01"
+	replace monthname = "Feb" if month == "02"
+	replace monthname = "Mar" if month == "03"
+	replace monthname = "Apr" if month == "04"
+	replace monthname = "May" if month == "05"
+	replace monthname = "Jun" if month == "06"
+	replace monthname = "Jul" if month == "07"
+	replace monthname = "Aug" if month == "08"
+	replace monthname = "Sep" if month == "09"
+	replace monthname = "Oct" if month == "10"
+	replace monthname = "Nov" if month == "11"
+	replace monthname = "Dec" if month == "12"
+	local monthname = monthname
+	gen year_short = year - 2000
+	local year_short = year_short
 
 	// import 
 	if inrange(`ym',ym(2001,9),ym(2006,12)) {
@@ -38,8 +54,29 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inrange(`ym',ym(2019,7),ym(2019,12)) {
 		import excel using "${dir_root}/data/state_data/virginia/xls/`month'-`year'_SNAP_Participation.xls", allstring clear 
 	}
-	else if inrange(`ym',ym(2020,1),ym(2020,4)) {
+	else if inrange(`ym',ym(2020,1),ym(2020,11)) {
 		import excel using "${dir_root}/data/state_data/virginia/xls/`month'_`year'_SNAP_Participation_Report.xls", allstring clear 
+	}
+	else if inlist(`ym',ym(2020,12)) {
+		import excel using "${dir_root}/data/state_data/virginia/xlsx/`month'_`year'_SNAP_Participation_Report.xlsx", allstring clear 
+	}
+	else if inlist(`ym',ym(2021,1)) {
+		import excel using "${dir_root}/data/state_data/virginia/xlsx/`monthname'_`year_short'.xlsx", allstring clear 
+	}
+	else if inrange(`ym',ym(2021,2),ym(2021,8)) {
+		import excel using "${dir_root}/data/state_data/virginia/xls/`monthname'_`year_short'.xls", allstring clear 
+	}
+	else if inrange(`ym',ym(2021,9),ym(2021,12)) {
+		import excel using "${dir_root}/data/state_data/virginia/xls/SNAP_Participation_Report_`month'`year'.xls", allstring clear 
+	}
+	else if inlist(`ym',ym(2022,1)) {
+		import excel using "${dir_root}/data/state_data/virginia/xls/`monthname'_`year'_Participation_Report.xls", allstring clear 
+	}
+	else if inlist(`ym',ym(2022,2)) {
+		import excel using "${dir_root}/data/state_data/virginia/xlsx/`monthname'_`year'_Participation_Report.xlsx", allstring clear 
+	}
+	else if inrange(`ym',ym(2022,3),ym(2022,10)) {
+		import excel using "${dir_root}/data/state_data/virginia/xls/`monthname'_`year'_Participation_Report.xls", allstring clear 
 	}
 
 	// initial cleanup
@@ -53,6 +90,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace `v' = trim(`v')
 		replace `v' = strlower(`v')
 	}
+
+	// drop title rows 
+	drop if strpos(v1,"region") & strpos(v1,"locality") & strpos(v1,"fips")
+	drop if v5 == "**********  end of report  **********"
 
 	// clean up top
 	if inrange(`ym',ym(2001,9),ym(2016,6)) | inrange(`ym',ym(2019,7),ym(2020,2)) | inlist(`ym',ym(2020,4)) {
@@ -154,6 +195,41 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		// trim 
 		replace region = trim(region)
 	}
+	else if inrange(`ym',ym(2020,5),ym(2022,10)) {
+		while !strpos(v1,"region") & !strpos(v2,"locality") {
+			drop in 1
+		}
+		drop in 1
+
+		// rename variables
+		describe, varlist 
+		assert r(k) == 12
+		rename v1 region 
+		rename v2 county 
+		rename v3 fips
+		rename v4 households_pa 
+		rename v5 households_npa
+		rename v6 households
+		rename v7 individuals_pa
+		rename v8 individuals_npa
+		rename v9 individuals
+		rename v10 issuance_pa
+		rename v11 issuance_npa
+		rename v12 issuance
+
+		// split up names
+		gen region_detail = ""
+		replace region_detail = "city" if strpos(county," city")
+		replace county = ustrregexra(county," city","")
+		replace region_detail = "county" if strpos(county," county") & !inlist(county,"bedford county/city","fairfax county/city/falls church","roanoke county/salem","fairfax county/fairfax/falls church")
+		replace county = ustrregexra(county," county","") if !inlist(county,"bedford county/city","fairfax county/city/falls church","roanoke county/salem","fairfax county/fairfax/falls church")
+		replace region_detail = "multi fips" if strpos(region,"multi fips")
+		replace region = ustrregexra(region," multi fips","")
+		
+		// trim 
+		replace region = trim(region)
+	}
+
 
 
 	// clean up totals

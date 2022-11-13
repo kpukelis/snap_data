@@ -1,7 +1,7 @@
 // maine.do
 
 local ym_start	 				= ym(2005,1)
-local ym_end 					= ym(2020,12)
+local ym_end 					= ym(2022,9)
 
 ************************************************************
 
@@ -43,7 +43,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace monthname = "Nov" if month == 11
 		replace monthname = "Dec" if month == 12
 	}
-	if inlist(year,2017,2018,2019,2020) {
+	if inlist(year,2017,2018,2019,2020,2021,2022) {
 		replace monthname = "jan" if month == 1
 		replace monthname = "feb" if month == 2
 		replace monthname = "mar" if month == 3
@@ -123,6 +123,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inrange(`ym',ym(2020,1),ym(2020,12)) {
 		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_3.xlsx", case(lower) allstring clear
 	}
+	else if inrange(`ym',ym(2021,1),ym(2021,12)) {
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_4.xlsx", case(lower) allstring clear
+	}
+	else if inrange(`ym',ym(2022,1),ym(2022,12)) {
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_5.xlsx", case(lower) allstring clear
+	}
+
 	dropmiss, force
 	qui describe, varlist
 	rename (`r(varlist)') (v#), addnumber
@@ -182,7 +189,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		sum obsnum if v1 == "county name"
 		keep if obsnum >= r(mean)
 		drop in 1
-		if inrange(`ym',ym(2018,7),ym(2020,12)) {
+		if inrange(`ym',ym(2018,7),ym(2022,9)) {
 			drop in 1
 		}
 		dropmiss, force  

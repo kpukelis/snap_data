@@ -5,6 +5,410 @@ local year_short_list			/*10 14*/ 16 17 18 19 20 21
 local first_year_short 			16
 
 **************************************************************************
+/*
+/////////////////////
+// ENROLLMENT DATA //
+/////////////////////
+
+
+foreach year_short of local year_short_list {
+
+	// display ym 
+	display in red "`year'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year_short = `year_short'
+	gen year_short_plus1 = `year_short' + 1
+	gen year = 2000 + `year_short'
+	local year_short = year_short
+	display in red "`year_short'"
+	local year_short_plus1 = year_short_plus1
+	display in red "`year_short_plus1'"
+	local year = year
+	display in red "`year'"
+
+	////////////////////////
+	// GET VARIABLE NAMES //
+	////////////////////////
+
+	// load data 
+	import excel "${dir_root}/data/state_data/california/excel/DFA 256 - Food Stamp Program Participation and Benefit Issuances/DFA256FY`year_short'-`year_short_plus1'.xlsx", sheet("DataDictionary") allstring case(lower) firstrow clear 		
+
+	// make firstrow varnames 
+	foreach var of varlist _all {
+		qui replace `var' = subinstr(`var', "`=char(9)'", " ", .) if _n == 1
+		qui replace `var' = subinstr(`var', "`=char(10)'", " ", .) if _n == 1
+		qui replace `var' = subinstr(`var', "`=char(13)'", " ", .) if _n == 1
+		qui replace `var' = subinstr(`var', "`=char(14)'", " ", .) if _n == 1
+		qui replace `var' = trim(`var')
+		qui replace `var' = stritrim(`var')
+		qui replace `var' = strlower(`var')
+		rename `var' `=`var'[1]'
+	}
+	drop in 1
+	
+	// clean up vars 
+	// item 
+	split item, parse(".")
+	drop item 
+	drop item1
+	rename item2 item 
+	qui replace item = ustrregexra(item,"number of ","")
+
+	// part
+	qui replace part = "" if part == "a. participation during the month"
+	qui replace part = "issuance_" if part == "b. issuances during the month"
+	qui replace part = "vissuance_" if part == "c. value of benefit issuances during the month"
+	// qui replace part = substr(part,1,1)
+	*tab part 
+	// remove parentheses
+	foreach var in column item {
+		qui replace `var' = ustrregexra(`var',"\-","")
+		qui replace `var' = ustrregexra(`var',"\(","")
+		qui replace `var' = ustrregexra(`var',"\)","")
+		qui replace `var' = ustrregexra(`var',"/","")
+		qui replace `var' = ustrregexra(`var',"\:","")
+		qui replace `var' = ustrregexra(`var',"\'","")
+		qui replace `var' = ustrregexra(`var',"\_","")
+		qui replace `var' = ustrregexra(`var',"\,","")
+		qui replace `var' = ustrregexra(`var'," ","")
+		*qui replace `var' = ustrregexra(`var',"federalandstatepersons","fedstatepers")
+		*qui replace `var' = ustrregexra(`var',"federalstatehouseholds","fedstatehhs")
+		qui replace `var' = ustrregexra(`var',"persons","pers")
+		qui replace `var' = ustrregexra(`var',"households","hhs")
+		qui replace `var' = ustrregexra(`var',"federal","fed")
+	}
+
+	// column
+	qui replace column = "pacf" if column == "a.publicassistance"
+	qui replace column = "nacf" if column == "b.nonpublicassistance"
+	qui replace column = "total" if missing(column) & missing(part)
+
+	// generate variable name 
+	qui gen varname = part + column + item 
+	qui replace varname = stritrim(varname)
+	qui replace varname = substr(varname,1,31)
+
+	// initial varname 
+	qui destring cell, replace 
+	confirm numeric variable cell 
+	qui replace cell = cell + 7 // since there are year variables to start 
+	qui tostring cell, gen(v)
+	qui replace v = "v" + v 
+
+	// get text for renaming 
+	display in red "`year_short'"
+	list v varname
+
+	rename varname varname_`year_short'
+
+	// save
+	*tempfile varnames2
+	save "${dir_root}/data/state_data/california/varnames2_`year_short'.dta", replace
+
+
+}
+
+// load data 
+foreach year_short of local year_short_list {
+
+	// display ym 
+	display in red "`year'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year_short = `year_short'
+	gen year_short_plus1 = `year_short' + 1
+	gen year = 2000 + `year_short'
+	local year_short = year_short
+	display in red "`year_short'"
+	local year_short_plus1 = year_short_plus1
+	display in red "`year_short_plus1'"
+	local year = year
+	display in red "`year'"
+	
+	/////////////////
+	// ACTUAL DATA //
+	/////////////////
+
+	if inrange(`year_short',10,14) {
+		// load data 
+		import excel "${dir_root}/data/state_data/california/excel/DFA 256 - Food Stamp Program Participation and Benefit Issuances/DFA256FY`year_short'-`year_short_plus1'.xls", sheet("FinalData") allstring case(lower) firstrow clear 
+	}
+	else if inrange(`year_short',16,19) {
+		// load data 
+		import excel "${dir_root}/data/state_data/california/excel/DFA 256 - Food Stamp Program Participation and Benefit Issuances/DFA256FY`year_short'-`year_short_plus1'.xlsx", sheet("Data") allstring case(lower) firstrow clear 		
+	}
+	else if inrange(`year_short',20,21) {
+		// load data 
+		import excel "${dir_root}/data/state_data/california/excel/DFA 256 - Food Stamp Program Participation and Benefit Issuances/DFA256FY`year_short'-`year_short_plus1'.xlsx", sheet("Data_External") allstring case(lower) firstrow clear 		
+	}
+
+	// drop empty variables
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	drop in 1
+
+	// one extra blank var in FY 2020
+*	if inlist(`year_short',20,21) {
+*		drop v3 
+*		describe, varlist 
+*		rename (`r(varlist)') (v#), addnumber
+*	}
+
+	// rename variables
+	describe, varlist
+	if inlist(`year_short',20,21) {
+		assert `r(k)' == 36
+	}
+	else {
+		assert `r(k)' == 37
+	}
+	if `year_short' == 21 {
+		assert `r(N)' == 653
+	}
+	else {
+		assert `r(N)' == 712	
+	}
+
+	if inlist(`year_short',16,17,18,19) {
+		rename v1 date 
+		rename v2 month 
+		rename v3 year 
+		rename v4 county
+		rename v5 countycode
+		rename v6 sfy 
+		rename v7 ffy 
+	}
+	else if inlist(`year_short',20,21) {
+		rename v1 date 
+		rename v2 county
+		rename v3 countycode 
+		rename v4 sfy 
+		rename v5 ffy 
+		rename v6 reportmonth
+	}
+	
+	// Note: reordering was done relative to what is in the varnames 
+	if inlist(`year_short',16,17,18,19) {
+		rename v8	pacffedhhs
+		rename v9	pacffedstatehhs
+		rename v10	pacfstatehhs
+		rename v11	nacffedhhs
+		rename v12	nacffedstatehhs
+		rename v13	nacfstatehhs
+		rename v14	totalhhsfed
+		rename v15	totalhhsfedstate
+		rename v16	totalhhsstate
+		rename v17	pacfpersinfedonlyhhs
+		rename v18	nacfpersinfedonlyhhs
+		rename v19	totalpersinfedonlyhhs
+		rename v20	pacffedstatepersinfedstatehhsfe
+		rename v21	pacffedstatepersinfedstatehhsst
+		rename v22	nacffedstatepersinfedstatehhsfe
+		rename v23	nacffedstatepersinfedstatehhsst
+		rename v24	totalfedstatepersinfedstatehhsf
+		rename v25	totalfedstatepersinfedstatehhss
+		rename v26	pacfpersinstateonlyhhs
+		rename v27	nacfpersinstateonlyhhs
+		rename v28	totalpersinstateonlyhhs
+		rename v29	issuance_mail
+		rename v30	issuance_contractedoverthecount
+		rename v31	issuance_overthecounter
+		rename v32	issuance_ebtissuances
+		rename v33	issuance_total
+		rename v34	issuance_ebtconvertedtocoupons
+		rename v35	vissuance_valueoffedbenefiti
+		rename v36	vissuance_valueofstatebenefitis
+		rename v37	vissuance_total
+	}
+	else if inlist(`year_short',20,21) {
+		rename v7	pacffedhhs
+		rename v8	pacffedstatehhs
+		rename v9	pacfstatehhs
+		rename v10	nacffedhhs
+		rename v11	nacffedstatehhs
+		rename v12	nacfstatehhs
+		rename v13	totalhhsfed
+		rename v14	totalhhsfedstate
+		rename v15	totalhhsstate
+		rename v16	pacfpersinfedonlyhhs
+		rename v17	nacfpersinfedonlyhhs
+		rename v18	totalpersinfedonlyhhs
+		rename v19	pacffedstatepersinfedstatehhsfe
+		rename v20	pacffedstatepersinfedstatehhsst
+		rename v21	nacffedstatepersinfedstatehhsfe
+		rename v22	nacffedstatepersinfedstatehhsst
+		rename v23	totalfedstatepersinfedstatehhsf
+		rename v24	totalfedstatepersinfedstatehhss
+		rename v25	pacfpersinstateonlyhhs
+		rename v26	nacfpersinstateonlyhhs
+		rename v27	totalpersinstateonlyhhs
+		rename v28	issuance_mail
+		rename v29	issuance_contractedoverthecount
+		rename v30	issuance_overthecounter
+		rename v31	issuance_ebtissuances
+		rename v32	issuance_total
+		rename v33	issuance_ebtconvertedtocoupons
+		rename v34	vissuance_valueoffedbenefiti
+		rename v35	vissuance_valueofstatebenefitis
+		rename v36	vissuance_total
+	}
+
+	// rename vars 
+*	renamefrom using "${dir_root}/data/state_data/california/varnames2_`year_short'.dta", filetype(stata) raw(v) clean(varname) keepx
+	
+	// drop unneeded vars 
+	drop pacf*
+	drop nacf*
+	foreach var in issuance_mail issuance_contractedoverthecount issuance_overthecounter issuance_ebtconvertedtocoupons {
+		assert inlist(`var',"0","") if !inlist(_n,1,2,3,4)
+		drop `var'
+	}
+
+	// combine same vars 
+	assert issuance_ebtissuances == issuance_total if !inlist(_n,1,2,3,4) & !inlist(issuance_ebtissuances,"BLANK")
+	drop issuance_ebtissuances
+	rename issuance_total ebtissuance
+
+	// rename main vars 
+	rename vissuance_valueoffedbenefiti issuance_fed
+	rename vissuance_valueofstatebenefitis issuance_state
+	rename vissuance_total issuance
+
+	// drop last heading rows
+	drop in 1
+	drop in 1
+	drop in 1
+	drop in 1
+
+	// destring
+	// Cells that could identify an individual with a value of less than 11 have been replaced with a “*” to comply with the CDSS Data De-identification Guidelines .
+
+	foreach v in totalhhsfed totalhhsfedstate totalhhsstate totalpersinfedonlyhhs totalfedstatepersinfedstatehhsf totalfedstatepersinfedstatehhss totalpersinstateonlyhhs ebtissuance issuance_fed issuance_state issuance {
+		// censor flag
+		gen `v'f = 0
+		replace `v'f = 1 if `v' == "\*"
+		replace `v' = "10" if `v' == "\*"
+	
+		replace `v' = ustrregexra(`v',"BLANK","")
+		destring `v', replace ignore("*")
+		confirm numeric variable `v'
+	}
+
+	// generate main vars 
+	egen households = rowtotal(totalhhsfed totalhhsfedstate totalhhsstate)
+	egen persons = rowtotal(totalpersinfedonlyhhs totalfedstatepersinfedstatehhsf totalfedstatepersinfedstatehhss totalpersinstateonlyhhs)
+	egen householdsf = rowmax(totalhhsfedf totalhhsfedstatef totalhhsstatef)
+	egen personsf = rowmax(totalpersinfedonlyhhsf totalfedstatepersinfedstatehhsff totalfedstatepersinfedstatehhssf totalpersinstateonlyhhsf)
+	drop totalhhsfed totalhhsfedf
+	drop totalhhsfedstate totalhhsfedstatef
+	drop totalhhsstate totalhhsstatef
+	drop totalpersinfedonlyhhs totalpersinfedonlyhhsf
+	drop totalfedstatepersinfedstatehhsf totalfedstatepersinfedstatehhsff
+	drop totalfedstatepersinfedstatehhss totalfedstatepersinfedstatehhssf
+	drop totalpersinstateonlyhhs totalpersinstateonlyhhsf
+	
+	// clean up date 
+	drop date 
+	drop sfy 
+	drop ffy 
+	capture confirm variable month 
+	if !_rc {
+		destring month, replace 
+		confirm numeric variable month
+		destring year, replace
+		confirm numeric variable year	
+	}
+	capture confirm variable reportmonth
+	if !_rc {
+		gen year = substr(reportmonth,6,4)
+		destring year, replace 
+		confirm numeric variable year 
+		gen month = substr(reportmonth,3,3)
+		replace month = "01" if month == "jan"
+		replace month = "02" if month == "feb"
+		replace month = "03" if month == "mar"
+		replace month = "04" if month == "apr"
+		replace month = "05" if month == "may"
+		replace month = "06" if month == "jun"
+		replace month = "07" if month == "jul"
+		replace month = "08" if month == "aug"
+		replace month = "09" if month == "sep"
+		replace month = "10" if month == "oct"
+		replace month = "11" if month == "nov"
+		replace month = "12" if month == "dec"
+		destring month, replace
+		confirm numeric variable month
+		drop reportmonth
+	}
+	gen ym = ym(year,month)
+	format ym %tm 
+	drop year month 
+	assert !missing(ym)
+
+	// lowercase county 
+	replace county = strlower(county)
+	
+	// drop statewide average 
+	drop if strpos(county,"statewide average")
+	replace county = "state totals" if county == "statewide total" | county == "statewide"
+
+	// order 
+	order county ym 
+	sort county ym 
+
+	// save 
+	tempfile _`year_short'
+	save `_`year_short''
+
+}
+
+// append years 
+foreach year_short of local year_short_list {
+	if `year_short' == `first_year_short' {
+		use `_`year_short'', clear
+	}
+	else {
+		append using `_`year_short''
+	}
+}
+
+// drop countycode for now; it's not throughout 
+drop countycode
+
+// drop statewide totals; data is not consistent enough
+drop if county == "state totals"
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
+// order and sort 
+order county ym 
+sort county ym 
+ 
+// save 
+tempfile california_enrollment
+save `california_enrollment'
+save "${dir_root}/data/state_data/california/california_enrollment.dta", replace 
+
+**************************************************************************
+**************************************************************************
+**************************************************************************
+**************************************************************************
+**************************************************************************
+*/
+/*
+//////////////////////////
+// APPLICATION ETC DATA //
+//////////////////////////
 
 foreach year_short of local year_short_list {
 
@@ -448,7 +852,7 @@ foreach year_short of local year_short_list {
 	
 	// drop statewide average 
 	drop if strpos(county,"statewide average")
-	replace county = "state totals" if county == "statewide total"
+	replace county = "state totals" if county == "statewide total" | county == "statewide"
 
 	// order 
 	order county ym 
@@ -473,12 +877,8 @@ foreach year_short of local year_short_list {
 // drop countycode for now; it's not throughout 
 drop countycode
 
-save "${dir_root}/data/state_data/california/california_TEMP.dta", replace 
-
-check
-
 // drop statewide totals; data is not consistent enough
-drop if county == "statewide"
+drop if county == "state totals"
 
 // assert level of the data 
 duplicates tag county ym, gen(dup)
@@ -489,6 +889,32 @@ drop dup
 order county ym // issuance households individuals households_npa individuals_npa households_pa individuals_pa
 sort county ym 
  
+// rename var to avoid conflict 
+rename households householdsA 
+rename households_f householdsA_f
+
+// save 
+tempfile california_detail
+save `california_detail'
+save "${dir_root}/data/state_data/california/california_detail.dta", replace 
+*/
+
+****************************************************************************************
+****************************************************************************************
+
+// merge two datasets 
+use "${dir_root}/data/state_data/california/california_detail.dta", clear 
+merge 1:1 county ym using "${dir_root}/data/state_data/california/california_enrollment.dta", update replace
+
+// check merge 
+assert inlist(_m,2,3)
+assert inrange(ym,ym(2022,1),ym(2022,5)) if _m == 2
+drop _m 
+
+// order and sort 
+order county ym // issuance households individuals households_npa individuals_npa households_pa individuals_pa
+sort county ym 
+
 // save 
 save "${dir_root}/data/state_data/california/california.dta", replace 
 

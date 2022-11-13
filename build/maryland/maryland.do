@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local year_start 					= 2008
-local year_end 						= 2022
+local year_end 						= 2023
 
 ********************************************************************
 
@@ -50,6 +50,8 @@ drop if !inlist(A,
 "wicomico",
 "worcester",
 "baltimore city")
+& !inlist(A,
+"baltimore co")
 ;
 #delimit cr 
 
@@ -74,6 +76,10 @@ else if inlist(`year',2015) {
 else if inlist(`year',2017,2018,2019,2020,2021,2022) {
 	assert r(max) == 42
 }
+else if inlist(`year',2023) {
+	*display in red `r(max)'
+	assert r(max) == 48
+}
 else {
 	STOP
 }
@@ -92,8 +98,9 @@ foreach num of local obsnum_withincounty_nums {
 	else if `year' == 2016 {
 		assert r(k) == 15 | r(k) == 14 | r(k) == 6
  	}
-	else if `year' == 2022 {
-		assert r(k) == 12
+	else if `year' == 2023 {
+		*display in red `r(k)' 
+		assert r(k) == 6
  	}
  	else {
 		assert r(k) == 15 | r(k) == 14
@@ -122,6 +129,9 @@ foreach num of local obsnum_withincounty_nums {
 	}
 	if `year' == 2013 & `num' == 9 {
 		replace _2013_02 = "521666.28" if _2013_02 == "521.666.28" & county == "montgomery"
+	}
+	if r(k) == 6 & `year' == 2023 {
+		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 average obsnum)
 	}
 	foreach v of varlist _????_?? {
 		replace `v' = ustrregexra(`v',"tbd","")
@@ -809,7 +819,7 @@ foreach num of local obsnum_withincounty_nums {
 			rename _ ma_mchp_assistanceunits	
 		}
 	}
-	if inlist(`year',2017,2018,2019,2020,2021,2022) {
+	if inlist(`year',2017,2018,2019,2020,2021,2022,2023) {
 		if `num' == 1 {
 			rename _ tanf_apps_received			
 		}
@@ -1116,6 +1126,10 @@ forvalues year = `year_start'(1)`year_end' {
 		append using "${dir_root}/data/state_data/maryland/maryland_fy`year'.dta"
 	}
 }
+
+// standardize county 
+replace county = "st. mary's" if county == "saint mary's"
+replace county = "baltimore co" if county == "baltimore co."
 
 // order and sort 
 order county ym 

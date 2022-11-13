@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start	 				= ym(2002,6)
-local ym_end 					= ym(2022,2)
+local ym_end 					= ym(2022,8)
 
 ************************************************************
 
@@ -147,8 +147,11 @@ if `ym' != ym(2018,9) {
 	else if inrange(`ym',ym(2014,2),ym(2018,8)) {
 		assert `r(N)' == 91	
 	}
-	else if inlist(`ym',ym(2020,2)) | inrange(`ym',ym(2020,4),ym(2022,2)) {
+	else if inlist(`ym',ym(2020,2)) | inrange(`ym',ym(2020,4),ym(2022,3)) | inrange(`ym',ym(2022,5),ym(2022,9)) {
 		assert `r(N)' == 87 
+	}
+	else if inlist(`ym',ym(2022,4)) {
+		assert `r(N)' == 88
 	}
 	else {
 		assert `r(N)' == 86		
@@ -247,10 +250,17 @@ if `ym' != ym(2018,9) {
 // replace county 
 replace county = "total" if county == "statewide"
 replace county = ustrregexra(county,"/","")
+replace county = "defpaulding" if county == "defpaudling"
+
+**TEMPORARY
+*save "${dir_root}/data/state_data/ohio/ohio_TEMP.dta", replace 
 
 ////////////////////////////////////
 // DEFIANCE PAULDING COUNTY SPLIT //
 ////////////////////////////////////
+
+**TEMPORARY
+*use "${dir_root}/data/state_data/ohio/ohio_TEMP.dta", clear 
 
 // split numbers into two counties, based on history of when the proportions were listed separately
 // only case (so far) is ohio's defiance and paulding counties

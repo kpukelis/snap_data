@@ -3,7 +3,7 @@
 // Note: 2012m10 greenlee data missing from pdf
 
 local ym_start	 				= ym(2006,4)
-local ym_end 					= ym(2022,4) 
+local ym_end 					= ym(2022,9) 
 
 ************************************************************
 
@@ -42,7 +42,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inrange(`ym',ym(2019,1),ym(2020,12)) {
 		import delimited using "${dir_root}/data/state_data/arizona/csvs/tabula-dbme-statistical_bulletin-`month'-`year'.csv", delimiters(",") case(lower) stringcols(_all) clear		
 	}
-	else if inrange(`ym',ym(2021,1),ym(2022,4)) {
+	else if inrange(`ym',ym(2021,1),ym(2022,12)) {
 		import excel using "${dir_root}/data/state_data/arizona/excel/dbme_statistical_bulletin-`month'-`year'.xlsx", case(lower) allstring clear 
 		describe, varlist 
 		rename (`r(varlist)') (v#), addnumber
@@ -67,17 +67,25 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		}
 		replace v1 = "county" if missing(v1)
 	}
-	else {
+	else if inrange(`ym',ym(2021,1),ym(2022,9)) {
 		drop in 1
 		dropmiss, force
 		describe, varlist 
 		rename (`r(varlist)') (v#), addnumber
 		replace v1 = "county" if missing(v1)
 	}
+	else {
+		stop 
+	}
 
 	// turn first row into variable names 
 	foreach var of varlist * {
-		replace `var' = "`=`var'[1]'" + " " + "`=`var'[2]'" if _n == 1
+		if inrange(`ym',ym(2022,5),ym(2022,9)) {
+			replace `var' = "`=`var'[1]'" if _n == 1	
+		}
+		else {
+			replace `var' = "`=`var'[1]'" + " " + "`=`var'[2]'" if _n == 1	
+		}		
 		replace `var' = strlower(`var')
 		replace `var' = ustrregexra(`var',"-","") if _n == 1
 		replace `var' = ustrregexra(`var',"/","") if _n == 1
@@ -87,7 +95,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		label variable `var' "`=`var'[1]'"
 		rename `var' `=`var'[1]'
 	}
-	rename countycounty county 
+	capture rename countycounty county 
 	drop in 1
 	drop in 1
 

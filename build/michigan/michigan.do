@@ -10,7 +10,7 @@ local _2014_length 				= 27
 local _2016_length 				= 30
 local _2018_length 				= 31 // **KP: not sure if this is right note that this could change as more data gets added for 2020
 local _2019_length 				= 26 // **KP: note that this could change as more data gets added for 2021
-local _2020_length 				= 31 // GUESS **KP: note that this could change as more data gets added for 2022
+local _2020_length 				= 36 // GUESS **KP: note that this could change as more data gets added for 2022
 
 local first_county 				Alcona
 #delimit ;

@@ -2,16 +2,19 @@
 // Kelsey Pukelis
 
 local year_start 				= 2014
-local year_end 					= 2020
+local year_end 					= 2022
 local ym_start 					= ym(2014,1)
-local ym_end 					= ym(2020,5)
+local ym_end 					= ym(2022,9)
 local file_2014 				"SNAP-Calendar-Year-2014-(XLS)_tcm1053-165235.xls"
 local file_2015 				"snap-calendar-year-2015_tcm1053-166277.xlsx"
 local file_2016 				"snap-cy2016-0717_tcm1053-304106.xlsx"
 local file_2017 				"snap-cy2017_tcm1053-326886.xlsx"
 local file_2018 				"snap-cy2018_tcm1053-371462.xlsx"
 local file_2019 				"snap-cy2019_tcm1053-419399.xlsx"
-local file_2020 				"snap-cy2020-0620_tcm1053-434874.xlsx"
+*local file_2020 				"snap-cy2020-0620_tcm1053-434874.xlsx"
+local file_2020 				"snap-cy2020-0121_tcm1053-462682.xlsx"
+local file_2021 				"snap-cy2021_tcm1053-518308_KP.xlsx"
+local file_2022 				"snap-cy2022-0922_tcm1053-543009.xlsx"
 
 *********************************************************************
 
@@ -79,6 +82,7 @@ forvalues year = `year_start'(1)`year_end' {
 		drop if strpos(v1,"Effective January 1, 2015")
 		drop if strpos(v1,"Red Lake Indian Resv Began August 2015")
 		drop if strpos(v1,"Counties 20 and 81 deleted and combined with County 74 Eff Jul 2015")
+		drop if strpos(v1,"** Effective January 1, 2022, Grant and Pope counties are now combined in the Western Prairie Human Services (WPHS)")
 *		drop if strpos(v1,"")
 *		drop if strpos(v1,"")
 

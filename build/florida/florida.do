@@ -10,7 +10,8 @@ foreach outcome in clients households issuance {
 
 	// import data 
 	import excel "${dir_root}/data/state_data/florida/build/florida_county_level.xlsx", sheet("`outcome'_long") firstrow case(lower) clear
-	
+	dropmiss, force obs
+
 	// a bit of cleaning
 	gen ym = ym(year, month)
 	format ym %tm

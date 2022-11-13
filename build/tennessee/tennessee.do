@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start 					= ym(2011,1)
-local ym_end 					= ym(2022,5)
+local ym_end 					= ym(2022,9)
 local prefix_2011 				"FSPP"
 local prefix_2012 				"FSPP"
 local prefix_2013 				"FSPP"
@@ -183,7 +183,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		drop number
 
 	}
-	if inlist(`ym',ym(2013,9)) | inrange(`ym',ym(2016,4),ym(2016,12)) | inrange(`ym',ym(2017,6),ym(2022,5)) {
+	if inlist(`ym',ym(2013,9)) | inrange(`ym',ym(2016,4),ym(2016,12)) | inrange(`ym',ym(2017,6),ym(2022,9)) {
 
 		// drop title observations
 		drop if strpos(v2,"January")

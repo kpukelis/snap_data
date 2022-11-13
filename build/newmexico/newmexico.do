@@ -2,162 +2,22 @@
 // Kelsey Pukelis
 
 local ym_start 					= ym(2013,1) 
-local ym_end 					= ym(2020,11)
+local ym_end 					= ym(2022,8)
 
 // This section no longer needed - get application data from apps_plus 
 // local ym_start_apps 			= ym(2019,1) // could get data earlier
 // local ym_end_apps 			= ym(2022,3)
 
 local ym_start_apps_plus		= ym(2013,1)
-local ym_end_apps_plus			= ym(2022,5)
+local ym_end_apps_plus			= ym(2022,8)
 
 // early data: 2014m2-2017m3, hand entered. Rest of the data format starts 2017m4
 // local ym_start_race 			= ym(2014,2) 
 local ym_start_race 			= ym(2017,4) 
-local ym_end_race 				= ym(2022,3)
+local ym_end_race 				= ym(2022,8)
 
 **************************************************************************
-// This section no longer needed - get application data from apps_plus 
-/*
-//////////////
-// APP DATA //
-//////////////
 
-forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
-
-	// display ym 
-	display in red "`ym'"
-
-	// for file names
-	clear
-	set obs 1
-	gen year = year(dofm(`ym'))
-	gen month = month(dofm(`ym'))
-	tostring month, gen(monthname) 
-	tostring month, gen(monthname_var) 
-	replace monthname = "January" if monthname == "1"
-	replace monthname = "February" if monthname == "2"
-	replace monthname = "March" if monthname == "3"
-	replace monthname = "April" if monthname == "4"
-	replace monthname = "May" if monthname == "5"
-	replace monthname = "June" if monthname == "6"
-	replace monthname = "July" if monthname == "7"
-	replace monthname = "August" if monthname == "8"
-	replace monthname = "September" if monthname == "9"
-	replace monthname = "October" if monthname == "10"
-	replace monthname = "November" if monthname == "11"
-	replace monthname = "December" if monthname == "12"
-	local month = month
-	display in red "`month'"
-	local monthname = monthname
-	display in red "`monthname'"
-	local monthname_var = monthname_var
-	display in red "`monthname_var'"
-	local year = year
-	display in red "`year'"
-
-	// load data 
-	import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'-3.xlsx", allstring case(lower) firstrow clear 
-
-	// initial cleanup
-	dropmiss, force 
-	dropmiss, obs force 
-	describe, varlist 
-	rename (`r(varlist)') (v#), addnumber
-
-	// keep relevant cells 
-	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview s are w aived. Recertification periods are automatically extended for households w ith an Interim Review  due in March and April for")
-	drop if strpos(v1,"Note: December 2020 expenditures include the LIHEAP $300 supplement payments that were tied to prior months since May 2020. The additional expenditures are reflected in the total cases and recipients reported.")
-	drop if strpos(v1,"The March 2021 SNAP expenditures include COVID-19 additional Emergency Allotment")
-	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview")
-	describe, varlist 
-	rename (`r(varlist)') (v#), addnumber
-	assert `r(N)' == 25
-	keep if _n <= 12
-	describe, varlist 
-	assert `r(k)' == 12
-	keep v7 v10
-	drop in 1
-	drop in 1
-	drop in 1
-	describe, varlist 
-	assert `r(k)' == 2
-	rename v7 variable  
-	rename v10 value 
-	
-	// clean up variable name 
-	replace variable = trim(variable)
-	replace variable = strlower(variable)
-	replace variable = ustrregexra(variable," ","")
-	replace variable = ustrregexra(variable,"4","")
-	replace variable = ustrregexra(variable,"5","")
-	replace variable = ustrregexra(variable,"6","")
-	replace variable = ustrregexra(variable,"7","")
-	replace variable = ustrregexra(variable,"/","per")
-	assert inlist(variable,"expenditures","cases","expenditurespercase","recipients","adults","children","recipientspercase","casesprocessed","approvals")
-
-	// destring
-	destring value, replace
-	confirm numeric variable value 
-
-	// reshape
-	gen id = 1
-	rename value _
-	reshape wide _, i(id) j(variable) string
-	drop id 
-
-	// rename some vars to be consistent 
-	rename _expenditures issuance
-	rename _cases households
-	rename _expenditurespercase avg_issuance_households
-	rename _recipients individuals
-	rename _adults adults
-	rename _children children
-	rename _recipientspercase avg_issuance_individuals
-	rename _casesprocessed apps_received
-	rename _approvals apps_approved
-
-	// ym 
-	gen ym = `ym'
-	format ym %tm 
-	order ym 
-
-	// county 
-	gen county = "total"
-
-	// order 
-	order county ym 
-	// save 
-	tempfile _`ym'
-	save `_`ym''
-	
-}
-
-// append 
-forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
-	if `ym' == `ym_start_apps' {
-		use `_`ym'', clear
-	}
-	else {
-		append using `_`ym''
-	}
-}
-
-// fix countyname to be uniform with other files
-replace county = ustrregexra(county,"n ","north ")
-replace county = ustrregexra(county,"sanorth ","san ") // undo 
-replace county = ustrregexra(county,"s ","south ")
-replace county = ustrregexra(county,"losouth ","los ") // undo
-replace county = ustrregexra(county,"ne ","northeast ")
-replace county = ustrregexra(county,"nw ","northwest ")
-replace county = ustrregexra(county,"se ","southeast ")
-replace county = ustrregexra(county,"sw ","southwest ")
-replace county = "eddy artesia" if county == "eddy/artesia"
-
-// save 
-tempfile newmexico_apps
-save `newmexico_apps'
-*/
 
 
 ********************************************************************************************************************
@@ -966,7 +826,7 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 		}
 	}
 	else if `ym' >= ym(2014,2) {
-		while !strpos(v1,"Office") {
+		while !strpos(v1,"Office") & !strpos(v1,"office") {
 			drop in 1
 		}
 	}
@@ -1048,6 +908,10 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 		// reshape long 
 		reshape long households, i(office) j(_time) string 
 
+		// drop obs 
+		drop if office == "office" & county == "office"
+		drop if missing(office) & missing(county) & missing(households)
+
 	}
 
 	// ym 
@@ -1125,6 +989,11 @@ if !inrange(`ym',ym(2013,7),ym(2014,1)) & !inrange(`ym',ym(2014,4),ym(2014,6)) {
 }
 }
 
+
+// replace office if only county level data 
+// actually, don't do this so that it's obvious the county level data 
+*replace office = county if !missing(county) & missing(office) & inrange(ym,ym(2012,1),ym(2014,1))
+
 // DUPLICATES 
 
 // drop if households is missing 
@@ -1137,8 +1006,9 @@ duplicates drop office ym households if !inrange(ym,ym(2013,1),ym(2014,1)), forc
 // dropping duplicates, keeping observations that comes from the source ym 
 // duplicates office 
 bysort office ym: gen numobs = _N
+assert inlist(numobs,1,2,33,34)
 count if numobs == 2
-assert `r(N)' == 90
+assert `r(N)' == 198
 drop if numobs == 2 & source_ym != ym 
 count if numobs == 33
 assert `r(N)' == 33
@@ -1231,4 +1101,153 @@ tab ym if inlist(county,"catron","de baca","harding","los alamos","mora")
 	// 2012m1-2013m6
 tab ym if inlist(county,"union")
 	// 2012m1-2017m3
+check
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
+******************************************************************************************************************************************************
 
+
+// This section no longer needed - get application data from apps_plus 
+/*
+//////////////
+// APP DATA //
+//////////////
+
+forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
+
+	// display ym 
+	display in red "`ym'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year = year(dofm(`ym'))
+	gen month = month(dofm(`ym'))
+	tostring month, gen(monthname) 
+	tostring month, gen(monthname_var) 
+	replace monthname = "January" if monthname == "1"
+	replace monthname = "February" if monthname == "2"
+	replace monthname = "March" if monthname == "3"
+	replace monthname = "April" if monthname == "4"
+	replace monthname = "May" if monthname == "5"
+	replace monthname = "June" if monthname == "6"
+	replace monthname = "July" if monthname == "7"
+	replace monthname = "August" if monthname == "8"
+	replace monthname = "September" if monthname == "9"
+	replace monthname = "October" if monthname == "10"
+	replace monthname = "November" if monthname == "11"
+	replace monthname = "December" if monthname == "12"
+	local month = month
+	display in red "`month'"
+	local monthname = monthname
+	display in red "`monthname'"
+	local monthname_var = monthname_var
+	display in red "`monthname_var'"
+	local year = year
+	display in red "`year'"
+
+	// load data 
+	import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'-3.xlsx", allstring case(lower) firstrow clear 
+
+	// initial cleanup
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+
+	// keep relevant cells 
+	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview s are w aived. Recertification periods are automatically extended for households w ith an Interim Review  due in March and April for")
+	drop if strpos(v1,"Note: December 2020 expenditures include the LIHEAP $300 supplement payments that were tied to prior months since May 2020. The additional expenditures are reflected in the total cases and recipients reported.")
+	drop if strpos(v1,"The March 2021 SNAP expenditures include COVID-19 additional Emergency Allotment")
+	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview")
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	assert `r(N)' == 25
+	keep if _n <= 12
+	describe, varlist 
+	assert `r(k)' == 12
+	keep v7 v10
+	drop in 1
+	drop in 1
+	drop in 1
+	describe, varlist 
+	assert `r(k)' == 2
+	rename v7 variable  
+	rename v10 value 
+	
+	// clean up variable name 
+	replace variable = trim(variable)
+	replace variable = strlower(variable)
+	replace variable = ustrregexra(variable," ","")
+	replace variable = ustrregexra(variable,"4","")
+	replace variable = ustrregexra(variable,"5","")
+	replace variable = ustrregexra(variable,"6","")
+	replace variable = ustrregexra(variable,"7","")
+	replace variable = ustrregexra(variable,"/","per")
+	assert inlist(variable,"expenditures","cases","expenditurespercase","recipients","adults","children","recipientspercase","casesprocessed","approvals")
+
+	// destring
+	destring value, replace
+	confirm numeric variable value 
+
+	// reshape
+	gen id = 1
+	rename value _
+	reshape wide _, i(id) j(variable) string
+	drop id 
+
+	// rename some vars to be consistent 
+	rename _expenditures issuance
+	rename _cases households
+	rename _expenditurespercase avg_issuance_households
+	rename _recipients individuals
+	rename _adults adults
+	rename _children children
+	rename _recipientspercase avg_issuance_individuals
+	rename _casesprocessed apps_received
+	rename _approvals apps_approved
+
+	// ym 
+	gen ym = `ym'
+	format ym %tm 
+	order ym 
+
+	// county 
+	gen county = "total"
+
+	// order 
+	order county ym 
+	// save 
+	tempfile _`ym'
+	save `_`ym''
+	
+}
+
+// append 
+forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
+	if `ym' == `ym_start_apps' {
+		use `_`ym'', clear
+	}
+	else {
+		append using `_`ym''
+	}
+}
+
+// fix countyname to be uniform with other files
+replace county = ustrregexra(county,"n ","north ")
+replace county = ustrregexra(county,"sanorth ","san ") // undo 
+replace county = ustrregexra(county,"s ","south ")
+replace county = ustrregexra(county,"losouth ","los ") // undo
+replace county = ustrregexra(county,"ne ","northeast ")
+replace county = ustrregexra(county,"nw ","northwest ")
+replace county = ustrregexra(county,"se ","southeast ")
+replace county = ustrregexra(county,"sw ","southwest ")
+replace county = "eddy artesia" if county == "eddy/artesia"
+
+// save 
+tempfile newmexico_apps
+save `newmexico_apps'
+*/

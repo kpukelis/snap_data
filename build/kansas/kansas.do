@@ -1,8 +1,13 @@
 // kansas.do 
 
 local year_start 			= 2011
-local year_end 				= 2019 // **KP: need to fix 2020 & 2021
-*local year_end 			= 2021
+local year_end 				= 2023 
+local last_year_monthlist 	7 8 9 // 10 11 12 1 2 3 4 5 6
+local all_year_monthlist	7 8 9 10 11 12 1 2 3 4 5 6
+local year_2021_monthlist 	7 8 9 10 11 12 1 2 3 // this year of data is incomplete
+local num_counties 			= 106 // includes total 
+local ym_start 				= ym(2010,7)
+local ym_end 				= ym(2022,9)
 
 ********************************************************************
 
@@ -13,6 +18,7 @@ import excel "${dir_root}/data/state_data/kansas/excel/CURRENT_PAR_SFYXXXX_Acces
 
 // clean up
 dropmiss, force 
+dropmiss, force obs
 
 // check number of variables
 describe, varlist
@@ -71,17 +77,131 @@ save `kansas_state'
 // COUNTY DATA 
 
 forvalues year = `year_start'(1)`year_end' {
+if inrange(`year',2020,2023) {
 
-	dis in red "`year'"
+// local for monthlist 
+if `year' == `year_end' {
+	local monthlist `last_year_monthlist'
+}	
+else if `year' == 2021 {
+	local monthlist `year_2021_monthlist'
+}
+else {
+	local monthlist `all_year_monthlist'
+}
+
+	foreach month of local monthlist {
+	
+	display in red "year `year'"
+	display in red "month `month'"
 
 	// import data 
-	import excel "${dir_root}/data/state_data/kansas/csvs/SFY`year'_CntyCaseload_Rpt.xlsx", allstring case(lower) clear
+	import excel "${dir_root}/data/state_data/kansas/csvs/SFY`year'_CntyCaseload_Rpt.xlsx", sheet("`month'") allstring case(lower) clear
 	dropmiss, force
 	foreach v of varlist _all {
 		replace `v' = trim(`v')
 		replace `v' = strlower(`v')
 	}
 	gen obsnum = _n 
+
+	// make var type for strings shorter, for easier display
+	foreach v of varlist _all {
+		gen `v'copy = `v'
+		drop `v'
+		rename `v'copy `v'
+	}
+	*br
+	
+	// assert right structure of data 
+	describe, varlist 
+	assert r(k) == 13
+
+	// variable names 
+	else if r(k) == 13 {
+		local variable_names `"tanf_households tanf_adults tanf_children tanf_persons households adults children individuals childcare_households childcare_children"'
+	}
+
+	// rename variables 
+	qui describe, varlist
+	rename (`r(varlist)') (county region `variable_names' obsnum)
+	drop in 1 
+	drop in 1 
+	drop in 1 
+	if (`year' == 2021 & inlist(`month',7,8,9,10,11,12,1,2,3,4,5,6)) {
+		drop in 1
+	}
+
+	// assert number of observations 
+	count 
+	assert `r(N)' == 106
+
+	// destring
+	foreach v in `variable_names' {
+		destring `v', replace
+	}
+
+	// drop region totals data 
+	drop if inlist(county,"kansas city","kansas city metro","south central","southeast","northeast","east","west")
+	
+	// fix county names 
+	replace county = "total" if strpos(county,"state total")
+
+	// wichita is both a county and a region, want to keep county, which is first observation within month
+	// 2 state total rows are the same, just keep one per month
+	count if county == "wichita"
+	assert `r(N)' == 1
+
+	// generate date info
+	gen month = `month'
+	gen year = .
+	replace year = `year' if inrange(month,1,6)
+	replace year = `year' - 1 if inrange(month,7,12)
+	gen ym = ym(year,month)
+	format ym %tm 
+	drop year month obsnum
+
+	// order and sort 
+	order county region ym 
+	sort county ym 
+
+	// save 
+	tempfile _`year'_`month'
+	save `_`year'_`month''
+
+	}
+
+	// append across months 
+	foreach month of local monthlist {
+		if `month' == 7 {
+			use `_`year'_`month'', clear 
+		}
+		else {
+			append using `_`year'_`month''	
+		}
+	}
+
+	// save 
+	tempfile _`year'
+	save `_`year''
+	
+}
+
+
+********************************************************************
+
+if inrange(`year',2011,2019) {
+
+dis in red "`year'"
+
+// import data 
+import excel "${dir_root}/data/state_data/kansas/csvs/SFY`year'_CntyCaseload_Rpt.xlsx", sheet("Table 1") allstring case(lower) clear
+dropmiss, force
+foreach v of varlist _all {
+	replace `v' = trim(`v')
+	replace `v' = strlower(`v')
+}
+gen obsnum = _n 	
+
 
 #delimit ;
 local condition `"if 
@@ -551,6 +671,7 @@ if r(k) == 41 {
 	}
 }
 
+
 qui describe, varlist
 if r(k) == 17 {
 	local variable_names `"tanf_households tanf_adults tanf_children tanf_persons ga_households ga_adults ga_children ga_persons households adults children individuals childcare_households childcare_children"'
@@ -623,6 +744,7 @@ tempfile _`year'
 save `_`year''
 
 }
+}
 
 // append all years
 forvalues year = `year_start'(1)`year_end' {
@@ -650,13 +772,36 @@ save `kansas_county'
 
 // merge 
 use `kansas_county', clear 
-merge 1:1 county ym using `kansas_state', update 
+merge 1:1 county ym using `kansas_state', update replace // update replace to use consistent state totals
 
 // validate merge
-assert inrange(ym,ym(2010,7),ym(2019,6)) & county != "total" if inlist(_m,1)
-assert inrange(ym,ym(2010,7),ym(2019,6)) & county == "total" if inlist(_m,3,4,5)
-assert inrange(ym,ym(2019,7),ym(2022,4)) if _m == 2
+assert inlist(_m,1,2,3,4,5)
+assert county != "total" if inlist(_m,1)
+assert (inrange(ym,ym(2010,7),ym(2021,3)) | inrange(ym,ym(2021,7),ym(2022,9))) & county == "total" if inlist(_m,3,4,5)
+assert inrange(ym,ym(2021,4),ym(2021,6)) if _m == 2 // county data is missing for these months
 drop _m 
+
+// expand to full set of county ym 
+encode county, gen(county_num)
+tsset county_num ym 
+tsfill, full 
+gsort county_num -ym 
+by county_num: carryforward county, replace 
+gsort county_num ym 
+by county_num: carryforward county, replace 
+drop county_num
+
+// assert the right amount of observations 
+local num_months = `ym_end' - `ym_start' + 1
+local target_obs = `num_months' * `num_counties'
+count 
+display in red "actual obs:" `r(N)'
+display in red "target obs:" `target_obs'
+assert `r(N)' == `target_obs'
+
+// order and sort 
+order county region ym 
+sort county ym 
 
 // save 
 save "${dir_root}/data/state_data/kansas/kansas.dta", replace

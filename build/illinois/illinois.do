@@ -2,11 +2,11 @@
 // imports households and persons from excel sheets
 
 local year_start				2010
-local year_end 					2020
+local year_end 					2022
 local sheets 					persons households
 
 ***************************************************************
-/*
+
 forvalues year = `year_start'(1)`year_end' {
 	foreach sheet of local sheets {
 	if `year' < 2018 {
@@ -196,10 +196,10 @@ forvalues year = `year_start'(1)`year_end' {
 		rename june _6 
 		rename july _7
 		rename august _8
-		rename september _9
-		rename october _10 
-		rename november _11
-		if `year' != 2020 {
+		if `year' != 2022 {
+			rename september _9
+			rename october _10 
+			rename november _11
 			rename december _12
 		}
 		reshape long _, i(county) j(month)
@@ -260,7 +260,7 @@ forvalues year = `year_start'(1)`year_end' {
 		replace county = "kane" if inlist(county,"kane-aurora","kane-elgin")
 		replace county = "madison" if inlist(county,"madison-e.alton","madison-g.city")
 		rename `sheet' `sheet'_OLD
-		bysort county: egen `sheet' = total(`sheet'_OLD)
+		bysort county ym: egen `sheet' = total(`sheet'_OLD)
 		drop `sheet'_OLD
 		drop officenumber
 		duplicates drop 
@@ -353,20 +353,21 @@ save "${dir_root}/data/state_data/illinois/illinois_office.dta", replace
 
 use "${dir_root}/data/state_data/illinois/illinois_office.dta", clear
 
-// population: make 2020 data same as 2019 data, for now 
+// population
 preserve
-use "${dir_root}/data/state_data/illinois/illinois_county_pop.dta", clear 
-duplicates tag county year, gen(dup)
-assert dup == 0
-drop dup 
-expand 2 if year == 2019
-bysort county year: gen obsnum_within = _n 
-sum obsnum_within
-assert `r(max)' == 2
-replace year = 2020 if obsnum_within == 2
-drop obsnum_within
-tempfile illinois_county_pop
-save `illinois_county_pop'
+	use "${dir_root}/data/state_data/illinois/illinois_county_pop.dta", clear 
+	duplicates tag county year, gen(dup)
+	assert dup == 0
+	drop dup 	
+	// population: make 2022 data same as 2021 data, for now 
+	expand 2 if year == 2021
+	bysort county year: gen obsnum_within = _n 
+	sum obsnum_within
+	assert `r(max)' == 2
+	replace year = 2022 if obsnum_within == 2
+	drop obsnum_within
+	tempfile illinois_county_pop
+	save `illinois_county_pop'
 restore 
 
 // crosswalk for combinations of offices 
@@ -419,9 +420,12 @@ preserve
 	// save 
 	tempfile crosswalk 
 	save `crosswalk'
+
 restore
 
 // merge in original county names
+// master data is at the office level 
+// merging in county names, such that 1 office can potentially match to more than one county 
 rename county newcounty
 merge 1:m newcounty ym using `crosswalk', keepusing(county)
 assert _m == 3

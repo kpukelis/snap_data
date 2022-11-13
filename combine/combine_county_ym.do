@@ -1,48 +1,27 @@
 // combine_county_ym.do 
 // Kelsey Pukelis
 
-//	alabama			 // not completed (fixed individual)
-// 	alaska			 fixed statewide 
-//	california		 // not completed (fixed individual)
-//	connecticut		 // not completed (fixed individual)
-// 	delaware		 rolling clock
-//	hawaii			 // not completed (rolling clock)
-//  illinois         fixed statewide
-// 	nevada			 fixed individual
-// 	newhampshire	 fixed individual
-//	northdakota		 // not completed (rolling clock)
-//	oklahoma		 // not completed (fixed individual)
-// 	rhodeisland		 fixed statewide
-// 	utah			
-//	vermont			
-//	washington		 // **not completed (fixed statewide, but yearly)
-// 	westvirginia	 fixed statewide
-// 	wyoming			 fixed statewide
-// 	districtofcolumbia			 unclear clock
-
-**KP: coming back to these
-//  missouri
-//	oregon			
-//  massachusetts
-//  colorado
-
+local first_state alabama
 #delimit ;
-local states_withtotal
+local states_withcounty
+	alabama
 	arizona
 	arkansas
-	colorado
+	illinois
 	iowa
 	kansas
 	louisiana
 	maine
-   	maryland
+	massachusetts // moved here because I collapsed things sooner 
 	minnesota
+	missouri
 	montana
 	newjersey
 	newmexico
 	newyork
 	northcarolina
 	ohio
+	oregon
 	pennsylvania
 	southcarolina
 	southdakota
@@ -50,27 +29,11 @@ local states_withtotal
 	texas
 	virginia
 	wisconsin
-; 
-#delimit cr 
-
-#delimit ;
-local states_only
-	georgia
-	indiana
-	kentucky
-	mississippi
-	missouri
-	nebraska		
-; 
-#delimit cr 
-**KP: missouri will move when updated	
-
-#delimit ;
-local states_collapse
+	california
 	florida
 	idaho
-	massachusetts
-	michigan		
+   	maryland // moved here because not all variables have a state total 	
+	michigan	
 ; 
 #delimit cr 
 
@@ -90,97 +53,47 @@ local cond_mahnomen			`"state == "minnesota" & inlist(county,"mahnomen","whiteea
 
 ***********************************************************************************
 
-// county = "total"
-foreach state of local states_withtotal {
+// data is there already when county = "total"
+foreach state of local states_withcounty {
 	
-	// display 
+	// display
 	display in red "`state'"
+
+	// global: so that this carries through to the helper dofile
+	global state "`state'"
 
 	// load 
 	use "${dir_root}/data/state_data/`state'/`state'.dta", clear
-	
-	// drop "total" observations
-	drop if county == "total"
 
+	// keep total 
+	drop if county == "total"
+	
 	// state variable 
 	gen state = "`state'"
 
-	// rename to combine 
-	**KP: look at combine_state_vars.do to update this
-	capture rename issuancehousehold 	avg_issuance_households
-	capture rename issuance_percase 	avg_issuance_households
-	capture rename avg_pay_per_case 	avg_issuance_households
-	capture rename avg_payment_percase 	avg_issuance_households
-	capture rename issuanceperson 		avg_issuance_individuals
-	capture rename issuance_perrecip	avg_issuance_individuals
-	capture rename avg_pay_per_person	avg_issuance_individuals
-	capture drop issuancehousehold
-	capture drop issuance_percase
-	capture drop avg_pay_per_case
-	capture drop avg_payment_percase
-	capture drop issuanceperson
-	capture drop issuance_perrecip
-	capture drop avg_pay_per_person
-	capture rename avg_recip_per_case	avg_individuals_households
-	capture drop avg_recip_per_case
-	capture rename apps apps_received
-	capture drop apps 
-	
-	// save 
-	tempfile `state'
-	save ``state''
-}
+	// drop all missing vars 
+	dropmiss, force 
 
-// data is already only state-month level
-foreach state of local states_only {
+	// drop fips 
+	capture drop fips 
+	capture drop countycode 
+	capture drop county_num
 
-	// display
-	display in red "`state'"
-	display in red "Nothing can be done"
-	
-}
+	// code to combine / standardize variable names across states 
+	do "${dir_code}/combine/combine_county_vars.do"
 
-// all ready to go (no "total" observation)
-foreach state of local states_collapse {
-
-	// display 
-	display in red "`state'"
-
-	// load 
-	use "${dir_root}/data/state_data/`state'/`state'.dta", clear 
-	
-	// state var 
-	gen state = "`state'" 
-
-	// rename to combine 
-	capture rename issuancehousehold 	avg_issuance_households
-	capture rename issuance_percase 	avg_issuance_households
-	capture rename avg_pay_per_case 	avg_issuance_households
-	capture rename avg_payment_percase 	avg_issuance_households
-	capture rename issuanceperson 		avg_issuance_individuals
-	capture rename issuance_perrecip	avg_issuance_individuals
-	capture rename avg_pay_per_person	avg_issuance_individuals
-	capture drop issuancehousehold
-	capture drop issuance_percase
-	capture drop avg_pay_per_case
-	capture drop avg_payment_percase
-	capture drop issuanceperson
-	capture drop issuance_perrecip
-	capture drop avg_pay_per_person
-	capture rename avg_recip_per_case	avg_individuals_households
-	capture drop avg_recip_per_case
-	capture rename apps apps_received
-	capture drop apps 
+	// variables list 
+	noisily describe, varlist 
 
 	// save 
 	tempfile `state'
 	save ``state''
-
 }
+
 
 *************************************************************************************************
 
-foreach state in `states_withtotal' /*`states_only'*/ `states_collapse' {
+foreach state in `states_withcounty' {
 	if "`state'" == "`first_state'" {
 		use ``state'', clear
 	}
@@ -188,13 +101,13 @@ foreach state in `states_withtotal' /*`states_only'*/ `states_collapse' {
 		append using ``state''
 	}
 }
-
 // see what other variables might have the same name and so could be combined
 dropmiss, force 
 foreach v of varlist _all {
 	display in red "`v'"
 }
 **see and update combine_vars.csv
+**KP: this hasn't been updated, nor has combine_state_vars.do, but I updated combine_county_vars.do
 **see code below that may need to be updated
 
 // assert vars are combined
@@ -202,17 +115,18 @@ foreach v in individuals households issuance {
 	assert !missing(`v') if !missing(`v'_npa) & !missing(`v'_pa)	
 }
 
+**TEMPORARY
+save "${dir_root}/data/state_data/county_ym_TEMP.dta", replace 
+
 ////////////////////
 // GEOGRAPHY VARS //
 ////////////////////
-	
-// merge in state fips code 
-merge m:1 state using "${dir_root}/data/state_data/_fips/statefips_2019.dta", keepusing(statefips) assert(2 3) keep(3) nogen 
 
-// just drop county fips codes for now; I will merge these in my own based on countyname later 
-drop countycode
-drop county_num 
-drop fips 
+**TEMPORARY
+use "${dir_root}/data/state_data/county_ym_TEMP.dta", clear
+
+// merge in state fips codes 
+merge m:1 state using "${dir_root}/data/state_data/_fips/statefips_2019.dta", keepusing(statefips) assert(2 3) keep(3) nogen 
 
 // assert no state data 
 assert state_marker == 0 | missing(state_marker)
@@ -222,9 +136,12 @@ drop state_marker
 drop if region_marker == 1
 drop region_marker
 
-// **KP: drop non county data for now, come back to these states later: 
-tab state if missing(county)
-drop if inlist(state,"massachusetts","colorado")
+// drop multicounty data 
+drop if multicounty_marker == 1
+drop multicounty_marker
+
+// assert county data only 
+assert county_marker == 1 | missing(county_marker)
 
 // remove puntuation from countynames 
 replace county = ustrregexra(county," ","")
@@ -237,11 +154,18 @@ replace county = ustrregexra(county,`"'"',"")
 replace county = ustrregexra(county,`"/"',"")
 replace county = strlower(county)
 
+**TEMPORARY
+save "${dir_root}/data/state_data/county_ym_TEMP2.dta", replace 
+
+**TEMPORARY
+use "${dir_root}/data/state_data/county_ym_TEMP2.dta", clear
+
 // drop data that is not actually a county 
 drop if state == "arkansas" 	& county == "acpu"
 drop if state == "arkansas" 	& county == "acpuvi"
 drop if state == "iowa" 		& county == "dhs"
 drop if state == "maine" 		& county == "countyunknown"
+drop if state == "massachusetts" & county== "notavailable"
 drop if state == "michigan" 	& county == "unassigned"
 drop if state == "michigan" 	& inlist(county,"presque","isle") // each of these is a repeat of the presqueisle county 
 drop if state == "minnesota"	& county == "other"
@@ -258,7 +182,11 @@ drop if state == "louisiana"	& county == "downtown" // dropping it because I don
 drop if state == "minnesota" 	& county == "mnprairie" // dropping it because I don't know where it belongs
 drop if state == "minnesota" 	& county == "millelacsbandtribe" // potentially combine with millelacs county instead
 drop if state == "minnesota" 	& county == "redlakeindianresv" // potentially combine with redlake county instead
+drop if state == "minnesota" 	& county == "wphs" // dropping it because I don't know where it belongs
+drop if state == "missouri" 	& county == "unknown"
 drop if state == "ohio"			& county == "southcentral" // dropping it because I don't know where it belongs
+drop if state == "ohio" 		& county == "unknown"
+drop if state == "oregon" 		& county == "blank"
 drop if state == "wisconsin" 	& county == "badriver" // dropping it because I don't know where it belongs (for now)
 drop if state == "wisconsin" 	& county == "laccourteoreilles" // dropping it because I don't know where it belongs (for now)
 drop if state == "wisconsin" 	& county == "lacduflambeau" // dropping it because I don't know where it belongs (for now)
@@ -277,9 +205,6 @@ replace county = "stclair"	 		if state == "michigan" & county == "clair"
 replace county = "stjoseph" 		if state == "michigan" & county == "joseph"
 replace county = "grandtraverse" 	if state == "michigan" & county == "traverse"
 replace county = "doñaana" 			if state == "newmexico" & county == "donaana"
-
-// drop duplicates (somehow michigan was duplicated a bunch)
-duplicates drop 
 
 // assert level of the data 
 duplicates tag state county ym, gen(dup)

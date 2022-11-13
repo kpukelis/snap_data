@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start	 				= ym(2007,1)
-local ym_end 					= ym(2022,2)
+local ym_end 					= ym(2022,6)
 
 ************************************************************
 forvalues ym = `ym_start'(1)`ym_end' {
@@ -67,6 +67,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// drop bottom rows 
+	drop if strpos(v1,"2022 by County")
 	drop if strpos(v1,"2020 by County")
 	drop if strpos(v1,"2019 by County")
 	drop if strpos(v1,". Total NJ SNAP Recipients AUGUST 2018 By County")
@@ -341,5 +342,4 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/newjersey/newjersey.dta", replace 
-
 
