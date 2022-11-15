@@ -3,6 +3,8 @@ display in red "${state}"
 
 	// rename to combine 
 	capture rename persons 				individuals
+	capture rename snap_households 		households 
+	capture rename snap_recipients 		individuals
 	capture rename issuancehousehold 	avg_issuance_households
 	capture rename issuance_percase 	avg_issuance_households
 	capture rename avg_pay_per_case 	avg_issuance_households
@@ -23,10 +25,19 @@ display in red "${state}"
 		// TN
 		// some info for 2019-2020, from picture; includes SNAP and TANF combined, but it is estimated that 261,800 / (78,249+96,590+48,860+56,209) = 261,800 / 279,908 = 93.5 % of those are SNAP applications. (Quote from report: "During the months of March 2020 through June 2020, approximately 261,800 applications were received")
 		capture rename apps_received_snaptanf apps_received 
+		// XX
+		capture rename apps_received_snap apps_received
 	// apps_received_* MA 
 	// ***apps_approved CA MO NM MD LA AK NC
-	// apps_disposed CA 
+		// XX
+		capture rename apps_approved_snap apps_approved
+	// ***apps_disposed CA XX 
+		// CA 
+		capture rename apps_disposed apps_processed
+	// apps_delinquent XX
 	// ***apps_denied CA MO MD LA AK
+		// XX 
+		capture rename apps_denied_snap apps_denied
 		// calculate for NM, NC
 		if inlist("${state}","northcarolina") {
 			gen apps_denied = apps_received - apps_approved
@@ -61,6 +72,12 @@ display in red "${state}"
 		capture rename apps_approved_timely apps_timely
 		// apps_approved_untimely NC 
 		capture rename apps_approved_untimely apps_untimely
+		// XX 
+		capture rename apps_nottimely apps_untimely 
+		capture rename apps_nottimely_f apps_untimely_f
+		// XX 
+		capture rename apps_denied_nottimely apps_denied_untimely
+		capture rename apps_denied_nottimely_f apps_denied_untimely_f
 		// apps_timely TX
 		// pendingdays* AK
 		// avg_days_process?? MO - not enough to do anything with 
@@ -235,6 +252,7 @@ display in red "${state}"
 		if "${state}" == "louisiana" {
 			egen recerts_denied_needbased = rowtotal(c_2_earnedincometotal c_2_unearnedincometotal c_2_othereligibilitytotal c_2_otherreasonstotal c_2_voluntarywithdrawal), missing
 		}
+	// ***churn_rate MA 
 	// closure details from LA: 
 		// ***c_1_statetotal
 		// ***c_2_earnedincometotal
@@ -330,6 +348,9 @@ display in red "${state}"
 	if "${state}" == "maryland" {
 		egen medicaid_apps_received = rowtotal(ma_commcare_apps_received ma_longterm_apps_received ssi_apps_received), missing
 	}
+	// MT apps_received_medicaid
+	capture rename apps_received_medicaid medicaid_apps_received
+
 // ***medicaid_apps_approved MD 
 	// MD 
 		// MD ma_commcare_apps_approved
@@ -348,12 +369,18 @@ display in red "${state}"
 	// NE adc_families
 	capture rename adc_families tanf_households 
 	// MA tanf_households
+	**capture rename households_tafdc tanf_households // **KP need to do more work to combine these from different sources
+	// XX households_tanf 
+	capture rename households_tanf tanf_households
 // ***tanf_individuals KS MD MA 
 	// KS tanf_persons
 	capture rename tanf_persons tanf_individuals
 	// MD tanf_recipients
 	// MA tanf_recipients
 	capture rename tanf_recipients tanf_individuals
+	capture rename individuals_tafdc tanf_individuals
+	// XX individuals_tanf 
+	capture rename individuals_tanf tanf_individuals
 // ***tanf_children KS ME MD MA 
 	// KS tanf_children
 	// ME tanf_children
@@ -373,6 +400,7 @@ display in red "${state}"
 	// MA apps_received_tanf 
 	capture rename apps_received_tanf tanf_apps_received
 // MA apps_received_tanf_*
+
 // ***tanf_apps_approved MD 
 	// MD tanf_apps_approved
 // ***tanf_apps_denied
@@ -381,15 +409,58 @@ display in red "${state}"
 // ***tanf_issuance 
 	// MD tanf_netexpenditure
 	capture rename tanf_netexpenditure tanf_issuance
+	// XX issuance_tanf 
+	capture rename issuance_tanf tanf_issuance
 // MD tanf_cases_closed
-// NE ccsubsidy_children
-// KS childcare_children
-// KS childcare_households
-// MA eaedc_recipients
-// MA eaedc_households
-// MA eaedc_elderly
-// MA eaedc_disabled
-// MA eaedc_children
-// MA apps_received_eaedc
-// MA apps_received_eaedc_*
+// ***childcare_children NE KS 
+	// NE ccsubsidy_children
+	capture rename ccsubsidy_children childcare_children
+	// KS childcare_children
+// ***childcare_households KS 
+	// KS childcare_households
 
+// ***individuals_eaedc MA 
+	// MA eaedc_recipients
+	capture rename eaedc_recipients eaedc_individuals
+// ***eaedc_households MA 
+// ***eaedc_children MA 
+// ***eaedc_elderly MA 
+// ***eaedc_disabled MA 
+
+// MA scorecard data 
+	// ***walk_in_visitors_daily_avg
+	// ***walk_in_visitors_avg_waittime
+	// ***reason_walkin_accesstodocs
+	// ***reason_walkin_cashapp
+	// ***reason_walkin_snapapp
+	// ***reason_walkin_docprocess
+	// ***reason_walkin_ebtcard
+	// ***reason_walkin_speaktostaff
+	// ***reason_walkin_pebt
+	// ***reason_walkin_recert
+	// ***reason_walking_other
+	// ***calls_daily_avg
+	// ***calls_daily_avg_endivr
+	// ***calls_daily_avg_connect
+	// ***calls_daily_avg_noconnect
+	// ***calls_avg_waittime_min
+	// ***calls_avg_waittime_sec
+	// ***app_avg_processing_days
+	// ***apps_received_walkin
+	// ***apps_received_dropoff
+	// ***apps_received_mailin
+	// ***apps_received_fax
+	// ***apps_received_masshealthcheckbox
+	// ***apps_received_web
+	// ***apps_received_telephone
+	// ***apps_received_tanf_inoffice
+	// ***apps_received_tanf_homevisit
+	// ***apps_received_tanf_mailinfax
+	// ***apps_received_tanf_web
+	// ***apps_received_tanf_telephone
+	// ***apps_received_eaedc_inoffice
+	// ***apps_received_eaedc_homevisit
+	// ***apps_received_eaedc_mailinfax
+	// ***apps_received_eaedc_web
+	// ***apps_received_eaedc_telephone
+	// ***apps_received_eaedc

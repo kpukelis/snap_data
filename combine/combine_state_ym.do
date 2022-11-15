@@ -1,12 +1,10 @@
 // combine_state_ym.do 
 // Kelsey Pukelis
 
-//	alabama			 // not completed (fixed individual)
 // 	alaska			 fixed statewide 
 //	connecticut		 // not completed (fixed individual)
 // 	delaware		 rolling clock
 //	hawaii			 // not completed (rolling clock)
-//	illinois		 fixed statewide
 // 	nevada			 fixed individual
 // 	newhampshire	 fixed individual
 //	northdakota		 // not completed (rolling clock)
@@ -14,16 +12,17 @@
 // 	rhodeisland		 fixed statewide
 // 	utah			
 //	vermont			
-//	washington		 // **not completed (fixed statewide, but yearly)
+//	washington		 // not completed (fixed statewide, but yearly)
 // 	westvirginia	 fixed statewide
 // 	wyoming			 fixed statewide
 // 	districtofcolumbia			 unclear clock
 
 #delimit ;
-local first_state arizona
+local first_state alabama
 ;
 
 local states_withtotal
+	alabama
 	arizona
 	arkansas
 	colorado
@@ -34,6 +33,7 @@ local states_withtotal
 	maine
 	massachusetts // moved here because I collapsed things sooner 
 	minnesota
+	missouri
 	montana
 	newjersey
 	newmexico
@@ -48,7 +48,6 @@ local states_withtotal
 	texas
 	virginia
 	wisconsin
-
 ; 
 #delimit cr 
 
@@ -58,7 +57,6 @@ local states_only
 	indiana
 	kentucky
 	mississippi
-	missouri // county needs to be cleaned
 	nebraska		
 ; 
 #delimit cr 
@@ -84,18 +82,46 @@ foreach state of local states_withtotal {
 	// global: so that this carries through to the helper dofile
 	global state "`state'"
 
-	// load 
-	use "${dir_root}/data/state_data/`state'/`state'.dta", clear
-
-	// keep total 
+	// different code for massachusetts 
 	if "`state'" == "massachusetts" {
-		keep if city == "total"
+
+		// load 
+		use "${dir_root}/data/state_data/massachusetts/massachusetts_zipcode.dta", clear
+
+		// keep total 
+		keep if source == "collapsed"
+		assert city == "total" if strpos(city,"total") | strpos(city,"state")
+		*keep if city == "total"
 		drop city 
+		drop zipcode
+
+		// assert no duplicates 
+		duplicates tag ym, gen(dup)
+		assert dup == 0
+		drop dup 
+
+		// rename var 
+		**KP: move this later 
+		rename apps_received_masshealthcheckbox apps_received_masshealthcheck
+
 	}
 	else {
+
+		// load 
+		use "${dir_root}/data/state_data/`state'/`state'.dta", clear
+
+		// drop special cases
+		if "`state'" == "newyork" {
+			drop if county == "rest of state" // alternative to "new york city"			
+		}
+
+		// keep total 	
+		assert county == "total" | county == "state office" if strpos(county,"total") | strpos(county,"state")	
 		keep if county == "total"
 		drop county
+
 	}
+
 	
 	// state variable 
 	gen state = "`state'"
@@ -115,7 +141,6 @@ foreach state of local states_withtotal {
 }
 
 // data is already only state-month level
-**KP: missouri will move when updated	
 foreach state of local states_only {
 
 	// display
@@ -189,6 +214,20 @@ foreach state of local states_collapse {
 	disabled
 	gender_female
 	gender_male
+	/*
+	female_00_05 
+	female_06_17 
+	female_18_34 
+	female_35_49 
+	female_50_64 
+	female_65plus 
+	male_00_05 
+	male_06_17 
+	male_18_34 
+	male_35_49 
+	male_50_64 
+	male_65plus 
+	*/
 	ethnicity_hispanic
 	ethnicity_nonhispanic
 	race_africanamericanorblack
@@ -200,11 +239,14 @@ foreach state of local states_collapse {
 	race_white
 	apps_received
 	apps_approved
+	apps_processed
 	apps_denied
 	apps_denied_needbased
 	apps_denied_procedural
-	apps_denied_nottimely
+	apps_denied_untimely
+	apps_denied_untimely_f
 	apps_withdrawn
+	/*apps_delinquent*/
 	apps_expedited
 	apps_expedited_elig
 	apps_expedited_notelig
@@ -225,12 +267,14 @@ foreach state of local states_collapse {
 	households_new_reinstated
 	households_new_other
 	firsttimehouseholds
+	/**/
 	recerts
 	recerts_approved
 	recerts_denied
 	recerts_deniedB
 	recerts_denied_procedural
 	recerts_denied_needbased
+	churn_rate
 	c_1_statetotal
 	c_2_earnedincometotal
 	c_2_othereligibilitytotal
@@ -293,6 +337,7 @@ foreach state of local states_collapse {
 	c_3_transferredresources
 	c_3_unabletolocate
 	c_3_voluntaryquitwithoutgoodcau
+	/**/
 	medicaid_households
 	medicaid_individuals
 	medicaid_children
@@ -304,9 +349,56 @@ foreach state of local states_collapse {
 	tanf_issuance
 	tanf_children
 	tanf_adults
+	tanf_elderly
+	tanf_disabled
 	tanf_apps_received
 	tanf_apps_approved
 	tanf_apps_denied
+	tanf_cases_closed
+	childcare_children
+	childcare_households
+	eaedc_individuals
+	eaedc_households
+	eaedc_children
+	eaedc_elderly
+	eaedc_disabled
+	/**/
+	walk_in_visitors_daily_avg
+	walk_in_visitors_avg_waittime
+	reason_walkin_accesstodocs
+	reason_walkin_cashapp
+	reason_walkin_snapapp
+	reason_walkin_docprocess
+	reason_walkin_ebtcard
+	reason_walkin_speaktostaff
+	reason_walkin_pebt
+	reason_walkin_recert
+	reason_walking_other
+	calls_daily_avg
+	calls_daily_avg_endivr
+	calls_daily_avg_connect
+	calls_daily_avg_noconnect
+	calls_avg_waittime_min
+	calls_avg_waittime_sec
+	app_avg_processing_days
+	apps_received_walkin
+	apps_received_dropoff
+	apps_received_mailin
+	apps_received_fax
+	apps_received_masshealthcheck
+	apps_received_web
+	apps_received_telephone
+	apps_received_tanf_inoffice
+	apps_received_tanf_homevisit
+	apps_received_tanf_mailinfax
+	apps_received_tanf_web
+	apps_received_tanf_telephone
+	apps_received_eaedc_inoffice
+	apps_received_eaedc_homevisit
+	apps_received_eaedc_mailinfax
+	apps_received_eaedc_web
+	apps_received_eaedc_telephone
+	apps_received_eaedc
 	;
 	#delimit cr
 

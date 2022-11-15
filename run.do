@@ -55,7 +55,7 @@ local kentucky				= 0
 local louisiana				= 0 // county apps data still more years to clean
 local maine					= 0
 local maryland				= 0 // **KP: some variable called "_" is unlabeled
-local massachusetts			= 0 // **KP: need to crosswalk zipcode to county for data before 2021m7
+local massachusetts			= 0 // **KP: need to crosswalk zipcode to county for data before 2021m7; need to do more work making variables consistent for tanf across different sources
 local michigan				= 0
 local minnesota				= 0 
 local mississippi			= 0 
@@ -89,7 +89,7 @@ local wisconsin 			= 0
 
 // combine 
 local combine_state_ym 		= 0
-local combine_county_ym		= 0 
+local combine_county_ym		= 1 
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04

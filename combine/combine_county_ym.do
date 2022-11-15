@@ -107,8 +107,7 @@ foreach v of varlist _all {
 	display in red "`v'"
 }
 **see and update combine_vars.csv
-**KP: this hasn't been updated, nor has combine_state_vars.do, but I updated combine_county_vars.do
-**see code below that may need to be updated
+**KP: this hasn't been updated
 
 // assert vars are combined
 foreach v in individuals households issuance {

@@ -31,7 +31,10 @@ display in red "${state}"
 	// ***apps_approved CA MO NM MD LA AK NC
 		// XX
 		capture rename apps_approved_snap apps_approved
-	// apps_disposed CA 
+	// ***apps_disposed CA XX 
+		// CA 
+		capture rename apps_disposed apps_processed
+	// apps_delinquent XX
 	// ***apps_denied CA MO MD LA AK
 		// XX 
 		capture rename apps_denied_snap apps_denied
@@ -54,8 +57,6 @@ display in red "${state}"
 	// ***apps_expedited CA MO CO NM NC AK
 	// ***apps_expedited_elig CA only
 	// ***apps_expedited_notelig CA only
-	// apps_processed 
-	// apps_delinquent
 	// ***apps_timely, ***apps_untimely CA CO NM NC TX - not AK or MO 
 		if "${state}" == "california" {
 			// apps_nottimely CA - "denominator" here is approved apps
@@ -243,8 +244,8 @@ display in red "${state}"
 	capture rename tanf_cases tanf_households
 	// NE adc_families
 	capture rename adc_families tanf_households 
-	// MA 
-	capture rename households_tafdc tanf_households
+	// MA tanf_households
+	**capture rename households_tafdc tanf_households // **KP need to do more work to combine these from different sources
 	// XX households_tanf 
 	capture rename households_tanf tanf_households
 // ***tanf_individuals KS MD MA 
@@ -271,6 +272,7 @@ display in red "${state}"
 	// MA apps_received_tanf 
 	capture rename apps_received_tanf tanf_apps_received
 // MA apps_received_tanf_*
+
 // ***tanf_apps_approved MD 
 	// MD tanf_apps_approved
 // ***tanf_apps_denied
@@ -282,14 +284,20 @@ display in red "${state}"
 	// XX issuance_tanf 
 	capture rename issuance_tanf tanf_issuance
 // MD tanf_cases_closed
-// NE ccsubsidy_children
-// KS childcare_children
-// KS childcare_households
-// MA eaedc_recipients
-// MA eaedc_households
-// MA eaedc_elderly
-// MA eaedc_disabled
-// MA eaedc_children
-// MA apps_received_eaedc
-// MA apps_received_eaedc_*
+// ***childcare_children NE KS 
+	// NE ccsubsidy_children
+	capture rename ccsubsidy_children childcare_children
+	// KS childcare_children
+// ***childcare_households KS 
+	// KS childcare_households
 
+// ***individuals_eaedc MA 
+	// MA eaedc_recipients
+	capture rename eaedc_recipients eaedc_individuals
+// ***eaedc_households MA 
+// ***eaedc_children MA 
+// ***eaedc_elderly MA 
+// ***eaedc_disabled MA 
+// ***apps_received_eaedc MA 
+
+// MA apps_received_eaedc_*
