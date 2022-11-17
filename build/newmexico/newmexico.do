@@ -4,9 +4,9 @@
 local ym_start 					= ym(2013,1) 
 local ym_end 					= ym(2022,8)
 
-// This section no longer needed - get application data from apps_plus 
-// local ym_start_apps 			= ym(2019,1) // could get data earlier
-// local ym_end_apps 			= ym(2022,3)
+// This section to get adults and children
+local ym_start_apps 			= ym(2019,1) // could get data earlier
+local ym_end_apps 				= ym(2022,8)
 
 local ym_start_apps_plus		= ym(2013,1)
 local ym_end_apps_plus			= ym(2022,8)
@@ -17,8 +17,151 @@ local ym_start_race 			= ym(2017,4)
 local ym_end_race 				= ym(2022,8)
 
 **************************************************************************
+/*
+//////////////
+// APP DATA //
+//////////////
 
+forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 
+	// display ym 
+	display in red "`ym'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year = year(dofm(`ym'))
+	gen month = month(dofm(`ym'))
+	tostring month, gen(monthname) 
+	tostring month, gen(monthname_var) 
+	replace monthname = "January" if monthname == "1"
+	replace monthname = "February" if monthname == "2"
+	replace monthname = "March" if monthname == "3"
+	replace monthname = "April" if monthname == "4"
+	replace monthname = "May" if monthname == "5"
+	replace monthname = "June" if monthname == "6"
+	replace monthname = "July" if monthname == "7"
+	replace monthname = "August" if monthname == "8"
+	replace monthname = "September" if monthname == "9"
+	replace monthname = "October" if monthname == "10"
+	replace monthname = "November" if monthname == "11"
+	replace monthname = "December" if monthname == "12"
+	local month = month
+	display in red "`month'"
+	local monthname = monthname
+	display in red "`monthname'"
+	local monthname_var = monthname_var
+	display in red "`monthname_var'"
+	local year = year
+	display in red "`year'"
+
+	// load data 
+	import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'-3.xlsx", allstring case(lower) firstrow clear 
+
+	// initial cleanup
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+
+	// keep relevant cells 
+	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview s are w aived. Recertification periods are automatically extended for households w ith an Interim Review  due in March and April for")
+	drop if strpos(v1,"Note: December 2020 expenditures include the LIHEAP $300 supplement payments that were tied to prior months since May 2020. The additional expenditures are reflected in the total cases and recipients reported.")
+	drop if strpos(v1,"The March 2021 SNAP expenditures include COVID-19 additional Emergency Allotment")
+	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview")
+	drop if strpos(v1,"Medicaid Caseload count unavailable for 08.2022")
+	drop if strpos(v1,"expected expenditures during those months due to COVID-19 extensions")
+	drop if strpos(v7,"The number of SNAP cases during June, July, August, September, October, and November may not align with")
+
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	assert `r(N)' == 25
+	keep if _n <= 12
+	describe, varlist 
+	assert `r(k)' == 12
+	keep v7 v10
+	drop in 1
+	drop in 1
+	drop in 1
+	describe, varlist 
+	assert `r(k)' == 2
+	rename v7 variable  
+	rename v10 value 
+	
+	// clean up variable name 
+	replace variable = trim(variable)
+	replace variable = strlower(variable)
+	replace variable = ustrregexra(variable," ","")
+	replace variable = ustrregexra(variable,"4","")
+	replace variable = ustrregexra(variable,"5","")
+	replace variable = ustrregexra(variable,"6","")
+	replace variable = ustrregexra(variable,"7","")
+	replace variable = ustrregexra(variable,"/","per")
+	assert inlist(variable,"expenditures","cases","expenditurespercase","recipients","adults","children","recipientspercase","casesprocessed","approvals")
+
+	// destring
+	destring value, replace
+	confirm numeric variable value 
+
+	// reshape
+	gen id = 1
+	rename value _
+	reshape wide _, i(id) j(variable) string
+	drop id 
+
+	// rename some vars to be consistent 
+	rename _expenditures issuance
+	rename _cases households
+	rename _expenditurespercase avg_issuance_households
+	rename _recipients individuals
+	rename _adults adults
+	rename _children children
+	rename _recipientspercase avg_issuance_individuals
+	rename _casesprocessed apps_received
+	rename _approvals apps_approved
+
+	// ym 
+	gen ym = `ym'
+	format ym %tm 
+	order ym 
+
+	// county 
+	gen county = "total"
+
+	// order 
+	order county ym 
+	
+	// save 
+	tempfile _`ym'
+	save `_`ym''
+	
+}
+
+// append 
+forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
+	if `ym' == `ym_start_apps' {
+		use `_`ym'', clear
+	}
+	else {
+		append using `_`ym''
+	}
+}
+
+// fix countyname to be uniform with other files
+replace county = ustrregexra(county,"n ","north ")
+replace county = ustrregexra(county,"sanorth ","san ") // undo 
+replace county = ustrregexra(county,"s ","south ")
+replace county = ustrregexra(county,"losouth ","los ") // undo
+replace county = ustrregexra(county,"ne ","northeast ")
+replace county = ustrregexra(county,"nw ","northwest ")
+replace county = ustrregexra(county,"se ","southeast ")
+replace county = ustrregexra(county,"sw ","southwest ")
+replace county = "eddy artesia" if county == "eddy/artesia"
+
+// save 
+tempfile newmexico_apps
+save `newmexico_apps'
+save "${dir_root}/data/state_data/newmexico/newmexico_apps.dta", replace
 
 ********************************************************************************************************************
 ********************************************************************************************************************
@@ -219,6 +362,8 @@ sort county ym
 // save 
 tempfile newmexico_race
 save `newmexico_race'
+save "${dir_root}/data/state_data/newmexico/newmexico_race.dta", replace
+
 
 ******************************************************************************************************************
 ******************************************************************************************************************
@@ -718,6 +863,8 @@ sort county ym
 // save 
 tempfile newmexico_apps_plus
 save `newmexico_apps_plus'
+save "${dir_root}/data/state_data/newmexico/newmexico_apps_plus.dta", replace
+
 
 **************************************************************************************************************
 **************************************************************************************************************
@@ -1065,7 +1212,8 @@ sort /*office*/ county ym
 // save
 tempfile newmexico_enrollment
 save `newmexico_enrollment'
-
+save "${dir_root}/data/state_data/newmexico/newmexico_enrollment.dta", replace
+*/
 ******************************************************************************************************************************************************
 ******************************************************************************************************************************************************
 ******************************************************************************************************************************************************
@@ -1075,13 +1223,22 @@ save `newmexico_enrollment'
 
 
 // merge 
-use `newmexico_apps_plus', clear
-// merge 1:1 county ym using `newmexico_apps'
-merge 1:1 county ym using `newmexico_race'
+*use `newmexico_apps_plus', clear
+use "${dir_root}/data/state_data/newmexico/newmexico_apps_plus.dta", clear 
+*merge 1:1 county ym using `newmexico_apps'
+merge 1:1 county ym using "${dir_root}/data/state_data/newmexico/newmexico_apps.dta"
+assert inlist(_m,1,3)
+assert inlist(county,"total") if _m == 3
+assert !inlist(county,"total") | ym < `ym_start_apps' if _m == 1
+drop _m 
+*merge 1:1 county ym using `newmexico_race'
+merge 1:1 county ym using "${dir_root}/data/state_data/newmexico/newmexico_race.dta"
 assert inlist(_m,3,1) // this may not be the case if one of these datasets is updated 
 drop _m 
-merge 1:1 county ym using `newmexico_enrollment', update 
-assert _m != 5 
+*merge 1:1 county ym using `newmexico_enrollment', update 
+merge 1:1 county ym using "${dir_root}/data/state_data/newmexico/newmexico_enrollment.dta", update  
+count if _m == 5
+assert `r(N)' < 10 // limited number of conflicts is okay
 drop _m 
 
 // assert level of the data 
@@ -1109,145 +1266,3 @@ check
 ******************************************************************************************************************************************************
 ******************************************************************************************************************************************************
 
-
-// This section no longer needed - get application data from apps_plus 
-/*
-//////////////
-// APP DATA //
-//////////////
-
-forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
-
-	// display ym 
-	display in red "`ym'"
-
-	// for file names
-	clear
-	set obs 1
-	gen year = year(dofm(`ym'))
-	gen month = month(dofm(`ym'))
-	tostring month, gen(monthname) 
-	tostring month, gen(monthname_var) 
-	replace monthname = "January" if monthname == "1"
-	replace monthname = "February" if monthname == "2"
-	replace monthname = "March" if monthname == "3"
-	replace monthname = "April" if monthname == "4"
-	replace monthname = "May" if monthname == "5"
-	replace monthname = "June" if monthname == "6"
-	replace monthname = "July" if monthname == "7"
-	replace monthname = "August" if monthname == "8"
-	replace monthname = "September" if monthname == "9"
-	replace monthname = "October" if monthname == "10"
-	replace monthname = "November" if monthname == "11"
-	replace monthname = "December" if monthname == "12"
-	local month = month
-	display in red "`month'"
-	local monthname = monthname
-	display in red "`monthname'"
-	local monthname_var = monthname_var
-	display in red "`monthname_var'"
-	local year = year
-	display in red "`year'"
-
-	// load data 
-	import excel "${dir_root}/data/state_data/newmexico/excel/`year'/MSR_`monthname'_`year'-3.xlsx", allstring case(lower) firstrow clear 
-
-	// initial cleanup
-	dropmiss, force 
-	dropmiss, obs force 
-	describe, varlist 
-	rename (`r(varlist)') (v#), addnumber
-
-	// keep relevant cells 
-	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview s are w aived. Recertification periods are automatically extended for households w ith an Interim Review  due in March and April for")
-	drop if strpos(v1,"Note: December 2020 expenditures include the LIHEAP $300 supplement payments that were tied to prior months since May 2020. The additional expenditures are reflected in the total cases and recipients reported.")
-	drop if strpos(v1,"The March 2021 SNAP expenditures include COVID-19 additional Emergency Allotment")
-	drop if strpos(v1,"SNAP, TANF and GA-Unrelated Child Program interview")
-	describe, varlist 
-	rename (`r(varlist)') (v#), addnumber
-	assert `r(N)' == 25
-	keep if _n <= 12
-	describe, varlist 
-	assert `r(k)' == 12
-	keep v7 v10
-	drop in 1
-	drop in 1
-	drop in 1
-	describe, varlist 
-	assert `r(k)' == 2
-	rename v7 variable  
-	rename v10 value 
-	
-	// clean up variable name 
-	replace variable = trim(variable)
-	replace variable = strlower(variable)
-	replace variable = ustrregexra(variable," ","")
-	replace variable = ustrregexra(variable,"4","")
-	replace variable = ustrregexra(variable,"5","")
-	replace variable = ustrregexra(variable,"6","")
-	replace variable = ustrregexra(variable,"7","")
-	replace variable = ustrregexra(variable,"/","per")
-	assert inlist(variable,"expenditures","cases","expenditurespercase","recipients","adults","children","recipientspercase","casesprocessed","approvals")
-
-	// destring
-	destring value, replace
-	confirm numeric variable value 
-
-	// reshape
-	gen id = 1
-	rename value _
-	reshape wide _, i(id) j(variable) string
-	drop id 
-
-	// rename some vars to be consistent 
-	rename _expenditures issuance
-	rename _cases households
-	rename _expenditurespercase avg_issuance_households
-	rename _recipients individuals
-	rename _adults adults
-	rename _children children
-	rename _recipientspercase avg_issuance_individuals
-	rename _casesprocessed apps_received
-	rename _approvals apps_approved
-
-	// ym 
-	gen ym = `ym'
-	format ym %tm 
-	order ym 
-
-	// county 
-	gen county = "total"
-
-	// order 
-	order county ym 
-	// save 
-	tempfile _`ym'
-	save `_`ym''
-	
-}
-
-// append 
-forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
-	if `ym' == `ym_start_apps' {
-		use `_`ym'', clear
-	}
-	else {
-		append using `_`ym''
-	}
-}
-
-// fix countyname to be uniform with other files
-replace county = ustrregexra(county,"n ","north ")
-replace county = ustrregexra(county,"sanorth ","san ") // undo 
-replace county = ustrregexra(county,"s ","south ")
-replace county = ustrregexra(county,"losouth ","los ") // undo
-replace county = ustrregexra(county,"ne ","northeast ")
-replace county = ustrregexra(county,"nw ","northwest ")
-replace county = ustrregexra(county,"se ","southeast ")
-replace county = ustrregexra(county,"sw ","southwest ")
-replace county = "eddy artesia" if county == "eddy/artesia"
-
-// save 
-tempfile newmexico_apps
-save `newmexico_apps'
-*/

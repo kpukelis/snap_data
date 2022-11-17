@@ -65,7 +65,7 @@ local nebraska				= 0
 // local nevada				= 0 fixed individual
 // local newhampshire		= 0 fixed individual
 local newjersey				= 0
-local newmexico				= 0 
+local newmexico				= 0
 local newyork				= 0 
 local northcarolina			= 0 
 local northdakota			= 0 // not completed (rolling clock)
@@ -89,7 +89,7 @@ local wisconsin 			= 0
 
 // combine 
 local combine_state_ym 		= 0
-local combine_county_ym		= 1 
+local combine_county_ym		= 1
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04
