@@ -405,7 +405,7 @@ save "${dir_root}/data/state_data/california/california_enrollment.dta", replace
 **************************************************************************
 **************************************************************************
 */
-/*
+
 //////////////////////////
 // APPLICATION ETC DATA //
 //////////////////////////
@@ -893,11 +893,52 @@ sort county ym
 rename households householdsA 
 rename households_f householdsA_f
 
+// IMPUTE APPLICATIONS DENIED FOR PLACES WHERE IT'S CENSORED 
+
+// this is the calculus for most observations = (3828-838)/3828 = 78 percent of observations
+capture noisily assert apps_approved + apps_denied + apps_withdrawn == apps_disposed
+
+// since other state's data does not include withdrawls, combine withdrawals into denials 
+// rename og vars 
+foreach var in apps_approved apps_denied apps_withdrawn {
+	rename `var' `var'_og	
+}
+
+// appropriately mark zeros 
+// manual 
+replace apps_disposed = 0 if missing(apps_disposed) & ((county == "alpine" & ym == ym(2018,4)) | (county == "sierra" & ym == ym(2021,4)))
+
+// mark complete vs. incomplete observations 
+gen miss_none 				= (!missing(apps_approved_og) & !missing(apps_denied_og) & !missing(apps_withdrawn_og))
+gen miss_approved_only 		= ( missing(apps_approved_og) & !missing(apps_denied_og) & !missing(apps_withdrawn_og))
+gen miss_denied_only 		= (!missing(apps_approved_og) &  missing(apps_denied_og) & !missing(apps_withdrawn_og))
+gen miss_withdrawn_only 	= (!missing(apps_approved_og) & !missing(apps_denied_og) &  missing(apps_withdrawn_og))
+gen miss_denied_withdrawn 	= (!missing(apps_approved_og) &  missing(apps_denied_og) &  missing(apps_withdrawn_og))
+gen miss_approved_withdrawn = ( missing(apps_approved_og) & !missing(apps_denied_og) &  missing(apps_withdrawn_og))
+gen miss_approved_denied 	= ( missing(apps_approved_og) &  missing(apps_denied_og) & !missing(apps_withdrawn_og))
+gen miss_all 				= ( missing(apps_approved_og) &  missing(apps_denied_og) &  missing(apps_withdrawn_og))
+gen temp_miss_sum = miss_none + miss_approved_only + miss_denied_only + miss_withdrawn_only + miss_denied_withdrawn + miss_approved_withdrawn + miss_approved_denied + miss_all
+assert temp_miss_sum == 1
+
+// since other state's data does not include withdrawls, combine withdrawals into denials 
+// denied apps 
+gen apps_denied = .
+replace apps_denied = apps_denied_og + apps_withdrawn_og	if miss_none == 1 | miss_approved_only == 1
+replace apps_denied = apps_disposed - apps_approved_og 		if miss_denied_withdrawn == 1 | miss_denied_only == 1 | miss_withdrawn_only == 1
+replace apps_denied = apps_denied_og  						if miss_approved_withdrawn == 1
+replace apps_denied = apps_withdrawn_og						if miss_approved_denied == 1
+assert !missing(apps_denied) if miss_all != 1
+
+// approved apps 
+gen apps_approved = apps_approved_og 
+replace apps_approved = apps_disposed - apps_denied_og if missing(apps_approved)
+assert !missing(apps_denied) if miss_all != 1
+
 // save 
 tempfile california_detail
 save `california_detail'
 save "${dir_root}/data/state_data/california/california_detail.dta", replace 
-*/
+
 
 ****************************************************************************************
 ****************************************************************************************
@@ -917,4 +958,5 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/california/california.dta", replace 
+
 

@@ -819,7 +819,7 @@ foreach num of local obsnum_withincounty_nums {
 			rename _ ma_mchp_assistanceunits	
 		}
 	}
-	if inlist(`year',2017,2018,2019,2020,2021,2022,2023) {
+	if inlist(`year',2017,2018,2019,2020,2021,2022) {
 		if `num' == 1 {
 			rename _ tanf_apps_received			
 		}
@@ -947,7 +947,152 @@ foreach num of local obsnum_withincounty_nums {
 			rename _ ssi	
 		}
 	}
-
+	if inlist(`year',2023) {
+		if `num' == 1 {
+			rename _ tanf_apps_received			
+		}
+		if `num' == 2 {
+			rename _ tanf_apps_approved				
+		}
+		if `num' == 3 {
+			rename _ tanf_apps_notapproved		
+		}
+		if `num' == 4 {
+			rename _ tanf_cases_closed				
+		}
+		if `num' == 5 {
+			rename _ tanf_cases_undup			
+		}
+		if `num' == 6 {
+			rename _ tanf_recipients_undup				
+		}
+		if `num' == 7 {
+			rename _ tanf_adults_undup				
+		}
+		if `num' == 8 {
+			rename _ tanf_children_undup				
+		}
+		if `num' == 9 {
+			rename _ tanf_recipients			
+		}
+		if `num' == 10 {
+			rename _ tanf_adults				
+		}
+		if `num' == 11 {
+			rename _ tanf_children				
+		}
+		if `num' == 12 {
+			rename _ tanf_netexpenditure				
+		}
+		if `num' == 13 {
+			rename _ snap_apps_received
+		}
+		if `num' == 14 {
+			rename _ snap_apps_approved
+		}
+		if `num' == 15 {
+			rename _ snap_apps_notapproved
+		}
+		if `num' == 16 {
+			rename _ snap_households				
+		}
+		if `num' == 17 {
+			rename _ snap_recipients			
+		}
+		if `num' == 18 {
+			rename _ snap_netexpenditure				
+		}
+		if `num' == 19 {
+			rename _ tdap_apps_received				
+		}
+		if `num' == 20 {
+			rename _ tdap_apps_approved				
+		}
+		if `num' == 21 {
+			rename _ tdap_apps_notapproved	
+		}
+		if `num' == 22 {
+			rename _ tdap_cases_closed	
+		}
+		if `num' == 23 {
+			rename _ tdap_recipients_undup
+		}
+		if `num' == 24 {
+			rename _ tdap_recipients_shortterm_undup	
+		}
+		if `num' == 25 {
+			rename _ tdap_recipients_longterm_undup	
+		}
+		if `num' == 26 {
+			rename _ tdap_recipients	
+		}
+		if `num' == 27 {
+			rename _ tdap_recipients_shortterm	
+		}
+		if `num' == 28 {
+			rename _ tdap_recipients_longterm
+		}
+		if `num' == 29 {
+			rename _ tdap_netexpenditure
+		}
+		if `num' == 30 {
+			rename _ paadults_apps_received	
+		}
+		if `num' == 31 {
+			rename _ paadults_apps_approved		
+		}
+		if `num' == 32 {
+			rename _ paadults_apps_notapproved		
+		}
+		if `num' == 33 {
+			rename _ paadults_cases_closed
+		}
+		if `num' == 34 {
+			rename _ paadults_recipients	
+		}
+		if `num' == 35 {
+			rename _ paadults_netexpenditure		
+		}
+		if `num' == 36 {
+			rename _ emergassist_grants	
+		} 
+		if `num' == 37 {
+			rename _ emergassist_netexpenditure
+		}
+		if `num' == 38 {
+			rename _ burial_grants	
+		}
+		if `num' == 39 {
+			rename _ burial_netexpenditure
+		}
+		if `num' == 40 {
+			rename _ ma_commcare_apps_received	
+		}
+		if `num' == 41 {
+			rename _ ma_commcare_apps_approved
+		}
+		if `num' == 42 {
+			rename _ ma_longterm_apps_received
+		}
+		if `num' == 43 {
+			rename _ ma_longterm_apps_approved
+		}
+		if `num' == 44 {
+			rename _ ssi_apps_received
+		}
+		if `num' == 45 {
+			rename _ ssi_apps_approved
+		}
+		if `num' == 46 {
+			rename _ ma_commcare_cases
+		}
+		if `num' == 47 {
+			rename _ ma_longterm_cases
+		}
+		if `num' == 48 {
+			rename _ ssi
+		}
+	}
 
 	if `num' == 1 & inlist(`year',2008,2009) {
 		rename _ tanf_apps_received 
@@ -1304,6 +1449,38 @@ foreach v in individuals households {
 	assert !missing(`v') if !missing(`v'_npa) & !missing(`v'_pa)	
 }
 
+// FIX APPLICATIONS DATA
+// assert groups of data 
+count
+local subgroup_total = `r(N)'
+count if !missing(apps_received) & !missing(apps_approved) & !missing(apps_denied)
+local subgroup1 = `r(N)'
+count if !missing(apps_received) & !missing(apps_approved) &  missing(apps_denied)
+local subgroup2 = `r(N)'
+count if  missing(apps_received) &  missing(apps_approved) &  missing(apps_denied)
+local subgroup3 = `r(N)'
+assert `subgroup_total' == `subgroup1' + `subgroup2' + `subgroup3'
+
+// replace apps_denied as nonmissing if in subgroup2
+replace apps_denied = apps_received - apps_approved if missing(apps_denied) & !missing(apps_received) & !missing(apps_approved)
+assert !missing(apps_denied) if !missing(apps_received) & !missing(apps_approved)
+
+// assert groups of data 
+count
+local subgroup_total = `r(N)'
+count if !missing(apps_received) & !missing(apps_approved) & !missing(apps_denied)
+local subgroup1 = `r(N)'
+count if  missing(apps_received) &  missing(apps_approved) &  missing(apps_denied)
+local subgroup3 = `r(N)'
+assert `subgroup_total' == `subgroup1' + `subgroup3'
+
+// assert everything adds up 
+// in particular, assert sum and apps_received are highly correlated
+gen temp_apps_received_sum = apps_approved + apps_denied
+corr apps_received temp_apps_received_sum
+assert `r(rho)' >= 0.9
+drop temp_apps_received_sum
+
 // order and sort 
 order county ym households individuals issuance households_npa households_pa households_npa_cert households_pa_cert individuals_npa individuals_pa
 sort county ym
@@ -1317,7 +1494,7 @@ dropmiss households individuals issuance households_npa households_pa households
 // assert level of the data 
 duplicates tag county ym, gen(dup)
 assert dup == 0
-drop dup 
+drop dup
 
 // save 
 save "${dir_root}/data/state_data/maryland/maryland.dta", replace 

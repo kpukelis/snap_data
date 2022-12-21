@@ -88,7 +88,7 @@ local wisconsin 			= 0
 // local districtofcolumbia	= 0 unclear clock
 
 // combine 
-local combine_state_ym 		= 0
+local combine_state_ym 		= 1
 local combine_county_ym		= 1
 
 // analyze
