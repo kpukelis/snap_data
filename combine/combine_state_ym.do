@@ -258,7 +258,6 @@ foreach state of local states_collapse {
 	apps_expedited_untimely
 	apps_notexpedited_timely
 	apps_notexpedited_untimely
-	/**/
 	households_carryover_start
 	households_new 
 	households_new_apps
@@ -271,9 +270,12 @@ foreach state of local states_collapse {
 	recerts
 	recerts_approved
 	recerts_denied
-	recerts_deniedB
 	recerts_denied_procedural
 	recerts_denied_needbased
+ 	recerts_disposed
+ 	recerts_elig 
+ 	recerts_inelig
+ 	recerts_overdue
 	churn_rate
 	c_1_statetotal
 	c_2_earnedincometotal
@@ -522,4 +524,4 @@ foreach var in `keep_varlist' {
 // save 
 save "${dir_root}/data/state_data/state_ym.dta", replace 
 
-check
+

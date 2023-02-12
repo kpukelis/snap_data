@@ -152,11 +152,16 @@ display in red "${state}"
 	// RECERTIFICATIONS
 	// ***recerts, total CA CO NM NC TX MA 
 		// CA recerts
+		if "${state}" == "california" {
+			egen recerts = rowtotal(recerts_disposed recerts_overdue), missing
+		}	
 		// NC recerts
 		// CO recert
 		capture rename recert recerts 
 		// TX recerts_disposed
-		capture rename recerts_disposed recerts 
+		if "${state}" == "texas" {
+			capture rename recerts_disposed recerts 
+		}
 		// NM recert_approved + recert_denied
 		if "${state}" == "newmexico" {
 			egen recerts = rowtotal(recert_approved recert_denied), missing
@@ -167,22 +172,25 @@ display in red "${state}"
 		capture rename recerts_due recerts 
 	// ***recerts_approved CA, NM, (LA doesn't have this)
 		// CA
-		capture rename recerts_elig recerts_approved
+		// leaving name as is, see data appendix 
+		// capture rename recerts_elig recerts_approved
 		// NM 
 		capture rename recert_approved recerts_approved
 		// LA (LA does not have an equivalent during this period, but has monthly data ending in 2013
 	// ***recerts_denied
 		// CA 
-		if "${state}" == "california" {
-			egen recerts_denied = rowtotal(recerts_inelig recerts_overdue), missing
-			gen recerts_deniedB = recerts - recerts_approved
-		}
+		// does not really exist, see data appendix 
+		// if "${state}" == "california" {
+		// egen recerts_denied = rowtotal(recerts_inelig recerts_overdue), missing
+		//	gen recerts_deniedB = recerts_disposed - recerts_approved
+		// }
 **maybe check to see if these numbers are close: recerts_denied & recerts_deniedB
 		// NM 
 		capture rename recert_denied recerts_denied
 	// ***recerts_denied_procedural 
 		// CA 
-		capture rename recerts_overdue recerts_denied_procedural
+		// does not really exist, see data appendix 
+		// capture rename recerts_overdue recerts_denied_procedural
 		// NM 
 		capture rename recert_denied_procedural recerts_denied_procedural
 	// ***recerts_denied_needbased

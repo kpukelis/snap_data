@@ -12,9 +12,10 @@ months <- c(
    #"January",
   #  "February",
   #  "March",
-  "April",
-  "May","June",
-  "July","August","September",
+  #"April",
+  #"May","June",
+  #"July","August",
+  "September",
   "October",
   "November",
   "December")
@@ -43,11 +44,11 @@ months <- c(
 #  "mar",
 #"apr",
 #"may",
-"jun")
-#"jul","aug","sep",
-#"oct",
-#"nov",
-#"dec")
+#"jun")
+"jul","aug","sep",
+"oct",
+"nov",
+"dec")
 
 
 #for (year in years) {
@@ -65,10 +66,12 @@ dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/arizona/
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/arizona/pdfs_short"
 
 page_range <- 6:6
-year <- 2022
-months <- #c("01","02","03","04")
-c("05","06",
-"07","08","09",
+year <- 2023
+months <- c("01")
+#"02","03","04")
+c(
+  #"05","06",
+#"07","08","09",
 "10",
 "11","12")
 
@@ -93,9 +96,9 @@ year <- 2022
 year_short <- 22
 months <- c(
   #"01","02","03","04")
-  "04","05","06",
-  "07","08","09")
-  #"10","11","12")
+  #"04","05","06",
+  #"07","08","09")
+  "10","11","12")
 #page_range <- 151:159
 #page_range <- 147:155
 page_range <- 21:27
@@ -119,9 +122,9 @@ years <- 2022:2022
 months <- c(
   #"January",
   #"February","March",
-  "April","May","June","July",
-  "August")
-  #"September","October","November","December")
+  #"April","May","June","July",
+  #"August")
+  "September","October","November","December")
 
 #page_range <- 4:4
 page_range <- 5:5
@@ -235,8 +238,8 @@ dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/alabama/
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/alabama/pdfs_short"
 
 years <- 2020:2021
-year <- 2021
-year_short <- 21
+year <- 2022
+year_short <- 22
 months <- c(
   "01","02","03","04",
   "04","05","06",
@@ -273,13 +276,13 @@ for (year in years) {
 dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newyork/pdfs"
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newyork/pdfs_short"
 
-years <- 2021:2022
+years <- 2022:2022
 months <- c(
-  "01","02","03","04",
-  "04",
-  "05","06",
-  "07",
-  "08","09",
+#  "01","02","03","04",
+ # "04",
+  #"05","06",
+  #"07","08",
+  "09",
   "10","11","12")
 
 page_range <- 19:19

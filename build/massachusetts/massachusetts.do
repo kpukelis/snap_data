@@ -11,7 +11,7 @@ local ym_start_scorecard 		= ym(2005,1)
 local ym_end_scorecard 			= ym(2022,8)
 
 ****************************************************************
-
+/*
 ///////////////////////
 // COUNTY LEVEL DATA //
 ///////////////////////
@@ -520,7 +520,7 @@ save "${dir_root}/data/state_data/massachusetts/massachusetts_zipcode_first.dta"
 
 tab ym 
 tab zipcode
-
+*/
 
 ****************************************************************
 ****************************************************************
@@ -557,6 +557,53 @@ save "${dir_root}/data/state_data/massachusetts/massachusetts_county_collapsed.d
 use "${dir_root}/data/state_data/massachusetts/massachusetts_county.dta", clear
 *append using `massachusetts_zipcode_collapsed'
 append using "${dir_root}/data/state_data/massachusetts/massachusetts_county_collapsed.dta"
+
+// drop duplicate observations with less information 
+duplicates tag county ym, gen(dup)
+count if dup >= 1
+assert `r(N)' == 28
+
+// total sum of data, will catch missingness
+egen temp_rowtotal = rowtotal(households individuals households_eaedc individuals_eaedc households_tafdc individuals_tafdc households_total individuals_total)
+bysort county ym: egen temp_smallest_rowtotal = min(temp_rowtotal)
+count if temp_rowtotal == temp_smallest_rowtotal & dup == 1
+assert `r(N)' == 14
+drop if temp_rowtotal == temp_smallest_rowtotal & dup == 1
+drop temp_rowtotal
+drop temp_smallest_rowtotal
+drop dup 
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
+// MERGE IN SCORECARD DATA 
+// prep scorecard data 
+preserve
+	use "${dir_root}/data/state_data/massachusetts/massachusetts_scorecard.dta", clear 
+	assert !missing(city)
+	assert city == "total"
+	rename city county 
+	drop zipcode
+	tempfile massachusetts_scorecard
+	save `massachusetts_scorecard'
+restore
+
+// merge
+merge 1:1 county ym using `massachusetts_scorecard', update replace 
+
+// check merge 
+local ym_end_data = `ym_end' // - 3
+local ym_end_data_plus1 = `ym_end_data' + 1
+local ym_start_data = `ym_start' - 3
+local ym_start_data_minus1 = `ym_start_data' - 1
+*br if !inlist(_m,3,4,5) & inrange(ym,`ym_start',min(`ym_end_data',`ym_end_scorecard')) & zipcode == "00000"
+// 2020m4, 2022m5, 2021m11 skipped in data reports; no data available
+assert inlist(_m,3,4,5) if inrange(ym,`ym_start',min(`ym_end_data',`ym_end_scorecard')) & !inlist(ym,ym(2020,4),ym(2020,5),ym(2021,11)) & county == "total"
+assert inrange(ym,ym(2005,1),ym(2017,7)) | inlist(ym,ym(2020,4),ym(2020,5),ym(2021,11)) if inlist(_m,2)
+assert inlist(_m,1) if county != "total" | ym == ym(2022,9)
+drop _m 
 
 // order and sort 
 order county ym 

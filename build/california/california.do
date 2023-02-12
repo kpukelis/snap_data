@@ -768,7 +768,7 @@ foreach year_short of local year_short_list {
   	rename ctotalcasesdiscontinuedduringthe households_discontinued
  	rename ctotalhouseholdsdiscontinuedduet households_discontinued_exp
  	rename ctotalcasesbroughtatendofthemont households_carryover_end
-	rename dtotalrecertificationsdisposedof recerts
+	rename dtotalrecertificationsdisposedof recerts_disposed
 	rename dtotaldeterminedcontinuingeligib recerts_elig
 	rename dtotaldeterminedineligible       recerts_inelig
 	rename dtotaloverduerecertificationsdur recerts_overdue
