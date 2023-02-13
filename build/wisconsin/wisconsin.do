@@ -12,10 +12,10 @@ local numvars_recipients 		= 14
 local ym_start_oldformat 		= ym(2010,1)
 local ym_end_oldformat 			= ym(2017,3)
 local ym_start_newformat 		= ym(2017,4)
-local ym_end_newformat 			= ym(2022,9)
+local ym_end_newformat 			= ym(2023,1)
 
 *********************************************************************
-
+/*
 // unduplicated-assistance
 
 // import 
@@ -105,8 +105,9 @@ sort county year
 
 // save 
 save "${dir_root}/data/state_data/wisconsin/wisconsin_unduplicated-assistance.dta", replace 
-
+*/
 *********************************************************************
+/*
 // unduplicated-recipients
 
 forvalues year = `year_start'(1)`year_end_unduplicated' {
@@ -315,6 +316,7 @@ foreach file of local files {
 }
  
 *************************************************************************
+/*
 // ataglance - old format
 
 // import 
@@ -365,7 +367,7 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/wisconsin/wisconsin_ataglance_oldformat.dta", replace
-
+*/
 *************************************************************************
 // ataglance - new format
 

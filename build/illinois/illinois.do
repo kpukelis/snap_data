@@ -196,9 +196,9 @@ forvalues year = `year_start'(1)`year_end' {
 		rename june _6 
 		rename july _7
 		rename august _8
+		rename september _9
+		rename october _10 
 		if `year' != 2022 {
-			rename september _9
-			rename october _10 
 			rename november _11
 			rename december _12
 		}
@@ -462,6 +462,9 @@ gen pop_frac = pop / pop_total
 // replace individuals, households with fraction of total 
 replace individuals = individuals_total * pop_frac if county != "total"
 replace households = households_total * pop_frac if county != "total"	
+
+// drop exact duplicates
+duplicates drop 
 
 // assert level of data 
 duplicates tag county ym, gen(dup)

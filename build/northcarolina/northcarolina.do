@@ -3,28 +3,28 @@
 **KP: `mdy' != mdy(12,24,2018) /*they posted the micro data...also here, with a key: 2021-08-23 and 2021-11-08*/ 
 
 local datasets 					cases apps abawds workcases workapps
-local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-09-2022"
-local file_apps 				"FNS-Applications-By-County-By-Month-thru-09-2022"
-local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-09-2022_axis label correction_v2"
+local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-01-2023"
+local file_apps 				"FNS-Applications-By-County-By-Month-thru-01-2023"
+local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-12-2022_axis label correction_v2"
 local file_workcases			"Work-First-Cases-Participants-Counts-by-County-thru-09-2022"
 local file_workapps 			"Work-First-Applications-By-Month-thru-09-2022"
 
 local ym_start_cases			= ym(2006,7)
-local ym_end_cases				= ym(2022,9)
+local ym_end_cases				= ym(2023,1)
 local ym_start_apps				= ym(2007,4)
-local ym_end_apps				= ym(2022,9)
+local ym_end_apps				= ym(2023,1)
 local ym_start_abawds			= ym(2017,4)
-local ym_end_abawds				= ym(2022,9)
+local ym_end_abawds				= ym(2022,12)
 local ym_start_workcases		= ym(2007,4)
 local ym_end_workcases			= ym(2022,9)
 local ym_start_workapps			= ym(2007,4)
 local ym_end_workapps			= ym(2022,9)
 
 local ym_start_timeliness_recert= ym(2017,9)
-local ym_end_timeliness_recert	= ym(2022,9)
+local ym_end_timeliness_recert	= ym(2023,1)
 
 local mdy_start_timeliness_app 	= mdy(11,27,2017)
-local mdy_end_timeliness_app 	= mdy(10,24,2022)
+local mdy_end_timeliness_app 	= mdy(1,30,2023)
 
 ***************************************************************
 ***************************************************************
@@ -190,7 +190,7 @@ if `mdy' != mdy(3,26,2018) /*not listed on website*/ & `mdy' != mdy(12,24,2018) 
 		import excel using "${dir_root}/data/state_data/northcarolina/timeliness/excel/application/`year'/`monthname'`month_day_divider'`dayname'`day_divider'`monthname_end'`month_day_divider'`dayname_end'`day_divider'`year'.xlsx", sheet("County") allstring clear		
 	}
 	else {
-		import excel using "${dir_root}/data/state_data/northcarolina/timeliness/excel/application/`year'/`monthname'`month_day_divider'`dayname'`day_divider'`monthname_end'`month_day_divider'`dayname_end'`day_divider'`year'.xlsx", allstring clear		
+		import excel using "${dir_root}/data/state_data/northcarolina/timeliness/excel/application/`year'/`monthname'`month_day_divider'`dayname'`day_divider'`monthname_end'`month_day_divider'`dayname_end'`day_divider'`year'.xlsx", sheet("Table 1") allstring clear		
 	}
 
 	// drop top rows
@@ -417,6 +417,7 @@ assert !missing(ym)
 
 // save 
 save "${dir_root}/data/state_data/northcarolina/northcarolina_timeliness_app_ym.dta", replace 
+check
 */
 ***************************************************************
 ***************************************************************
@@ -604,6 +605,7 @@ drop if missing(county) & missing(recerts)
 
 // save
 save "${dir_root}/data/state_data/northcarolina/northcarolina_timeliness_recert.dta", replace
+check
 */
 
 **************************************************************
@@ -783,13 +785,30 @@ collapse (sum) cases participants, by(ym)
 gen county = "total"
 save "${dir_root}/data/state_data/northcarolina/northcarolina_cases_statelevel.dta", replace
 
+// **TEMPORARY: makes sure the dataset contains no duplicates 
+foreach dataset of local datasets {
+	display in red "`dataset'"
+
+	use "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'.dta", clear
+	capture confirm variable countyname 
+	if !_rc {
+		replace county = countyname if missing(county) & !missing(countyname)
+	}
+	duplicates tag county ym, gen(dup)
+	assert dup == 0 
+	drop dup 
+
+	save "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'_nodup.dta", replace
+}
+
 // merge all datasets together
 foreach dataset of local datasets {
+	display in red "`dataset'"
 	if "`dataset'" == "cases" {
-		use "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'.dta", clear
+		use "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'_nodup.dta", clear
 	}
 	else {
-		merge 1:1 county ym using "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'.dta"
+		merge 1:1 county ym using "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'_nodup.dta"
 		assert inlist(county,"total","not assigned") if _m == 2
 		drop _m
 
@@ -798,7 +817,7 @@ foreach dataset of local datasets {
 
 // merge app data 
 merge 1:1 county ym using "${dir_root}/data/state_data/northcarolina/northcarolina_timeliness_app_ym.dta", update
-assert inlist(county,"total","not assigned") | inlist(ym,ym(2022,10)) if _m == 2
+assert inlist(county,"total","not assigned") | inlist(ym,ym(2023,2)) if _m == 2
 drop _m
 
 // merge recert data 
@@ -832,7 +851,7 @@ rename participants individuals
 // drop bad vars 
 dropmiss, force 
 count if !missing(m)
-assert `r(N)' == 23
+assert `r(N)' == 26 // 23
 drop m
 
 // save 

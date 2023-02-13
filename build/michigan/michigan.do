@@ -2,15 +2,16 @@
 // Kelsey Pukelis
 
 local first_year 				= 2009
-local years 					2009 2012 2014 2016 2018 2020 // 2019
+local years 					2009 2012 2014 2016 2018 2020 2021 // 2019
 	// don't need 2019 since all the same info is in 2020 now
 local _2009_length 				= 36
 local _2012_length 				= 28
 local _2014_length 				= 27
 local _2016_length 				= 30
-local _2018_length 				= 31 // **KP: not sure if this is right note that this could change as more data gets added for 2020
-local _2019_length 				= 26 // **KP: note that this could change as more data gets added for 2021
-local _2020_length 				= 36 // GUESS **KP: note that this could change as more data gets added for 2022
+local _2018_length 				= 31
+local _2019_length 				= 26
+local _2020_length 				= 36
+local _2021_length 				= 27 // **KP: note that this could change as more data gets added
 
 local first_county 				Alcona
 #delimit ;

@@ -3,7 +3,7 @@
 
 local ym_start	 				= ym(2008,10) 
 local ym_end_expedited 			= ym(2021,9)
-local ym_end 					= ym(2022,9)
+local ym_end 					= ym(2022,12)
 local suffix_2008 				""
 local suffix_2009 				""
 local suffix_2010 				""
@@ -241,6 +241,9 @@ forvalues ym = `ym_start'(1)`ym_end_expedited' {
 	drop if strpos(v1,"JULY 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"AUGUST 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"SEPTEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP PROGRAM PARTICIPATION") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"DSS FSD/MHD Monthly Management Report")
 	drop if strpos(v1,"OCTOBER 2008") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
@@ -446,7 +449,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2018,5)) {
 		noisily sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		noisily sum obsnum if /*strpos(v2,"") &*/ strpos(v2,"RECEIVED")		
 	}
 	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
@@ -476,7 +479,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2013,12)) {
 		noisily sum obsnum if /*strpos(v8,"EXPEDITED") &*/ strpos(v8,"APPLICATIONS")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		noisily sum obsnum if strpos(v3,"HOUSEHOLDS")		
 	}
 	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
@@ -492,7 +495,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	assert r(N) == 1
 *	local batch_start_5 = `r(min)'
 	local batch_start_5 = `r(max)'
-	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		qui sum obsnum if strpos(v3,"CHILDREN") 
 		local total_households_var v3
 	}
@@ -501,7 +504,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		local total_households_var v2
 	}
 
-	if inrange(`ym',ym(2021,10),ym(2022,9)) {
+	if inrange(`ym',ym(2021,10),ym(2022,12)) {
 		assert r(N) == 2
 		local batch_start_6 = `r(min)'
 		local batch_start_7 = `r(max)'
@@ -595,6 +598,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"JULY 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"AUGUST 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"SEPTEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP PROGRAM PARTICIPATION") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"DSS FSD/MHD Monthly Management Report")
 	drop if strpos(v1,"OCTOBER 2008") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
@@ -809,7 +815,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2018,5)) {
 		noisily sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		noisily sum obsnum if /*strpos(v2,"") &*/ strpos(v2,"RECEIVED")		
 	}
 	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
@@ -839,7 +845,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2013,12)) {
 		noisily sum obsnum if /*strpos(v8,"EXPEDITED") &*/ strpos(v8,"APPLICATIONS")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		noisily sum obsnum if strpos(v3,"HOUSEHOLDS")		
 	}
 	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
@@ -855,7 +861,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	assert r(N) == 1
 *	local batch_start_5 = `r(min)'
 	local batch_start_5 = `r(max)'
-	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		qui sum obsnum if strpos(v3,"CHILDREN") 
 		local total_households_var v3
 	}
@@ -864,7 +870,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		local total_households_var v2
 	}
 
-	if inrange(`ym',ym(2021,10),ym(2022,9)) {
+	if inrange(`ym',ym(2021,10),ym(2022,12)) {
 		assert r(N) == 2
 		local batch_start_6 = `r(min)'
 		local batch_start_7 = `r(max)'
@@ -958,6 +964,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"JULY 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"AUGUST 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"SEPTEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP PROGRAM PARTICIPATION") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"Page 156 DSS FSD/MHD Monthly Management Report")
 
@@ -975,7 +984,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	if inrange(`ym',ym(2008,10),ym(2021,9)) {
 		local page_list 8 9
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,12)) {
 		local page_list 4 5
 	}
 	foreach n in `page_list' {
@@ -1198,7 +1207,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2018,5)) {
 		noisily sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		noisily sum obsnum if /*strpos(v2,"") &*/ strpos(v2,"RECEIVED")		
 	}
 	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
@@ -1228,7 +1237,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2013,12)) {
 		noisily sum obsnum if /*strpos(v8,"EXPEDITED") &*/ strpos(v8,"APPLICATIONS")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		noisily sum obsnum if strpos(v3,"HOUSEHOLDS")		
 	}
 	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
@@ -1244,7 +1253,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	assert r(N) == 1
 *	local batch_start_5 = `r(min)'
 	local batch_start_5 = `r(max)'
-	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9)) {
+	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
 		qui sum obsnum if strpos(v3,"CHILDREN") 
 		local total_households_var v3
 	}
@@ -1253,7 +1262,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		local total_households_var v2
 	}
 
-	if inrange(`ym',ym(2021,10),ym(2022,9)) {
+	if inrange(`ym',ym(2021,10),ym(2022,12)) {
 		assert r(N) == 2
 		local batch_start_6 = `r(min)'
 		local batch_start_7 = `r(max)'
@@ -1347,6 +1356,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"JULY 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"AUGUST 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"SEPTEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP PROGRAM PARTICIPATION") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"DSS FSD/MHD Monthly Management Report")
 	drop if strpos(v1,"OCTOBER 2008") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
@@ -1391,7 +1403,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		// assert shape 
 		if `n' == 1 {
 
-			if inlist(`ym',ym(2015,4),ym(2015,5),ym(2017,11),ym(2017,12)) | inrange(`ym',ym(2019,7),ym(2019,10)) | inrange(`ym',ym(2021,10),ym(2022,9)) {
+			if inlist(`ym',ym(2015,4),ym(2015,5),ym(2017,11),ym(2017,12)) | inrange(`ym',ym(2019,7),ym(2019,10)) | inrange(`ym',ym(2021,10),ym(2022,12)) {
 
 				drop if v1 == "TOTAL BENEFITS ISSUED" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 				replace v1 = "TOTAL BENEFITS ISSUED" if missing(v1) & !missing(v2) & !missing(v3) & !missing(v5) & !missing(v6) & !missing(v7) & !missing(v8) //strpos(v2,"104276166")
@@ -1430,7 +1442,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 				drop v1 
 				sxpose, clear firstnames
 	
-				if inrange(`ym',ym(2021,10),ym(2022,9))  {
+				if inrange(`ym',ym(2021,10),ym(2022,12))  {
 					split avg_benefits_perperson, parse("$")
 					rename avg_benefits_perperson  avg_benefits_perpersonOG
 					rename avg_benefits_perperson1 percs
@@ -1443,7 +1455,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 				// continue to reshape, trim 
 				describe, varlist 
-				if inrange(`ym',ym(2021,10),ym(2022,9)) {
+				if inrange(`ym',ym(2021,10),ym(2022,12)) {
 					assert r(k) == 14
 				}
 				else {
@@ -1459,7 +1471,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 				replace ym = `ym' - 12 if _n == 4
 				format ym %tm 
 
-				if inrange(`ym',ym(2021,10),ym(2022,9)) {
+				if inrange(`ym',ym(2021,10),ym(2022,12)) {
 					// destring 
 					foreach var in apps_received apps_approved apps_denied apps_expedited avg_days_process households individuals children disabled age_18_59 age_60 issuance avg_benefits_perhousehold avg_benefits_perperson {
 						destring `var', replace 

@@ -1,7 +1,7 @@
 // newyork.do
 
 local ym_start	 				= ym(2001,1)
-local ym_end 					= ym(2022,8)
+local ym_end 					= ym(2022,12)
 
 ************************************************************
 forvalues ym = `ym_start'(1)`ym_end' {

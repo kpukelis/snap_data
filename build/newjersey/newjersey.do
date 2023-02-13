@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start	 				= ym(2007,1)
-local ym_end 					= ym(2022,6)
+local ym_end 					= ym(2022,12)
 
 ************************************************************
 forvalues ym = `ym_start'(1)`ym_end' {
@@ -67,14 +67,16 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// drop bottom rows 
+	drop if strpos(v1,"2023 by County")
 	drop if strpos(v1,"2022 by County")
 	drop if strpos(v1,"2020 by County")
 	drop if strpos(v1,"2019 by County")
 	drop if strpos(v1,". Total NJ SNAP Recipients AUGUST 2018 By County")
 	drop if strpos(v1,"JANUARY 2012 By County")
-	drop if strpos(v1,"∆=higher caseload % change *=lower caseload % change")
+	drop if strpos(v1,"=higher caseload % change *=lower caseload % change")
 	drop if strpos(v1,"Data is derived from NJ MMIS Shared Data Warehouse.")
 	drop if strpos(v1,"Total NJ SNAP Recipients") & strpos(v1," by County")
+	drop if strpos(v1,"Total NJ SNAP DECEMBER 2022")
 	gen obsnum = _n 
 	gsort -obsnum
 	while !((strpos(v1,"NJ") & strpos(v1,"total")) | (strpos(v1,"NJ") & strpos(v1,"Total")) | (strpos(v1,"NJ") & strpos(v1,"TOTAL"))) {

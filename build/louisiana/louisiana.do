@@ -60,7 +60,7 @@ local year_end_apps_county		= 2022
 *********************************************************************************************
 *********************************************************************************************
 *********************************************************************************************
-
+/*
 ////////////////////////////////
 // 011_Cases Closed by Reason //
 //////////////////////////////// 
@@ -72,7 +72,7 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 	display in red "`year'"
 
 	if `year' == 2022 {
-		local month_num_end = 3 // change when more data is added
+		local month_num_end = 7 // change when more data is added
 	}
 	else {
 		local month_num_end = 12
@@ -140,11 +140,12 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 
 	// separate months of data 
 	qui count 
+	count 
 	local total_count = `r(N)'
 	assert !missing(v1)
 	qui sum if strpos(v1,"closures effective"), detail
 	assert `r(N)' == `month_num_end'
-	
+*	
 	// page by page, month by month 
 	forvalues p = 1(1)`month_num_end' {
 *	local p = 7
@@ -264,14 +265,29 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 			local obs_perpage_approx = 36
 		}
 		else if inlist(`year',2022) {
-			local obs_perpage_approx = 26
+			local obs_perpage_approx = 26 // 32
 		}
 		else {
 			stop 
 		}
 		
 		// this phrase marks the beginning of a month 
-		if inlist(`year',2019) & inrange(`p',5,12) {
+		if inlist(`year',2022) & inrange(`p',3,4) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 3)*`obs_perpage_approx' + 26*2, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 2)*`obs_perpage_approx' + 26*2, detail
+		}
+		else if inlist(`year',2022) & inrange(`p',5,6) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 5)*`obs_perpage_approx' + 26*2 + 37*2, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 4)*`obs_perpage_approx' + 26*2 + 37*2, detail
+		}
+		else if inlist(`year',2022) & inrange(`p',7,7) {
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 7)*`obs_perpage_approx' + 26*2 + 37*2 + 35*2, detail
+			local first_obsnum = `r(min)'
+			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 6)*`obs_perpage_approx' + 26*2 + 37*2 + 35*2, detail
+		}
+		else if inlist(`year',2019) & inrange(`p',5,12) {
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 5)*`obs_perpage_approx' + 58*4, detail
 			local first_obsnum = `r(min)'
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 4)*`obs_perpage_approx' + 58*4, detail
@@ -286,7 +302,7 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 			local first_obsnum = `r(min)'
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 6)*`obs_perpage_approx' + 37*2 + 35*4, detail
 		}
-			else if inlist(`year',2020) & inrange(`p',9,12) {
+		else if inlist(`year',2020) & inrange(`p',9,12) {
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 9)*`obs_perpage_approx' + 37*2 + 35*4 + 37*2, detail
 			local first_obsnum = `r(min)'
 			qui sum if strpos(v1,"closures effective") & obsnum >= (`p' - 8)*`obs_perpage_approx' + 37*2 + 35*4 + 37*2, detail
@@ -443,6 +459,11 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 			replace year = `year' + 1 if inrange(`p',1,6)
 			replace year = `year' if inrange(`p',7,12)
 		}
+		else if inlist(`year',2022) {
+			// these pages are in reverse order 
+			replace year = `year' + 1 if inrange(`p',1,1)
+			replace year = `year' if inrange(`p',2,7)			
+		}
 		else {
 			replace year = `year' if inrange(`p',1,6)
 			replace year = `year' + 1 if inrange(`p',7,12)
@@ -476,6 +497,9 @@ forvalues year = `year_start_closed'(1)`year_end_closed' {
 		if `year' == 2020 & `p' == 7 {
 			replace year2 = 2020
 		}
+		if `year' == 2022 & `p' == 1 {
+			replace year2 = 2023
+		}		
 		// corroborate years 
 		assert year == year2 if !missing(year) & !missing(year2)
 		replace year = year2 if missing(year) & !missing(year2)
@@ -981,6 +1005,8 @@ rename total c_1_
 reshape wide c_1_, i(county ym) j(closure_reason) string
 tempfile louisiana_closure_group_total 
 save `louisiana_closure_group_total'
+save "${dir_root}/data/state_data/louisiana/louisiana_closure_group_total.dta", replace 
+
 
 use "${dir_root}/data/state_data/louisiana/louisiana_closure.dta", clear 
 keep if group_heading == 1 
@@ -993,6 +1019,8 @@ rename total c_2_
 reshape wide c_2_, i(county ym) j(closure_reason) string
 tempfile louisiana_closure_group_heading 
 save `louisiana_closure_group_heading'
+save "${dir_root}/data/state_data/louisiana/louisiana_closure_group_heading.dta", replace 
+
 
 use "${dir_root}/data/state_data/louisiana/louisiana_closure.dta", clear 
 keep if group_finecategory == 1 
@@ -1011,7 +1039,7 @@ rename total c_3_
 reshape wide c_3_, i(county ym) j(closure_reason) string
 tempfile louisiana_closure_group_fine 
 save `louisiana_closure_group_fine'
-
+save "${dir_root}/data/state_data/louisiana/louisiana_closure_group_fine.dta", replace 
 */
 
 ********************************************************************
@@ -1020,7 +1048,7 @@ save `louisiana_closure_group_fine'
 ********************************************************************
 ********************************************************************
 ********************************************************************
-
+/*
 // STATE TOTALS 1987-2006
 // Part 1
 
@@ -1243,20 +1271,21 @@ forvalues year = `year_start_part1'(1)`year_end_part2' {
 gen county = "total"
 tempfile louisiana_state
 save `louisiana_state'
-
+save "${dir_root}/data/state_data/louisiana/louisiana_state.dta", replace 
+*/
 *********************************************************************************************
 *********************************************************************************************
 *********************************************************************************************
 *********************************************************************************************
 *********************************************************************************************
 *********************************************************************************************
-
+/*
 forvalues year = `year_start_cases'(1)`year_end_cases' {
 	
 	display in red "`year'"
 
 	if `year' == 2022 {
-		local month_num_end = 3 // change when more data is added
+		local month_num_end = 7 // change when more data is added
 	}
 	else {
 		local month_num_end = 12
@@ -1455,24 +1484,24 @@ forvalues year = `year_start_cases'(1)`year_end_cases' {
 
 		}
 		else if `year' == `year_end_cases' {
-			assert r(k) == 8
+			assert r(k) == 12
 			rename v1 county 
 			rename v2 m7
 			rename v3 m8 
 			rename v4 m9 
-			gen m10 = ""
-			gen m11 = ""
-			gen m12 = ""
-			gen m1 = ""
+			rename v5 m10 
+			rename v6 m11 
+			rename v7 m12 
+			rename v8 m1 
 			gen m2 = ""
 			gen m3 = ""
 			gen m4 = ""
 			gen m5 = ""
 			gen m6 = ""
-			rename v5 month_case_change 
-			rename v6 month_percent_change 
-			rename v7 year_case_change 
-			rename v8 year_percent_change
+			rename v9 month_case_change 
+			rename v10 month_percent_change 
+			rename v11 year_case_change 
+			rename v12 year_percent_change
 			
 			// split county number and name 
 			*split county, parse(" ")
@@ -1671,19 +1700,21 @@ sort county ym
 // save
 tempfile louisiana_cases
 save `louisiana_cases'
+save "${dir_root}/data/state_data/louisiana/louisiana_cases.dta", replace 
+*/
 
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
-
+/*
 forvalues year = `year_start_age'(1)`year_end_age' {
 	
 	display in red "`year'"
 
 	if `year' == `year_end_age' {
-		local month_num_end = 3 // change when more data is added
+		local month_num_end = 7 // change when more data is added
 	}
 	else {
 		local month_num_end = 12
@@ -1822,8 +1853,8 @@ forvalues year = `year_start_age'(1)`year_end_age' {
 			else if `month_num_end' == 10 {
 				recode month (1=4) (2=3) (3=2) (4=1) (5=12) (6=11) (7=10) (8=9) (9=8) (10=7)
 			}
-			else if `month_num_end' == 3 {
-				recode month (1=9) (2=8) (3=7) 
+			else if `month_num_end' == 7 {
+				recode month (1=1) (2=12) (3=11) (4=10) (5=9) (6=8) (7=7) 
 			}
 			else {
 				stop 
@@ -2068,12 +2099,12 @@ forvalues year = `year_start_age'(1)`year_end_age' {
 // standardize county names 
 gen county_new = ""
 split county, parse(" ")
-gen countycode = county1 if county_marker == 1 & !inrange(ym,ym(2022,7),ym(2022,9))
+gen countycode = county1 if county_marker == 1 & !inrange(ym,ym(2022,7),ym(2023,1))
 destring countycode, replace
 confirm numeric variable countycode
-replace county_new = county3 + " " + county4 + " " + county5 + " " + county6 if county_marker == 1 & !inrange(ym,ym(2022,7),ym(2022,9))
-replace county_new = county1 + " " + county2 + " " + county3 + " " + county4 + " " + county5 + " " + county6 if county_marker == 0 & !inrange(ym,ym(2022,7),ym(2022,9))
-replace county_new = county if inrange(ym,ym(2022,7),ym(2022,9))
+replace county_new = county3 + " " + county4 + " " + county5 + " " + county6 if county_marker == 1 & !inrange(ym,ym(2022,7),ym(2023,1))
+replace county_new = county1 + " " + county2 + " " + county3 + " " + county4 + " " + county5 + " " + county6 if county_marker == 0 & !inrange(ym,ym(2022,7),ym(2023,1))
+replace county_new = county if inrange(ym,ym(2022,7),ym(2023,1))
 replace county_new = trim(county_new)
 order county_marker county_new county countycode
 drop county county1 county2 county3 county4 county5 county6
@@ -2098,20 +2129,22 @@ sort county ym
 // save 
 tempfile louisiana_age
 save `louisiana_age'
+save "${dir_root}/data/state_data/louisiana/louisiana_age.dta", replace 
+check
 */
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
-
+/*
 // APPLICATIONS - state total 
 forvalues year = `year_start_apps'(1)`year_end_apps' {
 	
 	display in red "`year'"
 
 	if `year' == `year_end_apps' {
-		local month_num_end = 3 // change when more data is added
+		local month_num_end = 7 // change when more data is added
 	}
 	else {
 		local month_num_end = 12
@@ -2160,8 +2193,9 @@ forvalues year = `year_start_apps'(1)`year_end_apps' {
 
 	// assert shape 
 	qui describe, varlist 
-	local flex_target = (`month_num_end' + 3)*3
-	assert `r(N)' == 15 | `r(N)' == 45 | `r(N)' == `flex_target'
+	*local flex_target = (`month_num_end' + 3)*3
+	local flex_target = 30
+	assert `r(N)' == 15 | `r(N)' == 45 | `r(N)' == `flex_target' 
 
 	if `r(N)' == 15 {
 		assert `r(k)' == 35 | `r(k)' == 27 | `r(k)' == 25 | `r(k)' == 24
@@ -2360,10 +2394,10 @@ forvalues year = `year_start_apps'(1)`year_end_apps' {
 	// year 2022, based on limited number of months 
 	else if `r(N)' == `flex_target' {
 
-		assert `flex_target' == 18
-		local page1_range "inrange(_n,1,6)"
-		local page2_range "inrange(_n,7,12)"
-		local page3_range "inrange(_n,13,18)"
+		assert `flex_target' == 30
+		local page1_range "inrange(_n,1,10)"
+		local page2_range "inrange(_n,11,20)"
+		local page3_range "inrange(_n,21,30)"
 
 		forvalues page = 1(1)3 {
 	*	local page = 2
@@ -2503,6 +2537,7 @@ sort county ym
 // save 
 tempfile louisiana_apps
 save `louisiana_apps'
+save "${dir_root}/data/state_data/louisiana/louisiana_apps.dta", replace 
 */
 
 ****************************************************************************************************
@@ -2510,14 +2545,14 @@ save `louisiana_apps'
 ****************************************************************************************************
 ****************************************************************************************************
 ****************************************************************************************************
-
+/*
 // APPLICATIONS 
 forvalues year = `year_start_apps_county'(1)`year_end_apps_county' {
 	
 	display in red "`year'"
 
 	if `year' == `year_end_apps_county' {
-		local month_num_end = 3 // change when more data is added
+		local month_num_end = 7 // change when more data is added
 	}
 	else {
 		local month_num_end = 12
@@ -2527,8 +2562,8 @@ forvalues year = `year_start_apps_county'(1)`year_end_apps_county' {
 	if `month_num_end' == 12 {
 		local monthlist 7 8 9 10 11 12 1 2 3 4 5 6
 	}
-	else if `month_num_end' == 3 {
-		local monthlist 7 8 9
+	else if `month_num_end' == 7 {
+		local monthlist 7 8 9 10 11 12 1
 	}
 	else {
 		stop 
@@ -3112,7 +3147,8 @@ sort county ym
 // save 
 tempfile louisiana_apps_county
 save `louisiana_apps_county'
-
+save "${dir_root}/data/state_data/louisiana/louisiana_apps_county.dta", replace 
+check
 */
 ****************************************************************************************************
 ****************************************************************************************************
@@ -3122,19 +3158,19 @@ save `louisiana_apps_county'
 
 
 // append statewide data to county data 
-use `louisiana_cases', clear 
-append using `louisiana_state'
-merge 1:1 county ym using `louisiana_age'
+use "${dir_root}/data/state_data/louisiana/louisiana_cases.dta", clear 
+append using "${dir_root}/data/state_data/louisiana/louisiana_state.dta"
+merge 1:1 county ym using "${dir_root}/data/state_data/louisiana/louisiana_age.dta"
 drop _m 
-merge 1:1 county ym using `louisiana_apps'
+merge 1:1 county ym using "${dir_root}/data/state_data/louisiana/louisiana_apps.dta"
 drop _m
-merge 1:1 county ym using `louisiana_apps_county', update 
+merge 1:1 county ym using "${dir_root}/data/state_data/louisiana/louisiana_apps_county.dta", update 
 drop _m
-merge 1:1 county ym using `louisiana_closure_group_total'
+merge 1:1 county ym using "${dir_root}/data/state_data/louisiana/louisiana_closure_group_total.dta"
 drop _m
-merge 1:1 county ym using `louisiana_closure_group_heading'
+merge 1:1 county ym using "${dir_root}/data/state_data/louisiana/louisiana_closure_group_heading.dta"
 drop _m
-merge 1:1 county ym using `louisiana_closure_group_fine'
+merge 1:1 county ym using "${dir_root}/data/state_data/louisiana/louisiana_closure_group_fine.dta"
 drop _m
 
 // drop missing observations
@@ -3154,4 +3190,4 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/louisiana/louisiana.dta", replace 
-
+check

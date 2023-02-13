@@ -5,7 +5,7 @@
 
 **new format**
 local ym_start 					= ym(2016,7)
-local ym_end 					= ym(2022,9)
+local ym_end 					= ym(2022,12)
 
 ********************************************************************
 // STATE TOTALS 
@@ -38,7 +38,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	if inrange(`ym',ym(2016,7),ym(2020,12)) {
 		import excel "${dir_root}/data/state_data/iowa/csvs/newformat/FA-F1-2016 `year'-`month'.xlsx", allstring case(lower) clear	
 	}
-	else if inrange(`ym',ym(2021,1),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,1),ym(2023,1)) {
 		import excel "${dir_root}/data/state_data/iowa/csvs/newformat/SNAP-F1-2016 - `year'-`month'.xlsx", allstring case(lower) clear
 	}
 	
@@ -52,7 +52,12 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	// get data
 	// use list of variables nonmissing for the state total row
 	preserve
-	keep if inlist(A,"state total")
+	if inrange(`ym',ym(2022,11),ym(2022,12)) {
+		keep if inlist(A,"area total")
+	}
+	else {
+		keep if inlist(A,"state total")		
+	}
 	dropmiss, force 
 	qui describe, varlist
 	local keep_varlist `r(varlist)'
@@ -64,9 +69,12 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	if inrange(`ym',ym(2017,9),ym(2019,9)) {
 		dropmiss snap_fip_households snap_fip_individuals snap_fip_issuance snap_medassist_households snap_medassist_individuals snap_medassist_issuance snap_hawki_households /*snap_hawki_individuals*/ /*snap_hawki_issuance*/ snap_only_households /*snap_only_individuals*/ snap_only_issuance households individuals issuance /*participation_rate*/, force obs
 	}
-	else if `ym' >= ym(2019,10) {
+	else if inrange(`ym',ym(2019,10),ym(2022,10)) {
 		dropmiss snap_fip_households snap_fip_individuals /*snap_fip_issuance*/ snap_medassist_households snap_medassist_individuals /*snap_medassist_issuance*/ snap_hawki_households /*snap_hawki_individuals*//* snap_hawki_issuance*/ snap_only_households /*snap_only_individuals*/ snap_only_issuance households individuals issuance /*participation_rate*/, force obs
 	}
+*	else if inrange(`ym',ym(2022,11),ym(2022,12))  {
+*		dropmiss snap_fip_households snap_fip_individuals /*snap_fip_issuance*/ snap_medassist_households snap_medassist_individuals /*snap_medassist_issuance*/ snap_hawki_households /*snap_hawki_individuals*//* snap_hawki_issuance*/ snap_only_households /*snap_only_individuals*/ snap_only_issuance households individuals issuance /*participation_rate*/, force obs	
+*	}
 	else {
 		dropmiss snap_fip_households snap_fip_individuals snap_fip_issuance snap_medassist_households snap_medassist_individuals snap_medassist_issuance snap_hawki_households /*snap_hawki_individuals*/ snap_hawki_issuance snap_only_households snap_only_individuals snap_only_issuance households individuals issuance participation_rate, force obs
 	}
@@ -101,10 +109,20 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if county == "snap/hawki"
 	drop if county == "snap only"
 	drop if county == "total allotment"
+	if inrange(`ym',ym(2022,11),ym(2022,12)) {
+		drop if obsnum < 40
+		drop if county == "county"
+		drop if missing(county)
+	}
 
 	// assert size of the resulting dataset
 	describe, varlist
-	assert r(N) == 101
+	if inrange(`ym',ym(2022,11),ym(2022,12)) {
+		assert r(N) == 100 // does not include overall state total 
+	}
+	else {
+		assert r(N) == 101	
+	}
 	assert r(k) == 18
 
 	/* NO NEED FOR THIS ANYMORE; THE ABOVE CODE IS A SUBSTITUTE AND DOES NOT DEPEND ON A SPECIFIC LIST OF COUNTIES
@@ -208,5 +226,5 @@ tab county
 // save 
 save "${dir_root}/data/state_data/iowa/iowa.dta", replace 
 
-
+check
 ********************************************************************

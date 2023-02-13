@@ -6,6 +6,7 @@
 /////////////////
 
 local ym_start_late				= ym(2017,7)
+*local ym_end_late 				= ym(2022,9) 
 local ym_end_late 				= ym(2022,12) 
 local first_county 				_state_total
 #delimit ;
@@ -201,11 +202,10 @@ local top_count688 				= 39
 local top_count689 				= 39
 local top_count690 				= 39
 ***************************************************************
-
 ///////////////////////
 // LATE DATA -  APPS //
 ///////////////////////
-
+/*
 foreach county of local county_list {
 
 	// display
@@ -213,87 +213,120 @@ foreach county of local county_list {
 
 	// import 
 	clear 
-	capture import excel using "${dir_root}/data/state_data/montana/excel/`county'/ChimesApps.xlsx", allstring clear
-	capture import excel using "${dir_root}/data/state_data/montana/excel/`county'/ChimesApps (1).xlsx", allstring clear
+	capture import delimited using "${dir_root}/data/state_data/montana/excel/`county'/ChimesApps_data.csv", delimiters(",") varnames(1) case(lower) stringcols(_all) clear
+	capture import delimited using "${dir_root}/data/state_data/montana/excel/`county'/ChimesApps_data (1).csv", delimiters(",") varnames(1) case(lower) stringcols(_all) clear
+	capture import delimited using "${dir_root}/data/state_data/montana/excel/`county'/ChimesApps_Full Data_data.csv", delimiters(",") varnames(1) case(lower) stringcols(_all) clear
+	capture import delimited using "${dir_root}/data/state_data/montana/excel/`county'/ChimesApps_Full Data_data (1).csv", delimiters(",") varnames(1) case(lower) stringcols(_all) clear
 	count 
 	assert `r(N)' > 0
-	
-	// transpose 
-	sxpose, clear firstnames
-	drop in 1 
-
-	// turn first row into variable names 
-	foreach var of varlist * {
-		replace `var' = strlower(`var')
-		replace `var' = subinstr(`var', "`=char(9)'", " ", .) if _n == 1
-		replace `var' = subinstr(`var', "`=char(10)'", " ", .) if _n == 1
-		replace `var' = subinstr(`var', "`=char(13)'", " ", .) if _n == 1
-		replace `var' = subinstr(`var', "`=char(14)'", " ", .) if _n == 1
-		replace `var' = ustrregexra(`var',"\-","") if _n == 1
-		replace `var' = ustrregexra(`var',"\(","") if _n == 1
-		replace `var' = ustrregexra(`var',"\)","") if _n == 1
-		replace `var' = ustrregexra(`var',"/","") if _n == 1
-		replace `var' = ustrregexra(`var'," ","") if _n == 1
-		replace `var' = substr(`var',1,32) if _n == 1
-		label variable `var' "`=`var'[1]'"
-		rename `var' `=`var'[1]'
-	}
-	drop in 1
-
-	// target obs 
-	local target_obs = (`ym_end_late' - `ym_start_late' + 1)
-	local target_obs2 =(`ym_end_late' - `ym_start_late' + 0)
-	count
+	local target_obs = 3* (`ym_end_late' - `ym_start_late' + 1)
+	local target_obs2 = 3* (`ym_end_late' - `ym_start_late' + 0)
 	display in red "actual obs: " `r(N)'
 	display in red "target_obs: " `target_obs'
 	display in red "target_obs2: " `target_obs2'
 	assert (`r(N)' == `target_obs') | (`r(N)' == `target_obs2')
 
 	// rename 
-	rename program mmm_yyyy 
-	rename medicaid apps_received_medicaid
-	rename snap apps_received
-	rename tanf apps_received_tanf
-
-	// fix date 
-	gen month = substr(mmm_yyyy,1,3)
-	gen year = substr(mmm_yyyy,5,4)
-	replace month = "1" if month == "jan"
-	replace month = "2" if month == "feb"
-	replace month = "3" if month == "mar"
-	replace month = "4" if month == "apr"
-	replace month = "5" if month == "may"
-	replace month = "6" if month == "jun"
-	replace month = "7" if month == "jul"
-	replace month = "8" if month == "aug"
-	replace month = "9" if month == "sep"
-	replace month = "10" if month == "oct"
-	replace month = "11" if month == "nov"
-	replace month = "12" if month == "dec"
-	destring month, replace
-	confirm numeric variable month
-	destring year, replace
-	confirm numeric variable year 
-	gen ym = ym(year,month)
-	format ym %tm 
-	drop year month 
-	drop mmm_yyyy
-
-	// destring 
-	foreach var in apps_received_medicaid apps_received apps_received_tanf {
-		destring `var', replace ignore(",")
-		confirm numeric variable `var'
+	describe, varlist
+	assert `r(k)' == 6 | `r(k)' == 11 | `r(k)' == 4
+	if `r(k)' == 6 {
+		rename monthofreportingmonth month_year 
+		*rename program
+		*rename county 
+		rename reportingmonth date 
+		*rename source
+		rename totals value 
+	}
+	else if `r(k)' == 11 {
+		rename monthofreportingmonth month_year 
+		*rename program
+		*rename county 
+		rename reportingmonth date 
+		*rename source
+		rename totals value 
+		*rename currentmonth
+		*rename display
+		*rename infoicon
+		*rename today
+		*rename type 
+		drop currentmonth
+		drop display
+		drop infoicon
+		drop today
+		drop type
+	}
+	else if `r(k)' == 4 {
+		rename monthofreportingmonth month_year 
+		*rename program
+		drop countylabel 
+		rename totals value 
+		gen county = "`county'"	
 	}
 
-	// county 
-	gen county = "`county'"
+	// date 
+	capture drop date 
+	split month_year, parse(" ")
+	rename month_year1 month 
+	rename month_year2 year 
+	replace month = "1" if month == "January"
+	replace month = "2" if month == "February"
+	replace month = "3" if month == "March"
+	replace month = "4" if month == "April"
+	replace month = "5" if month == "May"
+	replace month = "6" if month == "June"
+	replace month = "7" if month == "July"
+	replace month = "8" if month == "August"
+	replace month = "9" if month == "September"
+	replace month = "10" if month == "October"
+	replace month = "11" if month == "November"
+	replace month = "12" if month == "December"
+	*drop month_year 
+	*replace date = trim(date)
+	*split date, parse("/")
+	*rename date1 month 
+	*rename date2 day 
+	*rename date3 year 
+	foreach var in month year {
+		destring `var', replace 
+		confirm numeric variable `var'
+	}
+	gen ym = ym(year,month)
+	format ym %tm 
+	drop year month
+	drop month_year
+	*drop year month day 
+	*drop date 
+
+	// drop source 
+	capture confirm variable source 
+	if !_rc {
+		assert source == "Chimes"
+		drop source 
+	}
 
 	// lower case 
-	foreach var in county {
+	foreach var in program county {
 		replace `var' = strlower(`var')
 		replace `var' = trim(`var')
 	}
-	replace county = "total" if strpos(county,"total")
+
+	// program 
+	assert inlist(program,"medicaid","snap","tanf")
+
+	// destring 
+	destring value, replace ignore(",")
+	confirm numeric variable value 
+
+	// assert level of data - before reshape 
+	sort county ym program
+	duplicates tag county ym program, gen(dup)
+	assert dup == 0
+	drop dup 
+
+	// reshape 
+	rename value apps_received_
+	reshape wide apps_received_, i(county ym) j(program) string 
+	rename apps_received_snap apps_received
 
 	// assert level of data - after reshape 
 	duplicates tag county ym, gen(dup)
@@ -340,12 +373,9 @@ tempfile montana_late_apps
 save `montana_late_apps'
 save "${dir_root}/data/state_data/montana/montana_late_apps.dta", replace
 
-*/
 /////////////////////////////
 // LATE DATA -  ENROLLMENT //
 /////////////////////////////
-
-foreach type in Recips House Expend {
 
 foreach county of local county_list {
 
@@ -354,43 +384,39 @@ foreach county of local county_list {
 
 	// import 
 	clear 
-	capture import excel using "${dir_root}/data/state_data/montana/excel/`county'/AL300_`type' (1).xlsx", allstring clear
-	capture import excel using "${dir_root}/data/state_data/montana/excel/`county'/AL300_`type'.xlsx", allstring clear
+	capture import delimited using "${dir_root}/data/state_data/montana/excel/`county'/Title_Full Data_data.csv", delimiters(",") varnames(1) case(lower) stringcols(_all) clear
+	capture import delimited using "${dir_root}/data/state_data/montana/excel/`county'/Title_Full Data_data (1).csv", delimiters(",") varnames(1) case(lower) stringcols(_all) clear
 	count 
 	assert `r(N)' > 0
-	
-	// transpose 
-	sxpose, clear firstnames
-	drop in 1 
-	if "`type'" == "Recips" {
-		drop in 1 
-	}
-
-	// rename 
-	rename _var1 mmm_yyyy
-	if "`type'" == "Recips" {
-		rename SNAP individuals
-		rename TANF individuals_tanf
-	}
-	else if "`type'" == "House" {
-		rename SNAP households 
-		rename TANF households_tanf
-	}
-	else if "`type'" == "Expend" {
-		rename SNAP issuance 
-		rename TANF issuance_tanf
-	}
-
-	// target obs 
-	count
-	local target_obs = (`ym_end_late' - `ym_start_late' + 1)
+	local target_obs = 2*3* (`ym_end_late' - `ym_start_late' + 1)
 	display in red "actual obs: " `r(N)'
 	display in red "target_obs: " `target_obs'
 	assert (`r(N)' == `target_obs') 
 
-	// fix date 
-	gen month = substr(mmm_yyyy,1,3)
-	gen year = substr(mmm_yyyy,5,4)
+	// rename 
+	describe, varlist
+	assert `r(k)' == 10
+	if `r(k)' == 10 {
+		*rename county 
+		*rename source
+		rename currentmonth mon_year 
+		*rename display
+		*rename infoicon
+		*rename program
+		rename reportingmonth date 
+		*rename today
+		rename totals value 
+		*rename type 
+		drop display
+		drop infoicon
+		drop today
+	}
+
+	// date 
+	capture drop date 
+	split mon_year, parse(" ")
+	rename mon_year1 month 
+	rename mon_year2 year 
 	replace month = "1" if month == "Jan"
 	replace month = "2" if month == "Feb"
 	replace month = "3" if month == "Mar"
@@ -403,38 +429,64 @@ foreach county of local county_list {
 	replace month = "10" if month == "Oct"
 	replace month = "11" if month == "Nov"
 	replace month = "12" if month == "Dec"
-	destring month, replace
-	confirm numeric variable month
-	destring year, replace
-	confirm numeric variable year 
+	*drop mon_year 
+	*replace date = trim(date)
+	*split date, parse("/")
+	*rename date1 month 
+	*rename date2 day 
+	*rename date3 year 
+	foreach var in month year {
+		destring `var', replace 
+		confirm numeric variable `var'
+	}
 	gen ym = ym(year,month)
 	format ym %tm 
-	drop year month 
-	drop mmm_yyyy
+	drop year month
+	drop mon_year
+	*drop year month day 
+	*drop date 
 
-	// destring 
-	foreach var in individuals individuals_tanf households households_tanf issuance issuance_tanf {
-		capture confirm variable `var'
-		if !_rc {
-			destring `var', replace ignore(",")
-			confirm numeric variable `var'
-		}
+	// drop source 
+	capture confirm variable source 
+	if !_rc {
+		assert source == "AL300"
+		drop source 
 	}
 
-	// county 
-	gen county = "`county'"
-
 	// lower case 
-	foreach var in county {
+	foreach var in program county type {
 		replace `var' = strlower(`var')
 		replace `var' = trim(`var')
 	}
-	replace county = "total" if strpos(county,"total")
 
-	// assert level of data - after reshape 
-	duplicates tag county ym, gen(dup)
+	// program 
+	assert inlist(program,"snap","tanf")
+
+	// type 
+	assert inlist(type,"expenditures","households","recipients")
+
+	// destring 
+	destring value, replace ignore(",")
+	confirm numeric variable value 
+
+	// assert level of data - before reshape 
+	gen type_program = type + "_" + program
+	drop type 
+	drop program
+	sort county ym type_program
+	duplicates tag county ym type_program, gen(dup)
 	assert dup == 0
 	drop dup 
+
+	// reshape 
+	rename value _
+	reshape wide _, i(county ym) j(type_program) string 
+	rename _expenditures_snap issuance
+	rename _expenditures_tanf issuance_tanf
+	rename _households_snap households
+	rename _households_tanf households_tanf
+	rename _recipients_snap individuals
+	rename _recipients_tanf individuals_tanf
 
 	// assert level of data - after reshape 
 	duplicates tag county ym, gen(dup)
@@ -442,22 +494,22 @@ foreach county of local county_list {
 	drop dup 
 
 	// order and sort 
-	order county ym 
+	order county ym households individuals issuance households_tanf individuals_tanf issuance_tanf
 	sort county ym 
 
 	// save 
-	tempfile `county'_`type'
-	save ``county'_`type''
+	tempfile `county'_enroll
+	save ``county'_enroll'
 
 }
 
 // append across counties 
 foreach county of local county_list {
 	if "`county'" == "`first_county'" {
-		use ``county'_`type'', clear
+		use ``county'_enroll', clear
 	}
 	else {
-		append using ``county'_`type''
+		append using ``county'_enroll'
 	}
 }
 
@@ -477,28 +529,14 @@ order county ym
 sort county ym 
 
 // save 
-tempfile montana_late_`type'
-save `montana_late_`type''
-
-}
-
-// merge 
-use `montana_late_Recips', clear 
-merge 1:1 county ym using `montana_late_House'
-assert _m == 3
-drop _m 
-merge 1:1 county ym using `montana_late_Expend'
-assert _m == 3 
-drop _m 
-
-// save 
+tempfile montana_late_enrollment
+save `montana_late_enrollment'
 save "${dir_root}/data/state_data/montana/montana_late_enrollment.dta", replace
-
 */
 ////////////////
 // EARLY DATA //
 ////////////////
-/*
+
 forvalues ym = `ym_start'(1)`ym_end' {
 
 	dis in red `ym' %tm
@@ -679,7 +717,7 @@ replace county = ustrregexra(county,"\&","and")
 tempfile montana_early
 save `montana_early'
 save "${dir_root}/data/state_data/montana/montana_early.dta", replace
-*/
+
 ///////////////////////////
 // MERGE AND APPEND DATA //
 ///////////////////////////

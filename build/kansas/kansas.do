@@ -2,12 +2,12 @@
 
 local year_start 			= 2011
 local year_end 				= 2023 
-local last_year_monthlist 	7 8 9 // 10 11 12 1 2 3 4 5 6
+local last_year_monthlist 	7 8 9 10 11 12 // 1 2 3 4 5 6
 local all_year_monthlist	7 8 9 10 11 12 1 2 3 4 5 6
 local year_2021_monthlist 	7 8 9 10 11 12 1 2 3 // this year of data is incomplete
 local num_counties 			= 106 // includes total 
 local ym_start 				= ym(2010,7)
-local ym_end 				= ym(2022,9)
+local ym_end 				= ym(2023,1)
 
 ********************************************************************
 
@@ -126,7 +126,9 @@ else {
 	rename (`r(varlist)') (county region `variable_names' obsnum)
 	drop in 1 
 	drop in 1 
-	drop in 1 
+	if !(`year' == 2023 & inlist(`month',10,11,12)) {
+		drop in 1 	
+	}
 	if (`year' == 2021 & inlist(`month',7,8,9,10,11,12,1,2,3,4,5,6)) {
 		drop in 1
 	}
@@ -777,8 +779,8 @@ merge 1:1 county ym using `kansas_state', update replace // update replace to us
 // validate merge
 assert inlist(_m,1,2,3,4,5)
 assert county != "total" if inlist(_m,1)
-assert (inrange(ym,ym(2010,7),ym(2021,3)) | inrange(ym,ym(2021,7),ym(2022,9))) & county == "total" if inlist(_m,3,4,5)
-assert inrange(ym,ym(2021,4),ym(2021,6)) if _m == 2 // county data is missing for these months
+assert (inrange(ym,ym(2010,7),ym(2021,3)) | inrange(ym,ym(2021,7),ym(2022,12))) & county == "total" if inlist(_m,3,4,5)
+assert inrange(ym,ym(2021,4),ym(2021,6)) | inlist(ym,ym(2023,1)) if _m == 2 // county data is missing for these months
 drop _m 
 
 // expand to full set of county ym 

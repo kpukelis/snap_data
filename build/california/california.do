@@ -1,11 +1,11 @@
 // california.do 
 // Kelsey Pukelis
 
-local year_short_list			/*10 14*/ 16 17 18 19 20 21
+local year_short_list			/*10 14*/ 16 17 18 19 20 21 22 
 local first_year_short 			16
 
 **************************************************************************
-/*
+
 /////////////////////
 // ENROLLMENT DATA //
 /////////////////////
@@ -142,7 +142,7 @@ foreach year_short of local year_short_list {
 		// load data 
 		import excel "${dir_root}/data/state_data/california/excel/DFA 256 - Food Stamp Program Participation and Benefit Issuances/DFA256FY`year_short'-`year_short_plus1'.xlsx", sheet("Data") allstring case(lower) firstrow clear 		
 	}
-	else if inrange(`year_short',20,21) {
+	else if inrange(`year_short',20,22) {
 		// load data 
 		import excel "${dir_root}/data/state_data/california/excel/DFA 256 - Food Stamp Program Participation and Benefit Issuances/DFA256FY`year_short'-`year_short_plus1'.xlsx", sheet("Data_External") allstring case(lower) firstrow clear 		
 	}
@@ -163,7 +163,7 @@ foreach year_short of local year_short_list {
 
 	// rename variables
 	describe, varlist
-	if inlist(`year_short',20,21) {
+	if inlist(`year_short',20,21,22) {
 		assert `r(k)' == 36
 	}
 	else {
@@ -171,6 +171,9 @@ foreach year_short of local year_short_list {
 	}
 	if `year_short' == 21 {
 		assert `r(N)' == 653
+	}
+	else if `year_short' == 22 {
+		assert `r(N)' == 181 // this will change as more data is added
 	}
 	else {
 		assert `r(N)' == 712	
@@ -185,7 +188,7 @@ foreach year_short of local year_short_list {
 		rename v6 sfy 
 		rename v7 ffy 
 	}
-	else if inlist(`year_short',20,21) {
+	else if inlist(`year_short',20,21,22) {
 		rename v1 date 
 		rename v2 county
 		rename v3 countycode 
@@ -227,7 +230,7 @@ foreach year_short of local year_short_list {
 		rename v36	vissuance_valueofstatebenefitis
 		rename v37	vissuance_total
 	}
-	else if inlist(`year_short',20,21) {
+	else if inlist(`year_short',20,21,22) {
 		rename v7	pacffedhhs
 		rename v8	pacffedstatehhs
 		rename v9	pacfstatehhs
@@ -266,14 +269,14 @@ foreach year_short of local year_short_list {
 	// drop unneeded vars 
 	drop pacf*
 	drop nacf*
-	foreach var in issuance_mail issuance_contractedoverthecount issuance_overthecounter issuance_ebtconvertedtocoupons {
+	foreach var in issuance_contractedoverthecount issuance_overthecounter  {
 		assert inlist(`var',"0","") if !inlist(_n,1,2,3,4)
 		drop `var'
 	}
 
 	// combine same vars 
-	assert issuance_ebtissuances == issuance_total if !inlist(_n,1,2,3,4) & !inlist(issuance_ebtissuances,"BLANK")
-	drop issuance_ebtissuances
+	**assert issuance_ebtissuances == issuance_total if !inlist(_n,1,2,3,4) & !inlist(issuance_ebtissuances,"BLANK")
+	**drop issuance_ebtissuances
 	rename issuance_total ebtissuance
 
 	// rename main vars 
@@ -290,7 +293,7 @@ foreach year_short of local year_short_list {
 	// destring
 	// Cells that could identify an individual with a value of less than 11 have been replaced with a “*” to comply with the CDSS Data De-identification Guidelines .
 
-	foreach v in totalhhsfed totalhhsfedstate totalhhsstate totalpersinfedonlyhhs totalfedstatepersinfedstatehhsf totalfedstatepersinfedstatehhss totalpersinstateonlyhhs ebtissuance issuance_fed issuance_state issuance {
+	foreach v in totalhhsfed totalhhsfedstate totalhhsstate totalpersinfedonlyhhs totalfedstatepersinfedstatehhsf totalfedstatepersinfedstatehhss totalpersinstateonlyhhs ebtissuance issuance_fed issuance_state issuance issuance_mail issuance_ebtconvertedtocoupons issuance_ebtissuances {
 		// censor flag
 		gen `v'f = 0
 		replace `v'f = 1 if `v' == "\*"
@@ -315,42 +318,99 @@ foreach year_short of local year_short_list {
 	drop totalpersinstateonlyhhs totalpersinstateonlyhhsf
 	
 	// clean up date 
-	drop date 
-	drop sfy 
-	drop ffy 
+	capture confirm variable year 
 	capture confirm variable month 
 	if !_rc {
+		display in red "month var already created"
 		destring month, replace 
-		confirm numeric variable month
-		destring year, replace
-		confirm numeric variable year	
-	}
-	capture confirm variable reportmonth
-	if !_rc {
-		gen year = substr(reportmonth,6,4)
 		destring year, replace 
+		confirm numeric variable month 
 		confirm numeric variable year 
-		gen month = substr(reportmonth,3,3)
-		replace month = "01" if month == "jan"
-		replace month = "02" if month == "feb"
-		replace month = "03" if month == "mar"
-		replace month = "04" if month == "apr"
-		replace month = "05" if month == "may"
-		replace month = "06" if month == "jun"
-		replace month = "07" if month == "jul"
-		replace month = "08" if month == "aug"
-		replace month = "09" if month == "sep"
-		replace month = "10" if month == "oct"
-		replace month = "11" if month == "nov"
-		replace month = "12" if month == "dec"
-		destring month, replace
-		confirm numeric variable month
-		drop reportmonth
+		gen ym = ym(year,month)
+		format ym %tm 
+		drop year month 
 	}
-	gen ym = ym(year,month)
-	format ym %tm 
-	drop year month 
+	capture confirm variable ym 
+	if !_rc {
+
+	}
+	else {
+		capture confirm variable date 
+		if !_rc {
+			gen year = substr(date,6,4)
+			destring year, replace 
+			gen month = substr(reportmonth,3,3)
+			replace month = "01" if month == "jan"
+			replace month = "02" if month == "feb"
+			replace month = "03" if month == "mar"
+			replace month = "04" if month == "apr"
+			replace month = "05" if month == "may"
+			replace month = "06" if month == "jun"
+			replace month = "07" if month == "jul"
+			replace month = "08" if month == "aug"
+			replace month = "09" if month == "sep"
+			replace month = "10" if month == "oct"
+			replace month = "11" if month == "nov"
+			replace month = "12" if month == "dec"
+			destring month, replace
+			confirm numeric variable month
+			drop date
+			gen ym = ym(year,month)
+			format ym %tm 
+			drop year month 	
+		}
+		capture confirm variable ym 
+		if !_rc {
+			display in red "ym already created"
+		}
+		else {
+			capture confirm variable month 
+			if !_rc {
+				destring month, replace 
+				confirm numeric variable month
+				destring year, replace
+				confirm numeric variable year
+				gen ym = ym(year,month)
+				format ym %tm 	
+				drop year month 	
+			}
+			capture confirm variable ym 
+			if !_rc {
+				display in red "ym already created"
+			}
+			else {
+				capture confirm variable reportmonth
+				if !_rc {
+					gen year = substr(reportmonth,6,4)
+					destring year, replace 
+					confirm numeric variable year 
+					gen month = substr(reportmonth,3,3)
+					replace month = "01" if month == "jan"
+					replace month = "02" if month == "feb"
+					replace month = "03" if month == "mar"
+					replace month = "04" if month == "apr"
+					replace month = "05" if month == "may"
+					replace month = "06" if month == "jun"
+					replace month = "07" if month == "jul"
+					replace month = "08" if month == "aug"
+					replace month = "09" if month == "sep"
+					replace month = "10" if month == "oct"
+					replace month = "11" if month == "nov"
+					replace month = "12" if month == "dec"
+					destring month, replace
+					confirm numeric variable month
+					drop reportmonth
+					gen ym = ym(year,month)
+					format ym %tm 	
+					drop year month 	
+				}		
+			}
+		}
+	}
+	
 	assert !missing(ym)
+	drop sfy 
+	drop ffy 
 
 	// lowercase county 
 	replace county = strlower(county)
@@ -384,6 +444,9 @@ drop countycode
 
 // drop statewide totals; data is not consistent enough
 drop if county == "state totals"
+
+// drop exact duplicates 
+duplicates drop 
 
 // assert level of the data 
 duplicates tag county ym, gen(dup)
@@ -551,7 +614,7 @@ foreach year_short of local year_short_list {
 		// load data 
 		import excel "${dir_root}/data/state_data/california/excel/CF 296 - CalFresh Monthly Caseload/CF296FY`year_short'-`year_short_plus1'.xlsx", sheet("FinalData") allstring case(lower) firstrow clear 		
 	}
-	else if inrange(`year_short',20,21) {
+	else if inrange(`year_short',20,22) {
 		// load data 
 		import excel "${dir_root}/data/state_data/california/excel/CF 296 - CalFresh Monthly Caseload/CF296FY`year_short'-`year_short_plus1'.xlsx", sheet("Data_External") allstring case(lower) firstrow clear 		
 	}
@@ -566,7 +629,7 @@ foreach year_short of local year_short_list {
 *	drop in 1	
 
 	// one extra blank var in FY 2020
-	if inlist(`year_short',20,21) {
+	if inlist(`year_short',20,21,22) {
 		drop v3 
 		describe, varlist 
 		rename (`r(varlist)') (v#), addnumber
@@ -577,6 +640,9 @@ foreach year_short of local year_short_list {
 	assert `r(k)' == 129
 	if `year_short' == 21 {
 		assert `r(N)' == 357
+	}
+	else if `year_short' == 22 {
+		assert `r(N)' == 121
 	}
 	else {
 		assert `r(N)' == 711	
@@ -590,7 +656,7 @@ foreach year_short of local year_short_list {
 		rename v5 sfy 
 		rename v6 ffy 
 	}
-	else if inlist(`year_short',20,21) {
+	else if inlist(`year_short',20,21,22) {
 		rename v1 date 
 		rename v2 county
 		rename v3 countycode 
@@ -811,41 +877,99 @@ foreach year_short of local year_short_list {
 	}
 	
 	// clean up date 
-	drop date 
-	drop sfy 
-	drop ffy 
+	capture confirm variable year 
 	capture confirm variable month 
 	if !_rc {
+		display in red "month var already created"
 		destring month, replace 
-		confirm numeric variable month
-		destring year, replace
-		confirm numeric variable year	
-	}
-	capture confirm variable reportmonth
-	if !_rc {
-		gen year = substr(reportmonth,6,4)
 		destring year, replace 
+		confirm numeric variable month 
 		confirm numeric variable year 
-		gen month = substr(reportmonth,3,3)
-		replace month = "01" if month == "jan"
-		replace month = "02" if month == "feb"
-		replace month = "03" if month == "mar"
-		replace month = "04" if month == "apr"
-		replace month = "05" if month == "may"
-		replace month = "06" if month == "jun"
-		replace month = "07" if month == "jul"
-		replace month = "08" if month == "aug"
-		replace month = "09" if month == "sep"
-		replace month = "10" if month == "oct"
-		replace month = "11" if month == "nov"
-		replace month = "12" if month == "dec"
-		destring month, replace
-		confirm numeric variable month
-		drop reportmonth
+		gen ym = ym(year,month)
+		format ym %tm 
+		drop year month 
 	}
-	gen ym = ym(year,month)
-	format ym %tm 
-	drop year month 
+	capture confirm variable ym 
+	if !_rc {
+
+	}
+	else {
+		capture confirm variable date 
+		if !_rc {
+			gen year = substr(date,6,4)
+			destring year, replace 
+			gen month = substr(reportmonth,3,3)
+			replace month = "01" if month == "jan"
+			replace month = "02" if month == "feb"
+			replace month = "03" if month == "mar"
+			replace month = "04" if month == "apr"
+			replace month = "05" if month == "may"
+			replace month = "06" if month == "jun"
+			replace month = "07" if month == "jul"
+			replace month = "08" if month == "aug"
+			replace month = "09" if month == "sep"
+			replace month = "10" if month == "oct"
+			replace month = "11" if month == "nov"
+			replace month = "12" if month == "dec"
+			destring month, replace
+			confirm numeric variable month
+			drop date
+			gen ym = ym(year,month)
+			format ym %tm 
+			drop year month 	
+		}
+		capture confirm variable ym 
+		if !_rc {
+			display in red "ym already created"
+		}
+		else {
+			capture confirm variable month 
+			if !_rc {
+				destring month, replace 
+				confirm numeric variable month
+				destring year, replace
+				confirm numeric variable year
+				gen ym = ym(year,month)
+				format ym %tm 	
+				drop year month 	
+			}
+			capture confirm variable ym 
+			if !_rc {
+				display in red "ym already created"
+			}
+			else {
+				capture confirm variable reportmonth
+				if !_rc {
+					gen year = substr(reportmonth,6,4)
+					destring year, replace 
+					confirm numeric variable year 
+					gen month = substr(reportmonth,3,3)
+					replace month = "01" if month == "jan"
+					replace month = "02" if month == "feb"
+					replace month = "03" if month == "mar"
+					replace month = "04" if month == "apr"
+					replace month = "05" if month == "may"
+					replace month = "06" if month == "jun"
+					replace month = "07" if month == "jul"
+					replace month = "08" if month == "aug"
+					replace month = "09" if month == "sep"
+					replace month = "10" if month == "oct"
+					replace month = "11" if month == "nov"
+					replace month = "12" if month == "dec"
+					destring month, replace
+					confirm numeric variable month
+					drop reportmonth
+					gen ym = ym(year,month)
+					format ym %tm 	
+					drop year month 	
+				}		
+			}
+		}
+	}
+	
+	assert !missing(ym)
+	drop sfy 
+	drop ffy 
 
 	// lowercase county 
 	replace county = strlower(county)
@@ -879,6 +1003,9 @@ drop countycode
 
 // drop statewide totals; data is not consistent enough
 drop if county == "state totals"
+
+// drop exact duplicates 
+duplicates drop 
 
 // assert level of the data 
 duplicates tag county ym, gen(dup)
@@ -949,7 +1076,7 @@ merge 1:1 county ym using "${dir_root}/data/state_data/california/california_enr
 
 // check merge 
 assert inlist(_m,2,3)
-assert inrange(ym,ym(2022,1),ym(2022,5)) if _m == 2
+assert inrange(ym,ym(2022,1),ym(2022,5)) | ym == ym(2022,9) if _m == 2
 drop _m 
 
 // order and sort 

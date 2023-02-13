@@ -2,11 +2,11 @@
 // Kelsey Pukelis 
 
 local ym_start_state			= ym(2005,9)
-local ym_end_state				= ym(2022,9)
+local ym_end_state				= ym(2023,1)
 local ym_start 					= ym(2014,1)
-local ym_end 					= ym(2022,9)
+local ym_end 					= ym(2023,1)
 local ym_start_apps				= ym(2014,1)
-local ym_end_apps 				= ym(2022,9)
+local ym_end_apps 				= ym(2023,1)
 local prefix_2014 				"SNAP-Enrollment-"
 local prefix_2015 				"SNAP-Enrollment-"
 local prefix_2016 				"snap-enrollment-"
@@ -16,6 +16,7 @@ local prefix_2019 				"snap-case-eligible-county-"
 local prefix_2020 				"snap-case-eligible-county-"
 local prefix_2021 				"snap-case-eligible-county-"
 local prefix_2022 				"snap-case-eligible-county-"
+local prefix_2023 				"snap-case-eligible-county-"
 local prefix_apps_2014 			"SNAP-"
 local prefix_apps_2015			"SNAP-"
 local prefix_apps_2016			"SNAP-"
@@ -25,6 +26,7 @@ local prefix_apps_2019			"timeliness-snap-"
 local prefix_apps_2020			"timeliness-snap-"
 local prefix_apps_2021			"timeliness-snap-"
 local prefix_apps_2022			"timeliness-snap-"
+local prefix_apps_2023			"timeliness-snap-"
 local yearname_2014				"-2014"
 local yearname_2015				"-2015"
 local yearname_2016				"-2016"
@@ -34,6 +36,7 @@ local yearname_2019				"-2019"
 local yearname_2020 			"-2020"
 local yearname_2021 			"-2021"
 local yearname_2022 			"-2022"
+local yearname_2023 			"-2023"
 
 
 *********************************************************************
@@ -70,7 +73,7 @@ forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 		replace monthname = "December" 	if month == "12"
 		local monthname = monthname
 	}
-	else if inlist(`year',2017,2018,2019,2020,2021,2022) {
+	else if inlist(`year',2017,2018,2019,2020,2021,2022,2023) {
 		gen monthname = ""
 		replace monthname = "jan" 	if month == "01"
 		replace monthname = "feb" 	if month == "02"
@@ -180,7 +183,7 @@ forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 		tempfile _`ym'
 		save `_`ym''
 	}
-	else if inrange(`ym',ym(2018,8),ym(2019,6)) | inrange(`ym',ym(2019,8),ym(2022,9)) {
+	else if inrange(`ym',ym(2018,8),ym(2019,6)) | inrange(`ym',ym(2019,8),ym(2023,1)) {
 		
 		if inrange(`ym',ym(2020,1),ym(2020,3)) {
 			local total = 38
@@ -491,7 +494,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace monthname = "december" 	if month == "12"
 		local monthname = monthname
 	}
-	else if inlist(`year',2017,2018,2019,2020,2021,2022) {
+	else if inlist(`year',2017,2018,2019,2020,2021,2022,2023) {
 		gen monthname = ""
 		replace monthname = "jan" 	if month == "01"
 		replace monthname = "feb" 	if month == "02"
@@ -617,7 +620,7 @@ replace county = strlower(county)
 // append statewide data 
 *append using `statewide'
 merge 1:1 county ym using `statewide', update replace 
-assert inrange(ym,`ym_start_state',ym(2013,12)) | inrange(ym,ym(2022,6),ym(2022,9)) if _m == 2
+assert inrange(ym,`ym_start_state',ym(2013,12)) | inrange(ym,ym(2022,6),ym(2023,1)) if _m == 2
 assert county != "total" & inrange(ym,`ym_start',`ym_end') if _m == 1
 assert county == "total" if inlist(_m,3,5)
 drop _m 

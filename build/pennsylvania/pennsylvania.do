@@ -8,7 +8,7 @@ import delimited using "${dir_root}/data/state_data/pennsylvania/pdfs/Supplement
 // drop unnecessary vars 
 drop date
 drop monthname 
-rename ?statename statename
+*rename ?statename statename
 assert statename == "PA"
 drop statename
 drop fipsstatecode

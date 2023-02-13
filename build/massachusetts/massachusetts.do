@@ -4,11 +4,11 @@
 // NOTE: these are filenames, but date on the name of the file is 3 months ahead of the data represented in the file itself. 
 // E.g. file with name March 2020 contains data for December 2019
 local ym_start					= ym(2017,11)
-local ym_end 					= ym(2022,9)
+local ym_end 					= ym(2023,1)
 local ym_start_county			= ym(2021,7)
-local ym_end_county				= ym(2022,9)
+local ym_end_county				= ym(2023,1)
 local ym_start_scorecard 		= ym(2005,1)
-local ym_end_scorecard 			= ym(2022,8)
+local ym_end_scorecard 			= ym(2022,12)
 
 ****************************************************************
 /*
@@ -145,7 +145,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	gen year = year(dofm(`ym'))
 	gen month = month(dofm(`ym'))
 	gen monthname = ""
-	if inrange(`ym',ym(2017,11),ym(2018,12)) | inrange(`ym',ym(2022,1),ym(2022,9)) {
+	if inrange(`ym',ym(2017,11),ym(2018,12)) | inrange(`ym',ym(2022,1),ym(2023,1)) {
 		replace monthname = "JAN" if month == 1
 		replace monthname = "FEB" if month == 2
 		replace monthname = "MAR" if month == 3
@@ -190,7 +190,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		local sheets SNAP_AU's SNAP_RECIPIENTS
 		local first_sheet SNAP_AU's
 	}
-	else if inrange(`ym',ym(2021,12),ym(2022,9)) {
+	else if inrange(`ym',ym(2021,12),ym(2023,1)) {
 		local sheets `"Cases"' /*COUNTY_TOTALS*/
 		local first_sheet `"Cases"'
 	}
@@ -223,7 +223,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		else if `ym' == ym(2021,12) {
 			import excel "${dir_root}/data/state_data/massachusetts/excel/`year'/FINAL_ZIPCODE_`monthname'_`year'.xlsx", sheet("Cases & Clients by ZIP Code") allstring clear 	
 		}
-		else if inrange(`ym',ym(2022,1),ym(2022,9)) {
+		else if inrange(`ym',ym(2022,1),ym(2023,1)) {
 			import excel "${dir_root}/data/state_data/massachusetts/excel/`year'/DTA_ZIPCODE_Report_`monthname'_`year'.v1.xlsx", sheet(`"Cases & Clients by ZIP Code"') allstring clear 
 		}
 		else {
@@ -319,7 +319,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		*	save `_`ym'_`varname''
 		*
 		*}
-		if inrange(`ym',ym(2021,12),ym(2022,9)) {
+		if inrange(`ym',ym(2021,12),ym(2023,1)) {
 		*if inlist("`sheet'",`"Cases & Clients by ZIP Code"') {
 
 			// clean up 
@@ -560,14 +560,15 @@ append using "${dir_root}/data/state_data/massachusetts/massachusetts_county_col
 
 // drop duplicate observations with less information 
 duplicates tag county ym, gen(dup)
+sort county ym households 
 count if dup >= 1
-assert `r(N)' == 28
+assert `r(N)' == 36 // 28
 
 // total sum of data, will catch missingness
 egen temp_rowtotal = rowtotal(households individuals households_eaedc individuals_eaedc households_tafdc individuals_tafdc households_total individuals_total)
 bysort county ym: egen temp_smallest_rowtotal = min(temp_rowtotal)
 count if temp_rowtotal == temp_smallest_rowtotal & dup == 1
-assert `r(N)' == 14
+assert `r(N)' == 18 // 14
 drop if temp_rowtotal == temp_smallest_rowtotal & dup == 1
 drop temp_rowtotal
 drop temp_smallest_rowtotal
@@ -602,7 +603,7 @@ local ym_start_data_minus1 = `ym_start_data' - 1
 // 2020m4, 2022m5, 2021m11 skipped in data reports; no data available
 assert inlist(_m,3,4,5) if inrange(ym,`ym_start',min(`ym_end_data',`ym_end_scorecard')) & !inlist(ym,ym(2020,4),ym(2020,5),ym(2021,11)) & county == "total"
 assert inrange(ym,ym(2005,1),ym(2017,7)) | inlist(ym,ym(2020,4),ym(2020,5),ym(2021,11)) if inlist(_m,2)
-assert inlist(_m,1) if county != "total" | ym == ym(2022,9)
+assert inlist(_m,1) if county != "total" // | ym == ym(2022,12)
 drop _m 
 
 // order and sort 
@@ -636,7 +637,7 @@ sort zipcode ym
 // if there is a duplicate, keep collapsed source 
 // for consistency (doesn't really matter)
 count if dup == 1 & source == "zipcode_level"
-assert `r(N)' == 10
+assert `r(N)' == 14 // 10
 drop if dup == 1 & source == "zipcode_level"
 drop dup 
 
@@ -658,7 +659,7 @@ local ym_start_data_minus1 = `ym_start_data' - 1
 // 2020m4, 2022m5, 2021m11 skipped in data reports; no data available
 assert inlist(_m,3,4,5) if inrange(ym,`ym_start',min(`ym_end_data',`ym_end_scorecard')) & !inlist(ym,ym(2020,4),ym(2020,5),ym(2021,11)) & zipcode == "00000"
 assert inlist(_m,2) if inrange(ym,`ym_start_scorecard',`ym_start_data_minus1') | inrange(ym,`ym_end_data_plus1',`ym_end_scorecard') | inlist(ym,ym(2020,4),ym(2020,5),ym(2021,11))
-assert inlist(_m,1) if zipcode != "00000" | ym == ym(2022,9)
+assert inlist(_m,1) if zipcode != "00000" // | ym == ym(2022,9)
 drop _m 
 
 // order and sort 

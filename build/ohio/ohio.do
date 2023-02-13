@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start	 				= ym(2002,6)
-local ym_end 					= ym(2022,8)
+local ym_end 					= ym(2022,11)
 
 ************************************************************
 
@@ -147,7 +147,7 @@ if `ym' != ym(2018,9) {
 	else if inrange(`ym',ym(2014,2),ym(2018,8)) {
 		assert `r(N)' == 91	
 	}
-	else if inlist(`ym',ym(2020,2)) | inrange(`ym',ym(2020,4),ym(2022,3)) | inrange(`ym',ym(2022,5),ym(2022,9)) {
+	else if inlist(`ym',ym(2020,2)) | inrange(`ym',ym(2020,4),ym(2022,3)) | inrange(`ym',ym(2022,5),ym(2022,12)) {
 		assert `r(N)' == 87 
 	}
 	else if inlist(`ym',ym(2022,4)) {

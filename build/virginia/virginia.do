@@ -2,7 +2,7 @@
 // imports households and individuals from excel sheets
 
 local ym_start 					= ym(2001,9)
-local ym_end 					= ym(2022,10)
+local ym_end 					= ym(2023,1)
 
 ***********************************************************************************
 
@@ -75,7 +75,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2022,2)) {
 		import excel using "${dir_root}/data/state_data/virginia/xlsx/`monthname'_`year'_Participation_Report.xlsx", allstring clear 
 	}
-	else if inrange(`ym',ym(2022,3),ym(2022,10)) {
+	else if inrange(`ym',ym(2022,3),ym(2023,1)) {
 		import excel using "${dir_root}/data/state_data/virginia/xls/`monthname'_`year'_Participation_Report.xls", allstring clear 
 	}
 
@@ -195,7 +195,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		// trim 
 		replace region = trim(region)
 	}
-	else if inrange(`ym',ym(2020,5),ym(2022,10)) {
+	else if inrange(`ym',ym(2020,5),ym(2023,1)) {
 		while !strpos(v1,"region") & !strpos(v2,"locality") {
 			drop in 1
 		}
@@ -378,6 +378,8 @@ replace county = "richmondcounty" if county == "richmond" & region_detail == ""
 replace county = "richmondcounty" if county == "richmond" & region_detail == "county"
 replace county = "franklincity" if county == "franklin" & fips == 620
 replace county = "franklincounty" if county == "franklin" & fips == 67
+replace county = "richmondcounty" if county == "warsawarea-richmond" 
+
 drop if county == "southboston"
 drop if county == "cliftonforge"
 
@@ -397,5 +399,4 @@ save "${dir_root}/data/state_data/virginia/virginia.dta", replace
 
 **********************************************************************************************************
 **********************************************************************************************************
-
 

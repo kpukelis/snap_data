@@ -35,7 +35,7 @@ local irs990_explore		= 0 // KEEP GOING HERE 2021-10-18
 local mass_phd_dummydata	= 0
 local hia 					= 0 // KEEP GOING HERE 2021-02-04
 local massachusetts_waivers = 0 
-local alabama				= 0 
+local alabama				= 0
 // local alaska				= 0 fixed statewide 
 local arizona				= 0
 local arkansas				= 0
@@ -89,7 +89,7 @@ local wisconsin 			= 0
 
 // combine 
 local combine_state_ym 		= 0
-local combine_county_ym		= 0
+local combine_county_ym		= 1
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04
@@ -104,7 +104,7 @@ local analyze_wisconsin 	= 0
 local newyork_southerntier 	= 0 // KEEP GOING HERE 2021-04-26
 local louisiana_analyze_closures = 0
 local california_analyze_apps = 0
-local massachusetts_analyze_apps = 1
+local massachusetts_analyze_apps = 0
 
 ***********************************************
 

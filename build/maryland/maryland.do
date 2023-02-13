@@ -100,7 +100,7 @@ foreach num of local obsnum_withincounty_nums {
  	}
 	else if `year' == 2023 {
 		*display in red `r(k)' 
-		assert r(k) == 6
+		assert r(k) == 9
  	}
  	else {
 		assert r(k) == 15 | r(k) == 14
@@ -130,8 +130,8 @@ foreach num of local obsnum_withincounty_nums {
 	if `year' == 2013 & `num' == 9 {
 		replace _2013_02 = "521666.28" if _2013_02 == "521.666.28" & county == "montgomery"
 	}
-	if r(k) == 6 & `year' == 2023 {
-		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 average obsnum)
+	if r(k) == 9 & `year' == 2023 {
+		rename (`r(varlist)') (county _`yearminus1'_07 _`yearminus1'_08 _`yearminus1'_09 _`yearminus1'_10 _`yearminus1'_11 _`yearminus1'_12 average obsnum)
 	}
 	foreach v of varlist _????_?? {
 		replace `v' = ustrregexra(`v',"tbd","")
