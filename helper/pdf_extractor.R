@@ -240,6 +240,7 @@ dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/alabama/pd
 years <- 2020:2021
 year <- 2022
 year_short <- 22
+months <- c("10")
 months <- c(
   "01","02","03","04",
   "04","05","06",

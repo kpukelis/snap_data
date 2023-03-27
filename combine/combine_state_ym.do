@@ -524,4 +524,4 @@ foreach var in `keep_varlist' {
 // save 
 save "${dir_root}/data/state_data/state_ym.dta", replace 
 
-
+check

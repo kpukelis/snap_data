@@ -1,7 +1,7 @@
 // alabama.do
 
 local ym_start	 				= ym(2001,1)
-local ym_end 					= ym(2022,9)
+local ym_end 					= ym(2022,10)
 local num_counties 				= 68 // including total 
 
 ************************************************************

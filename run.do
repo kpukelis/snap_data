@@ -72,7 +72,7 @@ local northdakota			= 0 // not completed (rolling clock)
 local ohio					= 0
 local oklahoma				= 0 // not completed (fixed individual)
 local oregon				= 0
-local pennsylvania			= 0 
+local pennsylvania			= 0
 local rhodeisland 			= 0 // fixed statewide
 local southcarolina			= 0
 local southdakota 			= 0
@@ -89,7 +89,7 @@ local wisconsin 			= 0
 
 // combine 
 local combine_state_ym 		= 0
-local combine_county_ym		= 1
+local combine_county_ym		= 0
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04
