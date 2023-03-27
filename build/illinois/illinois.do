@@ -2,7 +2,7 @@
 // imports households and persons from excel sheets
 
 local year_start				2010
-local year_end 					2022
+local year_end 					2023
 local sheets 					persons households
 
 ***************************************************************
@@ -189,16 +189,16 @@ forvalues year = `year_start'(1)`year_end' {
 	
 		// reshape
 		rename january _1 
-		rename february _2 
-		rename march _3
-		rename april _4 
-		rename may _5
-		rename june _6 
-		rename july _7
-		rename august _8
-		rename september _9
-		rename october _10 
-		if `year' != 2022 {
+		if `year' != 2023 {
+			rename february _2 
+			rename march _3
+			rename april _4 
+			rename may _5
+			rename june _6 
+			rename july _7
+			rename august _8
+			rename september _9
+			rename october _10 
 			rename november _11
 			rename december _12
 		}
@@ -359,12 +359,13 @@ preserve
 	duplicates tag county year, gen(dup)
 	assert dup == 0
 	drop dup 	
-	// population: make 2022 data same as 2021 data, for now 
-	expand 2 if year == 2021
+	// population: make 2022, 2023 data same as 2021 data, for now 
+	expand 3 if year == 2021
 	bysort county year: gen obsnum_within = _n 
 	sum obsnum_within
-	assert `r(max)' == 2
+	assert `r(max)' == 3
 	replace year = 2022 if obsnum_within == 2
+	replace year = 2023 if obsnum_within == 3
 	drop obsnum_within
 	tempfile illinois_county_pop
 	save `illinois_county_pop'
@@ -479,5 +480,5 @@ sort office_county_group ym county
 // save 
 save "${dir_root}/data/state_data/illinois/illinois.dta", replace 
 
-
+check
 
