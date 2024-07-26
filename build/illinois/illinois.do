@@ -2,7 +2,7 @@
 // imports households and persons from excel sheets
 
 local year_start				2010
-local year_end 					2023
+local year_end 					2024
 local sheets 					persons households
 
 ***************************************************************
@@ -189,7 +189,7 @@ forvalues year = `year_start'(1)`year_end' {
 	
 		// reshape
 		rename january _1 
-		if `year' != 2023 {
+		if !inlist(`year',2024) {
 			rename february _2 
 			rename march _3
 			rename april _4 
@@ -201,6 +201,10 @@ forvalues year = `year_start'(1)`year_end' {
 			rename october _10 
 			rename november _11
 			rename december _12
+		}
+		else if inlist(`year',2024) {
+			rename february _2 
+			rename march _3
 		}
 		reshape long _, i(county) j(month)
 		rename _ `sheet'
@@ -360,12 +364,13 @@ preserve
 	assert dup == 0
 	drop dup 	
 	// population: make 2022, 2023 data same as 2021 data, for now 
-	expand 3 if year == 2021
+	expand 4 if year == 2021
 	bysort county year: gen obsnum_within = _n 
 	sum obsnum_within
-	assert `r(max)' == 3
+	assert `r(max)' == 4
 	replace year = 2022 if obsnum_within == 2
 	replace year = 2023 if obsnum_within == 3
+	replace year = 2024 if obsnum_within == 4
 	drop obsnum_within
 	tempfile illinois_county_pop
 	save `illinois_county_pop'

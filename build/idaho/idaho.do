@@ -2,7 +2,7 @@
 // imports cases and clients from csvs
 
 local ym_start	 				= ym(2009,11) 
-local ym_end 					= ym(2022,12)
+local ym_end 					= ym(2024,4)
 
 ************************************************************
 

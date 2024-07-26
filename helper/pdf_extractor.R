@@ -6,15 +6,15 @@ dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/ohio/pdfs_
 
 #page_range <- 7:9
 page_range <- 6:7
-year <- 2022
+year <- 2023
 
 months <- c(
-   #"January",
-  #  "February",
-  #  "March",
-  #"April",
-  #"May","June",
-  #"July","August",
+   "January",
+    "February",
+    "March",
+  "April",
+  "May","June",
+  "July","August",
   "September",
   "October",
   "November",
@@ -36,15 +36,15 @@ dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newjerse
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newjersey/pdfs_short"
 
 page_range <- 12:12
-year <- 2022
-year_short <- 22
+year <- 2024
+year_short <- 24
 months <- c(
-#  "jan",
-#  "feb",
-#  "mar",
-#"apr",
-#"may",
-#"jun")
+  "jan",
+  "feb",
+  "mar",
+"apr",
+"may",
+"jun",
 "jul","aug","sep",
 "oct",
 "nov",
@@ -66,14 +66,14 @@ dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/arizona/
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/arizona/pdfs_short"
 
 page_range <- 6:6
-year <- 2023
-months <- c("01")
-#"02","03","04")
-c(
-  #"05","06",
+year <- 2024
+months <- c("01",
+"02","03","04",
+"05")
+#"06",
 #"07","08","09",
-"10",
-"11","12")
+#"10",
+#"11","12")
 
 
 #for (year in years) {
@@ -92,12 +92,12 @@ for (month in months) {
 dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/missouri/pdfs"
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/missouri/pdfs_short"
 
-year <- 2022
-year_short <- 22
+year <- 2024
+year_short <- 24
 months <- c(
-  #"01","02","03","04")
-  #"04","05","06",
-  #"07","08","09")
+  "01","02","03",
+  "04","05","06",
+  "07","08","09",
   "10","11","12")
 #page_range <- 151:159
 #page_range <- 147:155
@@ -107,6 +107,7 @@ page_range <- 21:27
 #for (year in years) {
 for (month in months) {
   pdf_subset(input = paste0(dir_source,"/",year,"/",month,year_short,"-family-support-mohealthnet-report.pdf"),
+    #input = paste0(dir_source,"/",year,"/fsd-mohealthnet-report-",month,year_short,".pdf"),
              pages = page_range, 
              output = paste0(dir_save,"/",year,"/",month,year_short,"-family-support-mohealthnet-report.pdf"))
 }
@@ -117,13 +118,13 @@ for (month in months) {
 dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_race"
 
-years <- 2022:2022
+years <- 2023:2024
 #year <- 2018
 months <- c(
-  #"January",
-  #"February","March",
-  #"April","May","June","July",
-  #"August")
+  "January",
+  "February","March",
+  "April","May","June","July",
+  "August",
   "September","October","November","December")
 
 #page_range <- 4:4
@@ -134,7 +135,8 @@ for (year in years) {
 for (month in months) {
   pdf_subset(#input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
     #input = paste0(dir_source,"/",year,"/","MSR_",month,year,"_Final.pdf"),
-    input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+    #input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+    input = paste0(dir_source,"/",year,"/",month,".pdf"),
     pages = page_range, output = paste0(dir_save,"/",year,"/","MSR_",month,"_",year,".pdf"))
 }
 }
@@ -145,20 +147,21 @@ dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexic
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short"
 
 years <- 2013:2018
-year <- 2022
+year <- 2024
 months <- c(
-            #"January",
-            #"February","March",
+            "January",
+            "February","March",
             "April","May","June","July",
-            "August")
-            #"September","October","November","December")
+            "August",
+            "September","October","November","December")
 
 #month <- "January"
 #for (year in years) {
   for (month in months) {
     pdf_subset(#input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
                 #input = paste0(dir_source,"/",year,"/","MSR_",month,year,".pdf"),
-                input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+                #input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+            input = paste0(dir_source,"/",year,"/",month,".pdf"),
                pages = 3:3, output = paste0(dir_save,"/",year,"/","MSR_",month,"_",year,"-3.pdf"))
   }
 #}
@@ -168,14 +171,14 @@ months <- c(
 dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_apps"
 
-years <- 2022:2022
+years <- 2024:2024
 #year <- 2018
 months <- c(
-  #"January",
-  #"February","March","April","May",
-  #"June","July",
-  "August")
-  #"September","October","November","December")
+  "January",
+  "February","March","April","May",
+  "June","July",
+  "August",
+  "September","October","November","December")
 #months <- c(
   #"01","02","03")
 #"04","05","06",
@@ -193,15 +196,14 @@ page_range <- 23:23 # for 2014m2-2014m7
 page_range <- 43:43 # for 2013m1-2013m6
 page_range <- 23:23 # for 2022m5-2022m7
 page_range <- 22:22 # for 2022m8
-
-
-
+page_range <- 23:23 # for 2022m9-2024m4
 
 for (year in years) {
 for (month in months) {
   pdf_subset(#input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
     #input = paste0(dir_source,"/",year,"/","MSR_",month,year,"_Final.pdf"),
-    input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+    #input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+    input = paste0(dir_source,"/",year,"/",month,".pdf"),
     pages = page_range, output = paste0(dir_save,"/",year,"/","MSR_",month,"_",year,"_apps.pdf"))
 }
 }
@@ -211,24 +213,24 @@ for (month in months) {
 dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_og"
 
-years <- 2020:2020
+years <- 2024:2024
 #year <- 2018
 months <- c(
-  #"January",
-  #"February","March","April","May",
-  #"June","July",
-  #"August",
-  #"September","October","November",
+  "January",
+  "February","March","April","May",
+  "June","July",
+  "August",
+  "September","October","November",
   "December")
 
-page_range <- 21:21 # thru 2022m7
-page_range <- 20:20 # 2022m8-
+page_range <- 21:21 # thru 2022m7, 2022m9
+#page_range <- 20:20 # 2022m8 only
 
 for (year in years) {
   for (month in months) {
     pdf_subset(#input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
       #input = paste0(dir_source,"/",year,"/","MSR_",month,year,"_Final.pdf"),
-      input = paste0(dir_source,"/",year,"/","MSR_",month,"_",year,".pdf"),
+      input = paste0(dir_source,"/",year,"/",month,".pdf"),
       pages = page_range, output = paste0(dir_save,"/",year,"/","MSR_",month,"_",year,".pdf_short.pdf"))
   }
 }
@@ -238,16 +240,19 @@ dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/alabama/
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/alabama/pdfs_short"
 
 years <- 2020:2021
-year <- 2022
-year_short <- 22
-months <- c("10")
+year <- 2024
+year_short <- 24
+#months <- c("11","12")
 months <- c(
-  "01","02","03","04",
-  "04","05","06",
+  "01",
+  "02","03","04",
+  "04",
+  "05","06",
   "07",
   "08","09",
   "10","11","12")
 page_range <- 33:34
+#page_range <- 50:51 # 2023m5-m7
 
 
 #for (year in years) {
@@ -265,7 +270,7 @@ dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/kansas/p
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/kansas/pdfs_short"
 
 page_range <- 6:7
-years <- 2022:2023
+years <- 2023:2024
 for (year in years) {
   pdf_subset(input = paste0(dir_source,"/CURRENT_PAR_SFY",year,"_Access.pdf"),
              pages = page_range, 
@@ -277,12 +282,12 @@ for (year in years) {
 dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newyork/pdfs"
 dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newyork/pdfs_short"
 
-years <- 2022:2022
+years <- 2024:2024
 months <- c(
-#  "01","02","03","04",
- # "04",
-  #"05","06",
-  #"07","08",
+  "01","02","03","04",
+  "04",
+  "05","06",
+  "07","08",
   "09",
   "10","11","12")
 

@@ -4,8 +4,9 @@
 **KP: not digitized yet
 
 **new format**
-local ym_start 					= ym(2016,7)
-local ym_end 					= ym(2022,12)
+*local ym_start 					= ym(2016,7)
+local ym_start 					= ym(2022,12)
+local ym_end 					= ym(2024,4)
 
 ********************************************************************
 // STATE TOTALS 

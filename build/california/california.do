@@ -1,7 +1,7 @@
 // california.do 
 // Kelsey Pukelis
 
-local year_short_list			/*10 14*/ 16 17 18 19 20 21 22 
+local year_short_list			/*10 14*/ 16 17 18 19 20 21 22 23
 local first_year_short 			16
 
 **************************************************************************
@@ -142,7 +142,7 @@ foreach year_short of local year_short_list {
 		// load data 
 		import excel "${dir_root}/data/state_data/california/excel/DFA 256 - Food Stamp Program Participation and Benefit Issuances/DFA256FY`year_short'-`year_short_plus1'.xlsx", sheet("Data") allstring case(lower) firstrow clear 		
 	}
-	else if inrange(`year_short',20,22) {
+	else if inrange(`year_short',20,23) {
 		// load data 
 		import excel "${dir_root}/data/state_data/california/excel/DFA 256 - Food Stamp Program Participation and Benefit Issuances/DFA256FY`year_short'-`year_short_plus1'.xlsx", sheet("Data_External") allstring case(lower) firstrow clear 		
 	}
@@ -155,25 +155,25 @@ foreach year_short of local year_short_list {
 	drop in 1
 
 	// one extra blank var in FY 2020
-*	if inlist(`year_short',20,21) {
-*		drop v3 
-*		describe, varlist 
-*		rename (`r(varlist)') (v#), addnumber
-*	}
+	if inlist(`year_short',20,21,22,23) { 
+		drop v3 
+		describe, varlist 
+		rename (`r(varlist)') (v#), addnumber
+	}
 
 	// rename variables
 	describe, varlist
-	if inlist(`year_short',20,21,22) {
+	if inlist(`year_short',20) {
+		assert `r(k)' == 35
+	}
+	else if inlist(`year_short',21,22,23) { 
 		assert `r(k)' == 36
 	}
 	else {
 		assert `r(k)' == 37
 	}
-	if `year_short' == 21 {
-		assert `r(N)' == 653
-	}
-	else if `year_short' == 22 {
-		assert `r(N)' == 181 // this will change as more data is added
+	else if `year_short' == 23 {
+		assert `r(N)' == 181 // this will change as more data is added 
 	}
 	else {
 		assert `r(N)' == 712	
@@ -188,7 +188,14 @@ foreach year_short of local year_short_list {
 		rename v6 sfy 
 		rename v7 ffy 
 	}
-	else if inlist(`year_short',20,21,22) {
+	else if inlist(`year_short',20) {
+		rename v1 date 
+		rename v2 county 
+		rename v3 sfy 
+		rename v4 ffy 
+		rename v5 reportmonth 
+	}
+	else if inlist(`year_short',21,22,23) {
 		rename v1 date 
 		rename v2 county
 		rename v3 countycode 
@@ -230,7 +237,39 @@ foreach year_short of local year_short_list {
 		rename v36	vissuance_valueofstatebenefitis
 		rename v37	vissuance_total
 	}
-	else if inlist(`year_short',20,21,22) {
+	else if inlist(`year_short',20) {
+		rename v6	pacffedhhs
+		rename v7	pacffedstatehhs
+		rename v8	pacfstatehhs
+		rename v9	nacffedhhs
+		rename v10	nacffedstatehhs
+		rename v11	nacfstatehhs
+		rename v12	totalhhsfed
+		rename v13	totalhhsfedstate
+		rename v14	totalhhsstate
+		rename v15	pacfpersinfedonlyhhs
+		rename v16	nacfpersinfedonlyhhs
+		rename v17	totalpersinfedonlyhhs
+		rename v18	pacffedstatepersinfedstatehhsfe
+		rename v19	pacffedstatepersinfedstatehhsst
+		rename v20	nacffedstatepersinfedstatehhsfe
+		rename v21	nacffedstatepersinfedstatehhsst
+		rename v22	totalfedstatepersinfedstatehhsf
+		rename v23	totalfedstatepersinfedstatehhss
+		rename v24	pacfpersinstateonlyhhs
+		rename v25	nacfpersinstateonlyhhs
+		rename v26	totalpersinstateonlyhhs
+		rename v27	issuance_mail
+		rename v28	issuance_contractedoverthecount
+		rename v29	issuance_overthecounter
+		rename v30	issuance_ebtissuances
+		rename v31	issuance_total
+		rename v32	issuance_ebtconvertedtocoupons
+		rename v33	vissuance_valueoffedbenefiti
+		rename v34	vissuance_valueofstatebenefitis
+		rename v35	vissuance_total
+	}	
+	else if inlist(`year_short',21,22,23) {
 		rename v7	pacffedhhs
 		rename v8	pacffedstatehhs
 		rename v9	pacfstatehhs
@@ -288,8 +327,8 @@ foreach year_short of local year_short_list {
 	drop in 1
 	drop in 1
 	drop in 1
-	drop in 1
-
+	drop in 1	
+	
 	// destring
 	// Cells that could identify an individual with a value of less than 11 have been replaced with a “*” to comply with the CDSS Data De-identification Guidelines .
 
@@ -614,7 +653,7 @@ foreach year_short of local year_short_list {
 		// load data 
 		import excel "${dir_root}/data/state_data/california/excel/CF 296 - CalFresh Monthly Caseload/CF296FY`year_short'-`year_short_plus1'.xlsx", sheet("FinalData") allstring case(lower) firstrow clear 		
 	}
-	else if inrange(`year_short',20,22) {
+	else if inrange(`year_short',20,23) {
 		// load data 
 		import excel "${dir_root}/data/state_data/california/excel/CF 296 - CalFresh Monthly Caseload/CF296FY`year_short'-`year_short_plus1'.xlsx", sheet("Data_External") allstring case(lower) firstrow clear 		
 	}
@@ -629,7 +668,7 @@ foreach year_short of local year_short_list {
 *	drop in 1	
 
 	// one extra blank var in FY 2020
-	if inlist(`year_short',20,21,22) {
+	if inlist(`year_short',20,21,22,23) {
 		drop v3 
 		describe, varlist 
 		rename (`r(varlist)') (v#), addnumber
@@ -638,11 +677,8 @@ foreach year_short of local year_short_list {
 	// rename variables
 	describe, varlist
 	assert `r(k)' == 129
-	if `year_short' == 21 {
-		assert `r(N)' == 357
-	}
-	else if `year_short' == 22 {
-		assert `r(N)' == 121
+	if `year_short' == 23 {
+		assert `r(N)' == 475 // should change
 	}
 	else {
 		assert `r(N)' == 711	
@@ -656,7 +692,7 @@ foreach year_short of local year_short_list {
 		rename v5 sfy 
 		rename v6 ffy 
 	}
-	else if inlist(`year_short',20,21,22) {
+	else if inlist(`year_short',20,21,22,23) {
 		rename v1 date 
 		rename v2 county
 		rename v3 countycode 
@@ -1076,7 +1112,7 @@ merge 1:1 county ym using "${dir_root}/data/state_data/california/california_enr
 
 // check merge 
 assert inlist(_m,2,3)
-assert inrange(ym,ym(2022,1),ym(2022,5)) | ym == ym(2022,9) if _m == 2
+assert inrange(ym,ym(2022,1),ym(2022,6)) if _m == 2
 drop _m 
 
 // order and sort 
