@@ -1,7 +1,7 @@
 // newyork.do
 
 local ym_start	 				= ym(2001,1)
-local ym_end 					= ym(2022,12)
+local ym_end 					= ym(2024,4)
 
 ************************************************************
 forvalues ym = `ym_start'(1)`ym_end' {
@@ -189,5 +189,5 @@ tab county
 	assert households_temp + households_nontemp == households
 	assert individuals_temp + individuals_nontemp == individuals
 	assert issuance_temp + issuance_nontemp == issuance
-
+check 
 

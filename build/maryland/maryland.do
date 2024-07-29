@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local year_start 					= 2008
-local year_end 						= 2023
+local year_end 						= 2024
 
 ********************************************************************
 
@@ -20,6 +20,9 @@ forvalues year = `year_start'(1)`year_end' {
 		replace `v' = strlower(`v')
 	}
 	gen obsnum = _n 
+
+replace A = "somerset" if A == "someset"
+ 
 
 #delimit ;
 drop if !inlist(A,
@@ -43,7 +46,7 @@ drop if !inlist(A,
 "queen anne's",
 "st. mary's")
 & !inlist(A,
-"saint mary's"
+"saint mary's",
 "somerset",
 "talbot",
 "washington",
@@ -54,6 +57,7 @@ drop if !inlist(A,
 "baltimore co")
 ;
 #delimit cr 
+
 
 bysort A (obsnum): gen obsnum_withincounty = _n 
 sum obsnum_withincounty	
@@ -76,7 +80,7 @@ else if inlist(`year',2015) {
 else if inlist(`year',2017,2018,2019,2020,2021,2022) {
 	assert r(max) == 42
 }
-else if inlist(`year',2023) {
+else if inlist(`year',2023,2024) {
 	*display in red `r(max)'
 	assert r(max) == 48
 }
@@ -947,7 +951,7 @@ foreach num of local obsnum_withincounty_nums {
 			rename _ ssi	
 		}
 	}
-	if inlist(`year',2023) {
+	if inlist(`year',2023,2024) {
 		if `num' == 1 {
 			rename _ tanf_apps_received			
 		}
@@ -1283,7 +1287,7 @@ sort county ym
 // save 
 tempfile county_level
 save `county_level'
-
+ 
 ********************************************************************
 // STATE LEVEL DATA 2008-2020
 
@@ -1499,4 +1503,4 @@ drop dup
 // save 
 save "${dir_root}/data/state_data/maryland/maryland.dta", replace 
 
-
+check 

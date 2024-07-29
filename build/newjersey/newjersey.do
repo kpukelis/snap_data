@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start	 				= ym(2007,1)
-local ym_end 					= ym(2022,12)
+local ym_end 					= ym(2024,5)
 
 ************************************************************
 forvalues ym = `ym_start'(1)`ym_end' {
@@ -344,4 +344,4 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/newjersey/newjersey.dta", replace 
-
+check 

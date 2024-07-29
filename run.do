@@ -12,10 +12,13 @@ cls
 
 // directories and file names
 *global dir_root 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits"
-global dir_root 		"G:/My Drive/Harvard/research/time_limits"
-global dir_code 		"C:/Users/Kelsey/Documents/GitHub/snap_data"
+*global dir_root 		"G:/My Drive/Harvard/research/time_limits"
+global dir_root 		"G:/Harvard/research/time_limits"
+*global dir_code 		"C:/Users/Kelsey/Documents/GitHub/snap_data"
+global dir_code 		"C:/Users/kelse/OneDrive/Documents/GitHub/snap_data"
 *global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/data/state_data/_graphs"
-global dir_graphs 		"G:/My Drive/Harvard/research/time_limits/data/state_data/_graphs"
+*global dir_graphs 		"G:/My Drive/Harvard/research/time_limits/data/state_data/_graphs"
+global dir_graphs 		"G:/Harvard/research/time_limits/data/state_data/_graphs"
 
 // run globals
 *do "${dir_code}/0_utility/globals.do"
@@ -49,8 +52,8 @@ local hawaii				= 0 // not completed (rolling clock)
 local idaho					= 0
 local illinois				= 0
 local indiana				= 0 // **KP: can go back further cleaning indiana data 
-local iowa					= 1 // **KP: can go back further cleaning iowa data 
-local kansas				= 0 
+local iowa					= 0 // **KP: can go back further cleaning iowa data 
+local kansas				= 0
 local kentucky				= 0
 local louisiana				= 0 // county apps data still more years to clean
 local maine					= 0
@@ -67,15 +70,15 @@ local nebraska				= 0
 local newjersey				= 0
 local newmexico				= 0
 local newyork				= 0 
-local northcarolina			= 0 
+local northcarolina			= 0 // **KP: 2024-07-29 still need to finish running, when I have time
 local northdakota			= 0 // not completed (rolling clock)
-local ohio					= 0
+local ohio					= 0 // **KP: 2024-07-29 still need to finish running, when I have time
 local oklahoma				= 0 // not completed (fixed individual)
 local oregon				= 0
 local pennsylvania			= 0
 local rhodeisland 			= 0 // fixed statewide
-local southcarolina			= 0
-local southdakota 			= 0
+local southcarolina			= 0 
+local southdakota 			= 1
 local tennessee 			= 0
 local texas	 				= 0
 // local utah 				= 0
@@ -111,6 +114,9 @@ local massachusetts_analyze_apps = 0
 // install special Stata packages
 if `switch_install' == 1 {
 *	ssc install egenmore
+	net install dm89_2.pkg, replace // dropmiss command
+	net install carryforward.pkg, replace // carryforward command
+	ssc install encodefrom, replace
 }
 
 // build county pop data 

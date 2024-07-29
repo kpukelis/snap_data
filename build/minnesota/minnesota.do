@@ -2,9 +2,9 @@
 // Kelsey Pukelis
 
 local year_start 				= 2014
-local year_end 					= 2022
+local year_end 					= 2024
 local ym_start 					= ym(2014,1)
-local ym_end 					= ym(2022,9)
+local ym_end 					= ym(2024,5)
 local file_2014 				"SNAP-Calendar-Year-2014-(XLS)_tcm1053-165235.xls"
 local file_2015 				"snap-calendar-year-2015_tcm1053-166277.xlsx"
 local file_2016 				"snap-cy2016-0717_tcm1053-304106.xlsx"
@@ -15,6 +15,8 @@ local file_2019 				"snap-cy2019_tcm1053-419399.xlsx"
 local file_2020 				"snap-cy2020-0121_tcm1053-462682.xlsx"
 local file_2021 				"snap-cy2021_tcm1053-518308_KP.xlsx"
 local file_2022 				"snap-cy2022-0922_tcm1053-543009.xlsx"
+local file_2023 				"snap-cy2023-1223v3_tcm1053-606518.xlsx"
+local file_2024 				"snap-cy2024-0524_tcm1053-626678.xlsx"
 
 *********************************************************************
 
@@ -160,3 +162,5 @@ sort county ym
 
 // save
 save "${dir_root}/data/state_data/minnesota/minnesota.dta", replace
+
+check 

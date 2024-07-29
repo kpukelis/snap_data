@@ -2,29 +2,35 @@
 // imports cases and clients from excel sheets
 **KP: `mdy' != mdy(12,24,2018) /*they posted the micro data...also here, with a key: 2021-08-23 and 2021-11-08*/ 
 
-local datasets 					cases apps abawds workcases workapps
-local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-01-2023"
-local file_apps 				"FNS-Applications-By-County-By-Month-thru-01-2023"
-local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-12-2022_axis label correction_v2"
+*local datasets 					cases apps abawds workcases workapps
+local datasets 					cases apps abawds 
+*local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-01-2023"
+local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-05-2024"
+*local file_apps 				"FNS-Applications-By-County-By-Month-thru-01-2023"
+local file_apps 				"FNS-Applications-By-County-By-Month-thru-05-2024"
+*local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-12-2022_axis label correction_v2"
+local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-05-2024_hb"
 local file_workcases			"Work-First-Cases-Participants-Counts-by-County-thru-09-2022"
 local file_workapps 			"Work-First-Applications-By-Month-thru-09-2022"
 
+
 local ym_start_cases			= ym(2006,7)
-local ym_end_cases				= ym(2023,1)
+local ym_end_cases				= ym(2024,5)
 local ym_start_apps				= ym(2007,4)
-local ym_end_apps				= ym(2023,1)
+local ym_end_apps				= ym(2024,5)
 local ym_start_abawds			= ym(2017,4)
-local ym_end_abawds				= ym(2022,12)
+local ym_end_abawds				= ym(2024,5)
 local ym_start_workcases		= ym(2007,4)
 local ym_end_workcases			= ym(2022,9)
 local ym_start_workapps			= ym(2007,4)
 local ym_end_workapps			= ym(2022,9)
 
 local ym_start_timeliness_recert= ym(2017,9)
-local ym_end_timeliness_recert	= ym(2023,1)
+local ym_end_timeliness_recert	= ym(2024,5)
+
 
 local mdy_start_timeliness_app 	= mdy(11,27,2017)
-local mdy_end_timeliness_app 	= mdy(1,30,2023)
+local mdy_end_timeliness_app    = mdy(6,17,2024) // Jun17_Jun23_2024
 
 ***************************************************************
 ***************************************************************
@@ -87,7 +93,7 @@ if `mdy' != mdy(3,26,2018) /*not listed on website*/ & `mdy' != mdy(12,24,2018) 
 	display in red "`mdy_end'"
 
 	// how months are listed 
-	if inlist(`year',2017,2018) | inrange(`mdy',mdy(9,2,2019),mdy(12,30,2019)) {
+	if inlist(`year',2017,2018) | inrange(`mdy',mdy(9,2,2019),mdy(12,30,2019)) | inrange(`mdy',mdy(4,24,2023),mdy(11,5,2023)) | inrange(`mdy',mdy(3,4,2024),mdy(1,1,2099)) {
 		#delimit ;
 		if `month' == 1 { ; local monthname = "Jan" ; } ; if `month_end' == 1 { ; local monthname_end = "Jan" ; } ;
 		if `month' == 2 { ; local monthname = "Feb" ; } ; if `month_end' == 2 { ; local monthname_end = "Feb" ; } ;
@@ -119,7 +125,7 @@ if `mdy' != mdy(3,26,2018) /*not listed on website*/ & `mdy' != mdy(12,24,2018) 
 		if `month' == 12 { ; local monthname = "DEC" ; } ; if `month_end' == 12 { ; local monthname_end = "DEC" ; } ;
 		#delimit cr 		
 	}
-	else if inrange(`mdy',mdy(1,1,2020),mdy(1,1,2099)) {
+	else if inrange(`mdy',mdy(1,1,2020),mdy(4,23,2023)) | inrange(`mdy',mdy(11,6,2023),mdy(3,3,2024)) {
 		#delimit ;
 		if `month' == 1 { ; local monthname = "jan" ; } ; if `month_end' == 1 { ; local monthname_end = "jan" ; } ;
 		if `month' == 2 { ; local monthname = "feb" ; } ; if `month_end' == 2 { ; local monthname_end = "feb" ; } ;
@@ -186,10 +192,12 @@ if `mdy' != mdy(3,26,2018) /*not listed on website*/ & `mdy' != mdy(12,24,2018) 
 	////////////
 
 	// import 
-	if inlist(`mdy',mdy(8,23,2021),mdy(11,8,2021)) {
+	if inlist(`mdy',mdy(8,23,2021),mdy(11,8,2021),mdy(4,17,2023),mdy(5,29,2023),mdy(11,6,2023),mdy(6,10,2024)) {
+		display in red "`monthname'`month_day_divider'`dayname'`day_divider'`monthname_end'`month_day_divider'`dayname_end'`day_divider'`year'.xlsx"
 		import excel using "${dir_root}/data/state_data/northcarolina/timeliness/excel/application/`year'/`monthname'`month_day_divider'`dayname'`day_divider'`monthname_end'`month_day_divider'`dayname_end'`day_divider'`year'.xlsx", sheet("County") allstring clear		
 	}
 	else {
+		display in red "`monthname'`month_day_divider'`dayname'`day_divider'`monthname_end'`month_day_divider'`dayname_end'`day_divider'`year'.xlsx"
 		import excel using "${dir_root}/data/state_data/northcarolina/timeliness/excel/application/`year'/`monthname'`month_day_divider'`dayname'`day_divider'`monthname_end'`month_day_divider'`dayname_end'`day_divider'`year'.xlsx", sheet("Table 1") allstring clear		
 	}
 
@@ -468,10 +476,19 @@ if `ym' != ym(2019,8) {
 	if `ym' >= ym(2019,2) {
 		drop in 1
 	}
-	if `ym' >= ym(2020,5) {
+	if inrange(`ym',ym(2020,5),ym(2023,1)) | inlist(`ym',ym(2023,5)) {
 		drop in 1
 	}
 
+	// clean up 
+	dropmiss, force 
+	dropmiss, force obs 
+	describe, varlist
+	rename (`r(varlist)') (v#), addnumber
+
+	// drop other obs
+	drop if strpos(v1,"Recertification Timeliness Report data is only reflective of cases that were not included in the automatic certification extensions as a result of COVID 19.") 
+ 
 	// make firstrow varnames 
 	foreach var of varlist _all {
 		replace `var' = subinstr(`var', "`=char(37)'", "perc_", .) if _n == 1 // char(37) = %
@@ -612,7 +629,7 @@ check
 **************************************************************
 **************************************************************
 **************************************************************
-/*
+
 //////////////
 // DATASETS //
 //////////////
@@ -758,8 +775,9 @@ foreach dataset of local datasets {
 			append using `_`ym''
 		}
 	}
+	dropmiss, force 
 	save "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'.dta", replace
-
+check 
 }
 **"NOTE:  During January 2014, Work First began to transition into NCFAST.  The data in the first chart represents the case and participant count information from the EIS legacy system, while the data from the second chart represents the data from the NCFAST system. All counties did not transition at the same time, so there may not be data represented from the NCFAST system for each county. Therefore, to calculate the total per county on the summary tab, the case counts were added together from both systems."		
 use "${dir_root}/data/state_data/northcarolina/northcarolina_workcases.dta", clear 
@@ -767,6 +785,8 @@ collapse (sum) workfirst_cases workfirst_participants, by(county ym)
 save "${dir_root}/data/state_data/northcarolina/northcarolina_workcases.dta", replace
 duplicates report county ym 
 */
+
+check 
 **************************************************************
 **************************************************************
 **************************************************************
@@ -857,4 +877,4 @@ drop m
 // save 
 save "${dir_root}/data/state_data/northcarolina/northcarolina.dta", replace 
 
-
+check 

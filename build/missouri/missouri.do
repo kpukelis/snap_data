@@ -3,7 +3,7 @@
 
 local ym_start	 				= ym(2008,10) 
 local ym_end_expedited 			= ym(2021,9)
-local ym_end 					= ym(2022,12)
+local ym_end 					= ym(2024,5)
 local suffix_2008 				""
 local suffix_2009 				""
 local suffix_2010 				""
@@ -19,6 +19,8 @@ local suffix_2019 				"-family-support-mohealthnet-report"
 local suffix_2020				"-family-support-mohealthnet-report"
 local suffix_2021				"-family-support-mohealthnet-report"
 local suffix_2022				"-family-support-mohealthnet-report"
+local suffix_2023				"-family-support-mohealthnet-report"
+local suffix_2024				"-family-support-mohealthnet-report"
 local yearname_2008				"08"
 local yearname_2009				"09"
 local yearname_2010				"10"
@@ -34,6 +36,8 @@ local yearname_2019				"19"
 local yearname_2020 			"20"
 local yearname_2021 			"21"
 local yearname_2022 			"22"
+local yearname_2023 			"23"
+local yearname_2024 			"24"
 
 // ym(2019,7) that's when the page splitting gets weird, which caused me to comment out the strpos lines
 // I think I resolved this though, I managed to get all the data 
@@ -415,7 +419,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red  "`year' `month'" 
 
 	// import 
-	if `year' >= 2011 & !inlist(`year',2020,2021,2022) {
+	if `year' >= 2011 & !inlist(`year',2020,2021,2022,2023,2024) {
 		import excel using "${dir_root}/data/state_data/missouri/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 	else {
@@ -449,10 +453,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2018,5)) {
 		noisily sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		noisily sum obsnum if /*strpos(v2,"") &*/ strpos(v2,"RECEIVED")		
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		noisily sum obsnum if /*strpos(v3,"") &*/ strpos(v3,"RECEIVED")		
 	}
 	else {
@@ -479,10 +483,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2013,12)) {
 		noisily sum obsnum if /*strpos(v8,"EXPEDITED") &*/ strpos(v8,"APPLICATIONS")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		noisily sum obsnum if strpos(v3,"HOUSEHOLDS")		
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		noisily sum obsnum if strpos(v2,"HOUSEHOLDS")		
 	}
 	else {
@@ -495,16 +499,16 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	assert r(N) == 1
 *	local batch_start_5 = `r(min)'
 	local batch_start_5 = `r(max)'
-	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		qui sum obsnum if strpos(v3,"CHILDREN") 
 		local total_households_var v3
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		qui sum obsnum if strpos(v2,"CHILDREN") 
 		local total_households_var v2
 	}
 
-	if inrange(`ym',ym(2021,10),ym(2022,12)) {
+	if inrange(`ym',ym(2021,10),ym(2024,5)) {
 		assert r(N) == 2
 		local batch_start_6 = `r(min)'
 		local batch_start_7 = `r(max)'
@@ -601,13 +605,37 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"OCTOBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"NOVEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"DECEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JANUARY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"FEBRUARY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MARCH 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"APRIL 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MAY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JUNE 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JULY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"AUGUST 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"SEPTEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JANUARY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"FEBRUARY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MARCH 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"APRIL 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MAY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JUNE 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JULY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"AUGUST 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"SEPTEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP PROGRAM PARTICIPATION") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"DSS FSD/MHD Monthly Management Report")
 	drop if strpos(v1,"OCTOBER 2008") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP APPLICATIONS") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"TABLE 27") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP EXPEDITED APPLICATIONS") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
-	
+
 	// keep page of data that has county data 
 	*forvalues n = 1(1)`num_pages' {
 	* local n = 2 // county level applications
@@ -759,6 +787,7 @@ save "${dir_root}/data/state_data/missouri/missouri_county_application.dta", rep
 
 tab ym 
 tab county 
+check 
 */
 *******************************************************************************************************
 *******************************************************************************************************
@@ -781,7 +810,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red  "`year' `month'" 
 
 	// import 
-	if `year' >= 2011 & !inlist(`year',2020,2021,2022) {
+	if `year' >= 2011 & !inlist(`year',2020,2021,2022,2023,2024) {
 		import excel using "${dir_root}/data/state_data/missouri/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 	else {
@@ -815,10 +844,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2018,5)) {
 		noisily sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		noisily sum obsnum if /*strpos(v2,"") &*/ strpos(v2,"RECEIVED")		
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		noisily sum obsnum if /*strpos(v3,"") &*/ strpos(v3,"RECEIVED")		
 	}
 	else {
@@ -845,10 +874,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2013,12)) {
 		noisily sum obsnum if /*strpos(v8,"EXPEDITED") &*/ strpos(v8,"APPLICATIONS")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		noisily sum obsnum if strpos(v3,"HOUSEHOLDS")		
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		noisily sum obsnum if strpos(v2,"HOUSEHOLDS")		
 	}
 	else {
@@ -861,16 +890,16 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	assert r(N) == 1
 *	local batch_start_5 = `r(min)'
 	local batch_start_5 = `r(max)'
-	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		qui sum obsnum if strpos(v3,"CHILDREN") 
 		local total_households_var v3
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		qui sum obsnum if strpos(v2,"CHILDREN") 
 		local total_households_var v2
 	}
 
-	if inrange(`ym',ym(2021,10),ym(2022,12)) {
+	if inrange(`ym',ym(2021,10),ym(2024,5)) {
 		assert r(N) == 2
 		local batch_start_6 = `r(min)'
 		local batch_start_7 = `r(max)'
@@ -967,6 +996,30 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"OCTOBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"NOVEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"DECEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JANUARY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"FEBRUARY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MARCH 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"APRIL 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MAY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JUNE 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JULY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"AUGUST 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"SEPTEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JANUARY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"FEBRUARY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MARCH 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"APRIL 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MAY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JUNE 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JULY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"AUGUST 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"SEPTEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP PROGRAM PARTICIPATION") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"Page 156 DSS FSD/MHD Monthly Management Report")
 
@@ -984,7 +1037,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	if inrange(`ym',ym(2008,10),ym(2021,9)) {
 		local page_list 8 9
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,12)) {
+	else if inrange(`ym',ym(2021,10),ym(2024,5)) {
 		local page_list 4 5
 	}
 	foreach n in `page_list' {
@@ -1137,6 +1190,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 // append all ym's 
 forvalues ym = `ym_start'(1)`ym_end' {
+	dis in red "`ym'"
 	if `ym' == `ym_start' {
 		use `_`ym'_county', clear
 	}
@@ -1150,7 +1204,7 @@ save "${dir_root}/data/state_data/missouri/missouri_county_enrollment.dta", repl
 
 tab ym 
 tab county 
-
+check 
 */
 *******************************************************************************		
 *******************************************************************************
@@ -1173,7 +1227,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red  "`year' `month'" 
 
 	// import 
-	if `year' >= 2011 & !inlist(`year',2020,2021,2022) {
+	if `year' >= 2011 & !inlist(`year',2020,2021,2022,2023,2024) {
 		import excel using "${dir_root}/data/state_data/missouri/excel/`year'/`yearname_`year''`month'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 	else {
@@ -1207,10 +1261,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2018,5)) {
 		noisily sum obsnum if /*strpos(v7,"# APPS") &*/ strpos(v7,"RECEIVED")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		noisily sum obsnum if /*strpos(v2,"") &*/ strpos(v2,"RECEIVED")		
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		noisily sum obsnum if /*strpos(v3,"") &*/ strpos(v3,"RECEIVED")		
 	}
 	else {
@@ -1237,10 +1291,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2013,12)) {
 		noisily sum obsnum if /*strpos(v8,"EXPEDITED") &*/ strpos(v8,"APPLICATIONS")	
 	}
-	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	else if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		noisily sum obsnum if strpos(v3,"HOUSEHOLDS")		
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		noisily sum obsnum if strpos(v2,"HOUSEHOLDS")		
 	}
 	else {
@@ -1253,16 +1307,16 @@ forvalues ym = `ym_start'(1)`ym_end' {
 *	assert r(N) == 1
 *	local batch_start_5 = `r(min)'
 	local batch_start_5 = `r(max)'
-	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) {
+	if inrange(`ym',ym(2021,10),ym(2022,3)) | inlist(`ym',ym(2022,5),ym(2022,7),ym(2022,8),ym(2022,9),ym(2022,10),ym(2022,11),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2024,3)) | inlist(`ym',ym(2024,5)) {
 		qui sum obsnum if strpos(v3,"CHILDREN") 
 		local total_households_var v3
 	}
-	else if inlist(`ym',ym(2022,4),ym(2022,6)) {
+	else if inlist(`ym',ym(2022,4),ym(2022,6),ym(2024,4)) {
 		qui sum obsnum if strpos(v2,"CHILDREN") 
 		local total_households_var v2
 	}
 
-	if inrange(`ym',ym(2021,10),ym(2022,12)) {
+	if inrange(`ym',ym(2021,10),ym(2024,5)) {
 		assert r(N) == 2
 		local batch_start_6 = `r(min)'
 		local batch_start_7 = `r(max)'
@@ -1359,6 +1413,30 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"OCTOBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"NOVEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"DECEMBER 2022") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JANUARY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"FEBRUARY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MARCH 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"APRIL 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MAY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JUNE 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JULY 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"AUGUST 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"SEPTEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2023") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JANUARY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"FEBRUARY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MARCH 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"APRIL 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"MAY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JUNE 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"JULY 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"AUGUST 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"SEPTEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"OCTOBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"NOVEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
+	drop if strpos(v1,"DECEMBER 2024") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"FOOD STAMP PROGRAM PARTICIPATION") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 	drop if strpos(v1,"DSS FSD/MHD Monthly Management Report")
 	drop if strpos(v1,"OCTOBER 2008") & missing(v2) & missing(v3) & missing(v4) & missing(v5)
@@ -1403,7 +1481,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		// assert shape 
 		if `n' == 1 {
 
-			if inlist(`ym',ym(2015,4),ym(2015,5),ym(2017,11),ym(2017,12)) | inrange(`ym',ym(2019,7),ym(2019,10)) | inrange(`ym',ym(2021,10),ym(2022,12)) {
+			if inlist(`ym',ym(2015,4),ym(2015,5),ym(2017,11),ym(2017,12)) | inrange(`ym',ym(2019,7),ym(2019,10)) | inrange(`ym',ym(2021,10),ym(2024,5)) {
 
 				drop if v1 == "TOTAL BENEFITS ISSUED" & missing(v2) & missing(v3) & missing(v4) & missing(v5)
 				replace v1 = "TOTAL BENEFITS ISSUED" if missing(v1) & !missing(v2) & !missing(v3) & !missing(v5) & !missing(v6) & !missing(v7) & !missing(v8) //strpos(v2,"104276166")
@@ -1439,10 +1517,34 @@ forvalues ym = `ym_start'(1)`ym_end' {
 				replace varname = "age_60" 						if strpos(v1,"ADULTS AGE 60+")
 				order varname
 		
-				drop v1 
-				sxpose, clear firstnames
+				drop v1  
+				// sxpose, clear firstnames
+				rename varname v1 
+
+				// traspose data 
+				// rewriting this code because sxpose is no longer available...
+				gen id = _n 
+				ds id, not 
+ 				reshape long v, i(id) j(which) string 
+				reshape wide v, i(which) j(id) /*string*/
+				destring which, replace 
+				confirm numeric variable which 
+				sort which 
+				drop which 
+
+				// turn first row into variable names 
+				foreach var of varlist * {
+					replace `var' = strlower(`var')
+					*replace `var' = "_" + `var' if _n == 1
+					replace `var' = ustrregexra(`var',"-","") if _n == 1
+					*replace `var' = ustrregexra(`var',".","") if _n == 1
+					*replace `var' = ustrregexra(`var'," ","") if _n == 1
+					label variable `var' "`=`var'[1]'"
+					rename `var' `=`var'[1]'
+				}
+				drop in 1
 	
-				if inrange(`ym',ym(2021,10),ym(2022,12))  {
+				if inrange(`ym',ym(2021,10),ym(2024,5))  {
 					split avg_benefits_perperson, parse("$")
 					rename avg_benefits_perperson  avg_benefits_perpersonOG
 					rename avg_benefits_perperson1 percs
@@ -1455,7 +1557,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 				// continue to reshape, trim 
 				describe, varlist 
-				if inrange(`ym',ym(2021,10),ym(2022,12)) {
+				if inrange(`ym',ym(2021,10),ym(2024,5)) {
 					assert r(k) == 14
 				}
 				else {
@@ -1470,8 +1572,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 				replace ym = `ym' - 2  if _n == 3
 				replace ym = `ym' - 12 if _n == 4
 				format ym %tm 
-
-				if inrange(`ym',ym(2021,10),ym(2022,12)) {
+ 
+				if inrange(`ym',ym(2021,10),ym(2024,5)) {
 					// destring 
 					foreach var in apps_received apps_approved apps_denied apps_expedited avg_days_process households individuals children disabled age_18_59 age_60 issuance avg_benefits_perhousehold avg_benefits_perperson {
 						destring `var', replace 
@@ -1508,8 +1610,32 @@ forvalues ym = `ym_start'(1)`ym_end' {
 				replace varname = "avg_benefits" 		if strpos(v1,"AVERAGE VALUE OF BENEFITS")
 				order varname
 				drop v1 
-				sxpose, clear firstnames
+				// sxpose, clear firstnames
+				rename varname v1 
+
+				// traspose data 
+				// rewriting this code because sxpose is no longer available...
+				gen id = _n 
+				ds id, not 
+ 				reshape long v, i(id) j(which) string 
+				reshape wide v, i(which) j(id) /*string*/
+				destring which, replace 
+				confirm numeric variable which 
+				sort which 
+				drop which 
 	
+				// turn first row into variable names 
+				foreach var of varlist * {
+					replace `var' = strlower(`var')
+					*replace `var' = "_" + `var' if _n == 1
+					replace `var' = ustrregexra(`var',"-","") if _n == 1
+					*replace `var' = ustrregexra(`var',".","") if _n == 1
+					*replace `var' = ustrregexra(`var'," ","") if _n == 1
+					label variable `var' "`=`var'[1]'"
+					rename `var' `=`var'[1]'
+				}
+				drop in 1
+
 				// continue to reshape, trim 
 				describe, varlist 
 				assert r(k) == 12
@@ -1722,5 +1848,5 @@ save "${dir_root}/data/state_data/missouri/missouri.dta", replace
 
 tab county 
 tab ym 
-
+check 
 

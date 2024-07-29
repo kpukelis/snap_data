@@ -2,7 +2,7 @@
 // imports households and individuals from excel sheets
 
 local ym_start					= ym(2008,3)
-local ym_end 					= ym(2023,1)
+local ym_end 					= ym(2024,5)
 local prefix_2008 				"fs-"
 local prefix_2009 				"fs-"
 local prefix_2010 				"fs-"
@@ -19,6 +19,7 @@ local prefix_2020 				"fs_"
 local prefix_2021 				""
 local prefix_2022 				""
 local prefix_2023 				""
+local prefix_2024 				""
 local middle_2008 				""
 local middle_2009 				""
 local middle_2010 				""
@@ -46,7 +47,8 @@ local suffix_2019 				""
 local suffix_2020				""
 local suffix_2021				"tab13"
 local suffix_2022				"tab13_1"
-local suffix_2023				"tab13"
+local suffix_2023				"tab13_2"
+local suffix_2024 				"tab13-2024"
 local yearname_2008				"08"
 local yearname_2009				"09"
 local yearname_2010				"10"
@@ -63,6 +65,7 @@ local yearname_2020 			"2020"
 local yearname_2021 			"2021"
 local yearname_2022 			"2022"
 local yearname_2023 			"2023"
+local yearname_2024 			"2024"
 
 ***************************************************************
 
@@ -101,7 +104,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 
 	// import 
-	if !inlist(`year',2021,2022,2023) {
+	if !inlist(`year',2021,2022,2023,2024) {
 		import excel using "${dir_root}/data/state_data/southcarolina/excel/`year'/`prefix_`year''`yearname_`year''`middle_`year''`month'`suffix_`year''.xlsx", firstrow case(lower) allstring clear	
 	}
 	else {
@@ -174,5 +177,5 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/southcarolina/southcarolina.dta", replace 
-
+check 
 

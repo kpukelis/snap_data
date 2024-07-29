@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start	 				= ym(2002,6)
-local ym_end 					= ym(2022,11)
+local ym_end 					= ym(2023,12)
 
 ************************************************************
 
@@ -65,7 +65,7 @@ if `ym' != ym(2018,9) {
 	else if inrange(`ym',ym(2019,1),ym(2019,12)) {
 		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/Case Load Summary Report `monthname' `year'.pdf_short.xlsx", case(lower) allstring clear
 	}
-	else if inrange(`ym',ym(2020,1),ym(2022,12)) {
+	else if inrange(`ym',ym(2020,1),ym(2023,12)) {
 		import excel using "${dir_root}/data/state_data/ohio/excel/`year'/binder/Document Cloud/Caseload Summary Report `monthname' `year'.xlsx", case(lower) allstring clear
 	}
 	else {
@@ -147,7 +147,7 @@ if `ym' != ym(2018,9) {
 	else if inrange(`ym',ym(2014,2),ym(2018,8)) {
 		assert `r(N)' == 91	
 	}
-	else if inlist(`ym',ym(2020,2)) | inrange(`ym',ym(2020,4),ym(2022,3)) | inrange(`ym',ym(2022,5),ym(2022,12)) {
+	else if inlist(`ym',ym(2020,2)) | inrange(`ym',ym(2020,4),ym(2022,3)) | inrange(`ym',ym(2022,5),ym(2022,12)) | inrange(`ym',ym(2023,1),ym(2023,12)) {
 		assert `r(N)' == 87 
 	}
 	else if inlist(`ym',ym(2022,4)) {
@@ -385,4 +385,4 @@ tab county
 assert abs((individuals_pa + individuals_npa) - individuals) < 0.01 if !missing(individuals_pa)
 assert abs((households_pa + households_npa) - households) < 0.01 if !missing(households_pa)
 
-
+check 

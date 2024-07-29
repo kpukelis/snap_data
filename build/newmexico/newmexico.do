@@ -2,19 +2,21 @@
 // Kelsey Pukelis
 
 local ym_start 					= ym(2013,1) 
-local ym_end 					= ym(2022,8)
+local ym_end 	 				= ym(2024,4)
+
 
 // This section to get adults and children
 local ym_start_apps 			= ym(2019,1) // could get data earlier
-local ym_end_apps 				= ym(2022,8)
+local ym_end_apps 				= ym(2024,4)
 
 local ym_start_apps_plus		= ym(2013,1)
-local ym_end_apps_plus			= ym(2022,8)
+local ym_end_apps_plus			= ym(2024,4) // **KP: note: expedited apps not cleaned from 2022m9-2024m4
+
 
 // early data: 2014m2-2017m3, hand entered. Rest of the data format starts 2017m4
 // local ym_start_race 			= ym(2014,2) 
 local ym_start_race 			= ym(2017,4) 
-local ym_end_race 				= ym(2022,8)
+local ym_end_race 				= ym(2024,4)
 
 **************************************************************************
 /*
@@ -72,6 +74,7 @@ forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 	drop if strpos(v1,"Medicaid Caseload count unavailable for 08.2022")
 	drop if strpos(v1,"expected expenditures during those months due to COVID-19 extensions")
 	drop if strpos(v7,"The number of SNAP cases during June, July, August, September, October, and November may not align with")
+	drop if strpos(v7,"The number of SNAP cases during June, July, August, September, October, and November may not align")
 
 	describe, varlist 
 	rename (`r(varlist)') (v#), addnumber
@@ -163,13 +166,14 @@ tempfile newmexico_apps
 save `newmexico_apps'
 save "${dir_root}/data/state_data/newmexico/newmexico_apps.dta", replace
 
+*/ 
 ********************************************************************************************************************
 ********************************************************************************************************************
 ********************************************************************************************************************
 ********************************************************************************************************************
 ********************************************************************************************************************
 ********************************************************************************************************************
-
+/*
 ///////////////
 // RACE DATA //
 ///////////////
@@ -363,6 +367,7 @@ sort county ym
 tempfile newmexico_race
 save `newmexico_race'
 save "${dir_root}/data/state_data/newmexico/newmexico_race.dta", replace
+*/
 
 
 ******************************************************************************************************************
@@ -370,7 +375,7 @@ save "${dir_root}/data/state_data/newmexico/newmexico_race.dta", replace
 ******************************************************************************************************************
 ******************************************************************************************************************
 ******************************************************************************************************************
-
+/*
 ////////////////////
 // APPS_PLUS DATA // 
 ////////////////////
@@ -432,10 +437,10 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 	rename (`r(varlist)') (v#), addnumber
 
 	// number of pages
-	if inrange(`ym',ym(2017,11),ym(2099,12)) {
+	if inrange(`ym',ym(2017,11),ym(2022,8)) {
 		local num_pages = 5
 	}
-	else if inrange(`ym',ym(2013,1),ym(2017,3)) {
+	else if inrange(`ym',ym(2013,1),ym(2017,3)) | inrange(`ym',ym(2022,9),ym(2024,4)) {
 		local num_pages = 1
 	}
 	else if inrange(`ym',ym(2017,4),ym(2017,7)) {
@@ -463,9 +468,9 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 
 		// keep the right rows
 		gen obsnum = _n
-		if inrange(`ym',ym(2017,11),ym(2099,12))  {
+		if inrange(`ym',ym(2017,11),ym(2022,8))  {
 			noisily sum obsnum if (strpos(v1,"Statewide") & strpos(v1,"Total")), detail	
-			assert `r(N)' == `num_pages'
+			assert `r(N)' == `num_pages' 
 			if `p' == 1 {
 				local first_obsnum = 1
 				local last_obsnum = `r(min)'
@@ -489,6 +494,14 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 		}
 		else if inrange(`ym',ym(2013,1),ym(2017,3)) {
 			noisily sum obsnum if strpos(v1,"SNAP Applications") | strpos(v3,"Roosevelt") //| strpos(v10,"TOTAL")
+			assert `r(N)' == `num_pages'
+			if `p' == 1 {
+				local first_obsnum = 1
+				local last_obsnum = `r(min)'
+			}
+		}
+		else if inrange(`ym',ym(2022,9),ym(2024,4)) {
+			noisily sum obsnum if (strpos(v1,"Statewide") & strpos(v1,"Total")), detail	
 			assert `r(N)' == `num_pages'
 			if `p' == 1 {
 				local first_obsnum = 1
@@ -544,6 +557,7 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 			}
 
 		}
+
 		else {
 			stop
 		}
@@ -555,7 +569,7 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 		dropmiss, obs force 
 		describe, varlist 
 		rename (`r(varlist)') (v#), addnumber
-
+ 
 		// drop bad obs 
 		drop if strpos(v1,"SNAP Initial Disposition Rates by Field Office")
 		drop if strpos(v1,"SNAP Expedite Timeliness by Field Office")
@@ -565,6 +579,7 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 		drop if strpos(v1,"CAP cases are reflected in the appro")
 		drop if strpos(v1,"priate administrative office.")
 		drop if strpos(v1,"SNAP Applications")
+		drop if strpos(v1,"SNAP Initial Applications by Field Office")
 
 		// initial cleanup
 		dropmiss, force 
@@ -864,13 +879,13 @@ sort county ym
 tempfile newmexico_apps_plus
 save `newmexico_apps_plus'
 save "${dir_root}/data/state_data/newmexico/newmexico_apps_plus.dta", replace
-
-
+check 
+*/
 **************************************************************************************************************
 **************************************************************************************************************
 **************************************************************************************************************
 **************************************************************************************************************
-
+/*
 /////////////////////
 // ENROLLMENT DATA //
 /////////////////////
@@ -1213,6 +1228,7 @@ sort /*office*/ county ym
 tempfile newmexico_enrollment
 save `newmexico_enrollment'
 save "${dir_root}/data/state_data/newmexico/newmexico_enrollment.dta", replace
+check 
 */
 ******************************************************************************************************************************************************
 ******************************************************************************************************************************************************

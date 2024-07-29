@@ -201,7 +201,7 @@ local top_count688 				= 39
 local top_count689 				= 39
 local top_count690 				= 39
 ***************************************************************
-
+/*
 ///////////////////////
 // LATE DATA -  APPS //
 ///////////////////////
@@ -217,10 +217,29 @@ foreach county of local county_list {
 	capture import excel using "${dir_root}/data/state_data/montana/excel/`county'/ChimesApps (1).xlsx", allstring clear
 	count 
 	assert `r(N)' > 0
-	
+
+	// drop obs I don't need 
+	drop A // drop A if _n == 1 & A == "LessThan5Label"
+	drop B // drop B if _n == 1 & B == "CountyLabel"
+
+	// clean up 
+	dropmiss, force 
+	dropmiss, force obs 
+	describe, varlist
+	rename (`r(varlist)') (v#), addnumber
+	assert `r(k)' <= 67
+ 
 	// transpose 
-	sxpose, clear firstnames
-	drop in 1 
+	// sxpose, clear firstnames
+	// rewriting this code because sxpose is no longer available...
+	gen id = _n 
+	ds id, not 
+	reshape long v, i(id) j(which) string 
+	reshape wide v, i(which) j(id) /*string*/
+	destring which, replace 
+	confirm numeric variable which 
+	sort which 
+	drop which 
 
 	// turn first row into variable names 
 	foreach var of varlist * {
@@ -254,7 +273,7 @@ foreach county of local county_list {
 	rename medicaid apps_received_medicaid
 	rename snap apps_received
 	rename tanf apps_received_tanf
-
+ 
 	// fix date 
 	gen month = substr(mmm_yyyy,1,3)
 	gen year = substr(mmm_yyyy,5,4)
@@ -339,7 +358,7 @@ sort county ym
 tempfile montana_late_apps
 save `montana_late_apps'
 save "${dir_root}/data/state_data/montana/montana_late_apps.dta", replace
-
+ 
 */
 /////////////////////////////
 // LATE DATA -  ENROLLMENT //
@@ -359,26 +378,64 @@ foreach county of local county_list {
 	count 
 	assert `r(N)' > 0
 	
+	// clean up 
+	dropmiss, force 
+	dropmiss, force obs 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+
 	// transpose 
-	sxpose, clear firstnames
-	drop in 1 
-	if "`type'" == "Recips" {
-		drop in 1 
+	// sxpose, clear firstnames
+	// rewriting this code because sxpose is no longer available...
+	gen id = _n 
+	ds id, not 
+	reshape long v, i(id) j(which) string 
+	reshape wide v, i(which) j(id) /*string*/
+	destring which, replace 
+	confirm numeric variable which 
+	sort which 
+	drop which 
+ 
+	// turn first row into variable names 
+	foreach var of varlist * {
+		replace `var' = strlower(`var')
+		replace `var' = "_" + `var' if _n == 1
+		replace `var' = ustrregexra(`var',"-","") if _n == 1
+		*replace `var' = ustrregexra(`var',".","") if _n == 1
+		*replace `var' = ustrregexra(`var'," ","") if _n == 1
+		label variable `var' "`=`var'[1]'"
+		rename `var' `=`var'[1]'
 	}
+	drop in 1 
+	
+	*if "`type'" == "Recips" {
+*		drop in 1 
+*	}
 
 	// rename 
-	rename _var1 mmm_yyyy
+	rename _ mmm_yyyy
 	if "`type'" == "Recips" {
-		rename SNAP individuals
-		rename TANF individuals_tanf
+		rename _snap individuals
+		rename _tanf individuals_tanf
 	}
 	else if "`type'" == "House" {
-		rename SNAP households 
-		rename TANF households_tanf
+		rename _snap households 
+		rename _tanf households_tanf
 	}
 	else if "`type'" == "Expend" {
-		rename SNAP issuance 
-		rename TANF issuance_tanf
+		rename _snap issuance 
+		rename _tanf issuance_tanf
+	}
+
+	// drop extras
+	if "`type'" == "Recips" {
+		drop if strpos(individuals,"due to privacy concerns all monthly counts for the individual")
+	}
+	else if "`type'" == "House" {
+		drop if strpos(households,"due to privacy concerns all monthly counts for the individual")
+	}
+	else if "`type'" == "Expend" {
+		drop if strpos(issuance,"due to privacy concerns all monthly amounts for the individual")
 	}
 
 	// target obs 
@@ -391,18 +448,18 @@ foreach county of local county_list {
 	// fix date 
 	gen month = substr(mmm_yyyy,1,3)
 	gen year = substr(mmm_yyyy,5,4)
-	replace month = "1" if month == "Jan"
-	replace month = "2" if month == "Feb"
-	replace month = "3" if month == "Mar"
-	replace month = "4" if month == "Apr"
-	replace month = "5" if month == "May"
-	replace month = "6" if month == "Jun"
-	replace month = "7" if month == "Jul"
-	replace month = "8" if month == "Aug"
-	replace month = "9" if month == "Sep"
-	replace month = "10" if month == "Oct"
-	replace month = "11" if month == "Nov"
-	replace month = "12" if month == "Dec"
+	replace month = "1" if month == "jan"
+	replace month = "2" if month == "feb"
+	replace month = "3" if month == "mar"
+	replace month = "4" if month == "apr"
+	replace month = "5" if month == "may"
+	replace month = "6" if month == "jun"
+	replace month = "7" if month == "jul"
+	replace month = "8" if month == "aug"
+	replace month = "9" if month == "sep"
+	replace month = "10" if month == "oct"
+	replace month = "11" if month == "nov"
+	replace month = "12" if month == "dec"
 	destring month, replace
 	confirm numeric variable month
 	destring year, replace
@@ -444,7 +501,7 @@ foreach county of local county_list {
 	// order and sort 
 	order county ym 
 	sort county ym 
-
+ 
 	// save 
 	tempfile `county'_`type'
 	save ``county'_`type''
@@ -493,7 +550,7 @@ drop _m
 
 // save 
 save "${dir_root}/data/state_data/montana/montana_late_enrollment.dta", replace
-
+check 
 */
 ////////////////
 // EARLY DATA //

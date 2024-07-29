@@ -1,8 +1,7 @@
 // maine.do
 
 local ym_start	 				= ym(2005,1)
-local ym_end 					= ym(2023,1)
-
+local ym_end 					= ym(2024,5)
 
 ************************************************************
 
@@ -44,7 +43,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace monthname = "Nov" if month == 11
 		replace monthname = "Dec" if month == 12
 	}
-	if inlist(year,2017,2018,2019,2020,2021,2022,2023) {
+	if inlist(year,2017,2018,2019,2020,2021,2022,2023,2024) {
 		replace monthname = "jan" if month == 1
 		replace monthname = "feb" if month == 2
 		replace monthname = "mar" if month == 3
@@ -131,10 +130,14 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_5.xlsx", case(lower) allstring clear
 	}
 	else if inrange(`ym',ym(2023,1),ym(2023,12)) {
-		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'.xlsx", case(lower) allstring clear
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_6.xlsx", case(lower) allstring clear
+	}
+	else if inrange(`ym',ym(2024,1),ym(2024,12)) {
+		import excel using "${dir_root}/data/state_data/maine/csvs/`year'/geo-distribution-`monthname'_7.xlsx", case(lower) allstring clear
 	}
 
 	dropmiss, force
+	dropmiss, force obs 
 	qui describe, varlist
 	rename (`r(varlist)') (v#), addnumber
 	foreach v of varlist _all {
@@ -184,6 +187,32 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			}
 		}
 	}
+	else if inrange(`ym',ym(2024,2),ym(2024,5)) {
+		// only keep county and state totals
+		// for these months, it comes at the top of the file 
+		gen obsnum = _n
+		sum obsnum if strpos(v1,"state") & (strpos(v1,"rca") | strpos(v2,"rca") | strpos(v3,"rca"))
+		local obsnum_dropafter = `r(min)'
+		drop if obsnum >= `obsnum_dropafter'
+		drop in 1 
+		if inrange(`ym',ym(2024,4),ym(2024,5)) {
+			drop in 1 
+		}
+		dropmiss, force 
+		dropmiss, force obs 
+		qui describe, varlist
+		rename (`r(varlist)') (v#), addnumber
+		assert r(k) == 14
+		assert r(N) == 18
+		qui describe, varlist 
+		rename (`r(varlist)') (county rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits households individuals issuance aspire_participants all_uniqueindiv all_uniquecases obsnum)
+		foreach v in rca_cases rca_benefits pas_cases tanf_cases tanf_children tanfpas_benefits households individuals issuance aspire_participants all_uniqueindiv all_uniquecases {
+			destring `v', replace
+		}
+		replace county = "total" if county == "final totals" 
+		replace county = "total" if county == "grand total"
+
+	}
 	else {
 
 		// only keep county and state totals
@@ -193,7 +222,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		sum obsnum if v1 == "county name"
 		keep if obsnum >= r(mean)
 		drop in 1
-		if inrange(`ym',ym(2018,7),ym(2023,1)) {
+		if inrange(`ym',ym(2018,7),ym(2024,1)) {
 			drop in 1
 		}
 		dropmiss, force  

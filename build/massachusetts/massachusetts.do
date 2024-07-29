@@ -4,11 +4,11 @@
 // NOTE: these are filenames, but date on the name of the file is 3 months ahead of the data represented in the file itself. 
 // E.g. file with name March 2020 contains data for December 2019
 local ym_start					= ym(2017,11)
-local ym_end 					= ym(2023,3)
+local ym_end 					= ym(2024,5)
 local ym_start_county			= ym(2021,7)
-local ym_end_county				= ym(2023,3)
+local ym_end_county				= ym(2024,5)
 local ym_start_scorecard 		= ym(2005,1)
-local ym_end_scorecard 			= ym(2023,2)
+local ym_end_scorecard 			= ym(2024,5)
 
 ****************************************************************
 /*
@@ -128,12 +128,12 @@ drop dup
 tempfile massachusetts_scorecard
 save `massachusetts_scorecard'
 save "${dir_root}/data/state_data/massachusetts/massachusetts_scorecard.dta", replace
-
+*/
 
 ////////////////////////////////
 // ENROLLMENT - ZIPCODE LEVEL //
 //////////////////////////////// 
-
+/*
 forvalues ym = `ym_start'(1)`ym_end' {
 
 	dis in red `ym'
@@ -144,7 +144,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	gen year = year(dofm(`ym'))
 	gen month = month(dofm(`ym'))
 	gen monthname = ""
-	if inrange(`ym',ym(2017,11),ym(2018,12)) | inrange(`ym',ym(2022,1),ym(2023,3)) {
+	if inrange(`ym',ym(2017,11),ym(2018,12)) | inrange(`ym',ym(2022,1),ym(2024,5)) {
 		replace monthname = "JAN" if month == 1
 		replace monthname = "FEB" if month == 2
 		replace monthname = "MAR" if month == 3
@@ -189,7 +189,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		local sheets SNAP_AU's SNAP_RECIPIENTS
 		local first_sheet SNAP_AU's
 	}
-	else if inrange(`ym',ym(2021,12),ym(2023,3)) {
+	else if inrange(`ym',ym(2021,12),ym(2024,5)) {
 		local sheets `"Cases"' /*COUNTY_TOTALS*/
 		local first_sheet `"Cases"'
 	}
@@ -222,8 +222,11 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		else if `ym' == ym(2021,12) {
 			import excel "${dir_root}/data/state_data/massachusetts/excel/`year'/FINAL_ZIPCODE_`monthname'_`year'.xlsx", sheet("Cases & Clients by ZIP Code") allstring clear 	
 		}
-		else if inrange(`ym',ym(2022,1),ym(2023,3)) {
+		else if inrange(`ym',ym(2022,1),ym(2023,7)) {
 			import excel "${dir_root}/data/state_data/massachusetts/excel/`year'/DTA_ZIPCODE_Report_`monthname'_`year'.v1.xlsx", sheet(`"Cases & Clients by ZIP Code"') allstring clear 
+		}
+		else if inrange(`ym',ym(2023,8),ym(2024,5)) {
+			import excel "${dir_root}/data/state_data/massachusetts/excel/`year'/DTA_ZIPCODE_Report_`monthname'_`year'.v1.xlsx", sheet(`"Reported Month Caseload Data "') allstring clear 
 		}
 		else {
 			stop 
@@ -318,7 +321,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		*	save `_`ym'_`varname''
 		*
 		*}
-		if inrange(`ym',ym(2021,12),ym(2023,3)) {
+		if inrange(`ym',ym(2021,12),ym(2023,7)) {
 		*if inlist("`sheet'",`"Cases & Clients by ZIP Code"') {
 
 			// clean up 
@@ -376,6 +379,118 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			save `_`ym'_zip'
 			 
 		} // end if for ym(2021,12) data
+
+		else if inrange(`ym',ym(2023,8),ym(2024,5)) {
+
+
+			// turn first row into variable names 
+			foreach var of varlist * {
+				replace `var' = strlower(`var')
+				replace `var' = "_" + `var' if _n == 1
+				replace `var' = ustrregexra(`var',"-","") if _n == 1
+				*replace `var' = ustrregexra(`var',".","") if _n == 1
+				*replace `var' = ustrregexra(`var'," ","") if _n == 1
+				label variable `var' "`=`var'[1]'"
+				rename `var' `=`var'[1]'
+			}
+			drop in 1
+
+			// rename 
+			rename _cycle_month date 
+			rename _au_pgm_cd program 
+			rename _city city 
+			rename _memb_stat_cd active 
+			rename _zip_code zipcode 
+			rename _county county 
+			rename _cases households 
+			rename _clients individuals 
+			rename _local_office office 
+
+			// manual drop 
+			if `ym' >= ym(2024,1) {
+				replace _ = trim(_)
+				dropmiss, force
+			}
+
+			// assert shape of data 
+			describe, varlist 
+			assert `r(k)' == 9
+
+
+			// clean up date 
+			split date, parse("/")
+			rename date1 month 
+			rename date2 day 
+			rename date3 year
+			foreach var in month day year {
+				destring `var', replace 
+				confirm numeric variable `var'
+			}
+			assert day == 1 
+			drop day 
+			gen ym = ym(year,month)
+			format ym %tm 
+			sum ym 
+			assert `r(max)' == `r(min)' 
+			assert `r(mean)' == `ym' 
+			drop year 
+			drop month 
+			drop date 
+
+			// destring 
+			foreach var in households individuals {
+				destring `var', replace 
+				confirm numeric variable `var'
+			}
+
+			// active vs closed
+			tab active 
+			assert inlist(active,"active","closed")
+
+			// list of programs 
+			tab program 
+			assert inlist(program,"eaedc","tafdc","snap")
+
+			// assert level of the data 
+			duplicates tag zipcode program active, gen(dup)
+			assert dup == 0 
+			drop dup 
+
+			// reshape  
+			rename households households_ 
+			rename individuals individuals_
+			reshape wide households_ individuals_, i(zipcode active) j(program) string 
+
+			// rename snap households, individuals
+			rename households_snap households 
+			rename individuals_snap individuals
+
+			// keep only active cases for now 
+			keep if active == "active"
+			drop active 
+
+			// assert level of the data 
+			duplicates tag zipcode, gen(dup)
+			assert dup == 0
+			drop dup 
+
+			// lowercase city 
+			replace city = trim(city)
+			replace city = strlower(city)
+	
+			// make sure zipcode is 5 digits 
+			replace zipcode = "0" + zipcode if strlen(zipcode) == 4
+			assert strlen(zipcode) == 5 | strlen(zipcode) == 0
+
+			// order and sort 
+			order zipcode city county office ym 
+			sort zipcode ym 
+
+			// save 
+			tempfile _`ym'_zip
+			save `_`ym'_zip'
+		
+		}
 
 
 		if inlist("`sheet'","SNAP_AU's","SNAP_RECIPIENTS","AU_SNAP") {
@@ -561,13 +676,13 @@ append using "${dir_root}/data/state_data/massachusetts/massachusetts_county_col
 duplicates tag county ym, gen(dup)
 sort county ym households 
 count if dup >= 1
-assert `r(N)' == 40 // 36 // 28
+assert `r(N)' == 68 // 40 // 36 // 28
 
 // total sum of data, will catch missingness
 egen temp_rowtotal = rowtotal(households individuals households_eaedc individuals_eaedc households_tafdc individuals_tafdc households_total individuals_total)
 bysort county ym: egen temp_smallest_rowtotal = min(temp_rowtotal)
 count if temp_rowtotal == temp_smallest_rowtotal & dup == 1
-assert `r(N)' == 20 // 18 // 14
+assert `r(N)' == 34 // 20 // 18 // 14
 drop if temp_rowtotal == temp_smallest_rowtotal & dup == 1
 drop temp_rowtotal
 drop temp_smallest_rowtotal
@@ -636,7 +751,7 @@ sort zipcode ym
 // if there is a duplicate, keep collapsed source 
 // for consistency (doesn't really matter)
 count if dup == 1 & source == "zipcode_level"
-assert `r(N)' == 16 // 14 // 10
+assert `r(N)' == 20 // 16 // 14 // 10
 drop if dup == 1 & source == "zipcode_level"
 drop dup 
 
@@ -667,4 +782,4 @@ sort zipcode ym
 
 // save
 save "${dir_root}/data/state_data/massachusetts/massachusetts_zipcode.dta", replace
-check
+

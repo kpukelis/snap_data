@@ -2,8 +2,12 @@
 // imports households and persons from excel sheets
 
 
+local filename "Supplemental_Nutrition_Assistance_Program_Individuals_And_Dollars_2004_-_Current_Monthly_County___Statewide_Human_Services_20240729"
+
+*********************************************************************************************************************************
+
 // import 
-import delimited using "${dir_root}/data/state_data/pennsylvania/pdfs/Supplemental_Nutrition_Assistance_Program_Individuals_And_Dollars_2004_-_Current_Monthly_County___Statewide_Human_Services.csv", varnames(1) stringcols(_all) case(lower) clear
+import delimited using "${dir_root}/data/state_data/pennsylvania/pdfs/`filename'.csv", varnames(1) stringcols(_all) case(lower) clear
 
 // drop unnecessary vars 
 drop date

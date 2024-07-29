@@ -4,8 +4,7 @@
 **KP: not digitized yet
 
 **new format**
-*local ym_start 					= ym(2016,7)
-local ym_start 					= ym(2022,12)
+local ym_start 					= ym(2016,7)
 local ym_end 					= ym(2024,4)
 
 ********************************************************************
@@ -34,13 +33,31 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display "`monthminus1'"
 	local yearminus1 = yearminus1
 	display "`yearminus1'"
+	gen monthname = ""
+	replace monthname = "January" if month == "01"
+	replace monthname = "February" if month == "02"
+	replace monthname = "March" if month == "03"
+	replace monthname = "April" if month == "04"
+	replace monthname = "May" if month == "05"
+	replace monthname = "June" if month == "06"
+	replace monthname = "July" if month == "07"
+	replace monthname = "August" if month == "08"
+	replace monthname = "September" if month == "09"
+	replace monthname = "October" if month == "10"
+	replace monthname = "November" if month == "11"
+	replace monthname = "December" if month == "12"
+	local monthname = monthname 
+	display "`monthname'" 
 
 	// import data 
 	if inrange(`ym',ym(2016,7),ym(2020,12)) {
 		import excel "${dir_root}/data/state_data/iowa/csvs/newformat/FA-F1-2016 `year'-`month'.xlsx", allstring case(lower) clear	
 	}
-	else if inrange(`ym',ym(2021,1),ym(2023,1)) {
+	else if inrange(`ym',ym(2021,1),ym(2022,12)) {
 		import excel "${dir_root}/data/state_data/iowa/csvs/newformat/SNAP-F1-2016 - `year'-`month'.xlsx", allstring case(lower) clear
+	}
+	else if inrange(`ym',ym(2023,1),ym(2024,4)) {
+		import excel "${dir_root}/data/state_data/iowa/csvs/newformat/F1 - Monthly Report_`monthname' `year'.xlsx", allstring case(lower) clear 
 	}
 	
 	dropmiss, force
@@ -53,7 +70,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	// get data
 	// use list of variables nonmissing for the state total row
 	preserve
-	if inrange(`ym',ym(2022,11),ym(2022,12)) {
+	if inrange(`ym',ym(2022,11),ym(2024,4)) {
 		keep if inlist(A,"area total")
 	}
 	else {
@@ -61,7 +78,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 	dropmiss, force 
 	qui describe, varlist
-	local keep_varlist `r(varlist)'
+	local keep_varlist `r(varlist)' 
 	restore
 
 	// keep such variables, then keep all observations where at least one of the quant vars is nonmissing
@@ -73,9 +90,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inrange(`ym',ym(2019,10),ym(2022,10)) {
 		dropmiss snap_fip_households snap_fip_individuals /*snap_fip_issuance*/ snap_medassist_households snap_medassist_individuals /*snap_medassist_issuance*/ snap_hawki_households /*snap_hawki_individuals*//* snap_hawki_issuance*/ snap_only_households /*snap_only_individuals*/ snap_only_issuance households individuals issuance /*participation_rate*/, force obs
 	}
-*	else if inrange(`ym',ym(2022,11),ym(2022,12))  {
-*		dropmiss snap_fip_households snap_fip_individuals /*snap_fip_issuance*/ snap_medassist_households snap_medassist_individuals /*snap_medassist_issuance*/ snap_hawki_households /*snap_hawki_individuals*//* snap_hawki_issuance*/ snap_only_households /*snap_only_individuals*/ snap_only_issuance households individuals issuance /*participation_rate*/, force obs	
-*	}
+	*else if /*inrange(`ym',ym(2022,11),ym(2022,12)) | */ inrange(`ym',ym(2023,1),ym(2024,4))  {
+	*	dropmiss snap_fip_households snap_fip_individuals /*snap_fip_issuance*/ snap_medassist_households snap_medassist_individuals /*snap_medassist_issuance*/ snap_hawki_households /*snap_hawki_individuals*//* snap_hawki_issuance*/ snap_only_households /*snap_only_individuals*/ snap_only_issuance households individuals issuance /*participation_rate*/, force obs	
+	*}
 	else {
 		dropmiss snap_fip_households snap_fip_individuals snap_fip_issuance snap_medassist_households snap_medassist_individuals snap_medassist_issuance snap_hawki_households /*snap_hawki_individuals*/ snap_hawki_issuance snap_only_households snap_only_individuals snap_only_issuance households individuals issuance participation_rate, force obs
 	}
@@ -110,7 +127,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if county == "snap/hawki"
 	drop if county == "snap only"
 	drop if county == "total allotment"
-	if inrange(`ym',ym(2022,11),ym(2022,12)) {
+	if inrange(`ym',ym(2022,11),ym(2024,4)) {
 		drop if obsnum < 40
 		drop if county == "county"
 		drop if missing(county)
@@ -118,7 +135,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 
 	// assert size of the resulting dataset
 	describe, varlist
-	if inrange(`ym',ym(2022,11),ym(2022,12)) {
+	if inrange(`ym',ym(2022,11),ym(2024,4)) {
+		dis in red `r(N)'
 		assert r(N) == 100 // does not include overall state total 
 	}
 	else {

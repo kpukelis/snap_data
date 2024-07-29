@@ -1,8 +1,10 @@
 // southdakota.do
 // imports households and individuals from excel sheets
 
-local ym_start					= ym(2013,1)
-local ym_end 					= ym(2022,12)
+*local ym_start					= ym(2013,1)
+*local ym_end 					= ym(2022,12)
+local ym_start 					= ym(2022,12)
+local ym_end 					= ym(2024,5)
 local prefix_2013 				"websnap"
 local prefix_2014 				"websnap"
 local prefix_2015 				"snap_"
@@ -13,6 +15,8 @@ local prefix_2019 				"snap_"
 local prefix_2020 				"snap_"
 local prefix_2021 				"snap_"
 local prefix_2022 				"snap_"
+local prefix_2023 				""
+local prefix_2024 				""
 local suffix_2013 				""
 local suffix_2014 				"_1"
 local suffix_2015 				""
@@ -23,6 +27,8 @@ local suffix_2019 				"_4"
 local suffix_2020 				"_5"
 local suffix_2021 				"_6"
 local suffix_2022 				"_7"
+local suffix_2023 				""
+local suffix_2024 				"_1"
 
 ***************************************************************
 
@@ -38,45 +44,88 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	display in red  "`year' `month'" 
 
 	// month names for file
-	if `month' == 1 {
-		local monthname = "jan"
+	if inrange(`year',2023,2024) {
+		if `month' == 1 {
+			local monthname = "January"
+		}
+		if `month' == 2 {
+			local monthname = "February"
+		}
+		if `month' == 3 {
+			local monthname = "March"
+		}
+		if `month' == 4 {
+			local monthname = "April"
+		}
+		if `month' == 5 {
+			local monthname = "May"
+		}
+		if `month' == 6 {
+			local monthname = "June"
+		}
+		if `month' == 7 {
+			local monthname = "July"
+		}
+		if `month' == 8 {
+			local monthname = "August"
+		}
+		if `month' == 9 {
+			local monthname = "September"
+		}
+		if `month' == 10 {
+			local monthname = "October"
+		}
+		if `month' == 11 {
+			local monthname = "November"
+		}
+		if `month' == 12 {
+			local monthname = "December"
+		}		
 	}
-	if `month' == 2 {
-		local monthname = "feb"
 	}
-	if `month' == 3 {
-		local monthname = "march"
-	}
-	if `month' == 4 {
-		local monthname = "april"
-	}
-	if `month' == 5 {
-		local monthname = "may"
-	}
-	if `month' == 6 {
-		local monthname = "june"
-	}
-	if `month' == 7 {
-		local monthname = "july"
-	}
-	if `month' == 8 {
-		local monthname = "aug"
-	}
-	if `month' == 9 {
-		local monthname = "sept"
-	}
-	if `month' == 10 {
-		local monthname = "oct"
-	}
-	if `month' == 11 {
-		local monthname = "nov"
-	}
-	if `month' == 12 {
-		local monthname = "dec"
+	else {
+		if `month' == 1 {
+			local monthname = "jan"
+		}
+		if `month' == 2 {
+			local monthname = "feb"
+		}
+		if `month' == 3 {
+			local monthname = "march"
+		}
+		if `month' == 4 {
+			local monthname = "april"
+		}
+		if `month' == 5 {
+			local monthname = "may"
+		}
+		if `month' == 6 {
+			local monthname = "june"
+		}
+		if `month' == 7 {
+			local monthname = "july"
+		}
+		if `month' == 8 {
+			local monthname = "aug"
+		}
+		if `month' == 9 {
+			local monthname = "sept"
+		}
+		if `month' == 10 {
+			local monthname = "oct"
+		}
+		if `month' == 11 {
+			local monthname = "nov"
+		}
+		if `month' == 12 {
+			local monthname = "dec"
+		}		
 	}
 
+
 	// import 
-	import excel using "${dir_root}/data/state_data/southdakota/excel/`year'/`prefix_`year''`monthname'`suffix_`year''.xlsx", firstrow case(lower) allstring clear
+	import excel using "${dir_root}/data/state_data/southdakota/excel/`year'/`prefix_`year''`monthname'`suffix_`year''.xlsx", firstrow case(lower) allstring clear	
+
 	dropmiss, force
 	dropmiss, obs force
 	describe, varlist 
@@ -133,6 +182,9 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			replace v10 = "" if v9 == v10 & !missing(v10)
 		}
 		dropmiss, force
+	}
+	else {
+		
 	}
 
 	// assert 5 variables
