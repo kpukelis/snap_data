@@ -1,9 +1,7 @@
 // southdakota.do
 // imports households and individuals from excel sheets
 
-*local ym_start					= ym(2013,1)
-*local ym_end 					= ym(2022,12)
-local ym_start 					= ym(2022,12)
+local ym_start					= ym(2013,1)
 local ym_end 					= ym(2024,5)
 local prefix_2013 				"websnap"
 local prefix_2014 				"websnap"
@@ -82,7 +80,6 @@ forvalues ym = `ym_start'(1)`ym_end' {
 			local monthname = "December"
 		}		
 	}
-	}
 	else {
 		if `month' == 1 {
 			local monthname = "jan"
@@ -147,7 +144,8 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"January 2020 Data")
 
 	// determine number of variables
-	if !inlist(`ym',ym(2016,7),ym(2019,12),ym(2020,8)) & !inrange(`ym',ym(2021,1),ym(2022,12)) {
+	dis in red "`ym'"
+	if !inlist(`ym',ym(2016,7),ym(2019,12),ym(2020,8)) & !inrange(`ym',ym(2021,1),ym(2024,5)) {
 		describe, varlist
 		assert r(k) == 9 | r(k) == 10
 		if r(k) == 9 & `ym' < ym(2017,1) {
@@ -184,7 +182,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		dropmiss, force
 	}
 	else {
-		
+
 	}
 
 	// assert 5 variables

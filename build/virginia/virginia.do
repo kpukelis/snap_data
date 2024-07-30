@@ -2,7 +2,7 @@
 // imports households and individuals from excel sheets
 
 local ym_start 					= ym(2001,9)
-local ym_end 					= ym(2023,1)
+local ym_end 					= ym(2024,5)
 
 ***********************************************************************************
 
@@ -75,7 +75,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	else if inlist(`ym',ym(2022,2)) {
 		import excel using "${dir_root}/data/state_data/virginia/xlsx/`monthname'_`year'_Participation_Report.xlsx", allstring clear 
 	}
-	else if inrange(`ym',ym(2022,3),ym(2023,1)) {
+	else if inrange(`ym',ym(2022,3),ym(2024,5)) {
 		import excel using "${dir_root}/data/state_data/virginia/xls/`monthname'_`year'_Participation_Report.xls", allstring clear 
 	}
 
@@ -195,7 +195,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		// trim 
 		replace region = trim(region)
 	}
-	else if inrange(`ym',ym(2020,5),ym(2023,1)) {
+	else if inrange(`ym',ym(2020,5),ym(2024,5)) {
 		while !strpos(v1,"region") & !strpos(v2,"locality") {
 			drop in 1
 		}
@@ -329,10 +329,10 @@ issuance == 0
 #delimit cr
 
 
-save "C:/Users/Kelsey/Desktop/snap_temp.dta", replace 
+*save "C:/Users/Kelsey/Desktop/snap_temp.dta", replace 
 */
 
-use "C:/Users/Kelsey/Desktop/snap_temp.dta", clear
+*use "C:/Users/Kelsey/Desktop/snap_temp.dta", clear
 
 // get rid of slashes, spaces
 replace county = ustrregexra(county,"\/","")

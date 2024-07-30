@@ -2,13 +2,9 @@
 // imports cases and clients from excel sheets
 **KP: `mdy' != mdy(12,24,2018) /*they posted the micro data...also here, with a key: 2021-08-23 and 2021-11-08*/ 
 
-*local datasets 					cases apps abawds workcases workapps
-local datasets 					cases apps abawds 
-*local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-01-2023"
+local datasets 					cases apps abawds workcases workapps
 local file_cases 				"FNS-Cases-and-Participants-Website-Data-thru-05-2024"
-*local file_apps 				"FNS-Applications-By-County-By-Month-thru-01-2023"
 local file_apps 				"FNS-Applications-By-County-By-Month-thru-05-2024"
-*local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-12-2022_axis label correction_v2"
 local file_abawds 				"FNS-ABAWDS-By-Month-By-County-thru-05-2024_hb"
 local file_workcases			"Work-First-Cases-Participants-Counts-by-County-thru-09-2022"
 local file_workapps 			"Work-First-Applications-By-Month-thru-09-2022"
@@ -629,7 +625,7 @@ check
 **************************************************************
 **************************************************************
 **************************************************************
-
+/*
 //////////////
 // DATASETS //
 //////////////
@@ -777,7 +773,7 @@ foreach dataset of local datasets {
 	}
 	dropmiss, force 
 	save "${dir_root}/data/state_data/northcarolina/northcarolina_`dataset'.dta", replace
-check 
+ 
 }
 **"NOTE:  During January 2014, Work First began to transition into NCFAST.  The data in the first chart represents the case and participant count information from the EIS legacy system, while the data from the second chart represents the data from the NCFAST system. All counties did not transition at the same time, so there may not be data represented from the NCFAST system for each county. Therefore, to calculate the total per county on the summary tab, the case counts were added together from both systems."		
 use "${dir_root}/data/state_data/northcarolina/northcarolina_workcases.dta", clear 
@@ -785,8 +781,7 @@ collapse (sum) workfirst_cases workfirst_participants, by(county ym)
 save "${dir_root}/data/state_data/northcarolina/northcarolina_workcases.dta", replace
 duplicates report county ym 
 */
-
-check 
+ 
 **************************************************************
 **************************************************************
 **************************************************************

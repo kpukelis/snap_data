@@ -2,7 +2,7 @@
 // Kelsey Pukelis
 
 local ym_start 					= ym(2011,1)
-local ym_end 					= ym(2022,12)
+local ym_end 					= ym(2024,5)
 local prefix_2011 				"FSPP"
 local prefix_2012 				"FSPP"
 local prefix_2013 				"FSPP"
@@ -15,6 +15,8 @@ local prefix_2019 				""
 local prefix_2020 				""
 local prefix_2021 				""
 local prefix_2022 				""
+local prefix_2023 				"SNAP Participation Report "
+local prefix_2024 				""
 local middle_2011 				""
 local middle_2012 				""
 local middle_2013 				""
@@ -27,6 +29,8 @@ local middle_2019 				""
 local middle_2020 				""
 local middle_2021 				""
 local middle_2022 				""
+local middle_2023 				""
+local middle_2024 				""
 local suffix_2011 				"1"
 local suffix_2012 				"1"
 local suffix_2013 				"1"
@@ -39,6 +43,8 @@ local suffix_2019 				" SNAP Participation Report"
 local suffix_2020				" SNAP Participation Report"
 local suffix_2021				" SNAP Participation Report"
 local suffix_2022				" SNAP Participation Report"
+local suffix_2023				""
+local suffix_2024				" SNAP Participation Report"
 local yearname_2011				"11"
 local yearname_2012				"12"
 local yearname_2013				"13"
@@ -51,6 +57,8 @@ local yearname_2019				"2019-"
 local yearname_2020 			"2020-"
 local yearname_2021 			"2021-"
 local yearname_2022 			"2022-"
+local yearname_2023 			"2023 "
+local yearname_2024 			"2024-"
 
 *********************************************************************
 
@@ -70,7 +78,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	local year = year 
 	display in red  "`year' `month'" 
 
-	if inlist(`year',2016,2017,2018) {
+	if inlist(`year',2016,2017,2018,2023) {
 		gen monthname = ""
 		replace monthname = "January" 	if month == "01"
 		replace monthname = "February" 	if month == "02"
@@ -91,8 +99,11 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	if inlist(`year',2011,2012,2013,2014,2015,2016,2017,2018) {
 		import excel using "${dir_root}/data/state_data/tennessee/excel/`year'/`prefix_`year''`monthname'`yearname_`year''`suffix_`year''.xlsx", case(lower) allstring clear
 	}
-	else if inlist(`year',2019,2020,2021,2022) {
+	else if inlist(`year',2019,2020,2021,2022,2024) {
 		import excel using "${dir_root}/data/state_data/tennessee/excel/`year'/`yearname_`year''`monthname'`suffix_`year''.xlsx", case(lower) allstring clear
+	}
+	else if inlist(`year',2023) {
+		import excel using "${dir_root}/data/state_data/tennessee/excel/`year'/`prefix_`year''`yearname_`year''`monthname'`suffix_`year''.xlsx", case(lower) allstring clear
 	}
 
 	// initial cleanup
@@ -183,7 +194,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		drop number
 
 	}
-	if inlist(`ym',ym(2013,9)) | inrange(`ym',ym(2016,4),ym(2016,12)) | inrange(`ym',ym(2017,6),ym(2022,12)) {
+	if inlist(`ym',ym(2013,9)) | inrange(`ym',ym(2016,4),ym(2016,12)) | inrange(`ym',ym(2017,6),ym(2024,5)) {
 
 		// drop title observations
 		drop if strpos(v2,"January")
@@ -226,6 +237,10 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace ym = `ym' - 2 if number == 1
 		format ym %tm 
 		drop number
+
+		// source 
+		gen source_ym = `ym'
+		format source_ym %tm 
 	
 	}
 
@@ -263,12 +278,24 @@ replace county = lower(county)
 replace county = "total" if strpos(county,"total")
 
 // drop duplicates
-duplicates drop
+// duplicates drop
+describe, varlist 
+assert `r(k)' == 6
+	// county ym individuals households issuance source_ym
+gsort county ym -source_ym
+duplicates drop county ym individuals households issuance, force 
 
 // manually drop duplicates
+// duplicates tag county ym, gen(dup)
+// drop if county == "knox" & issuance == 684790 & ym == ym(2016,4)
+// drop if county == "total" & issuance == 131918895 & ym == ym(2016,4)
+// drop dup 
+
+// when there are duplicates, keep the one from the most recent source 
 duplicates tag county ym, gen(dup)
-drop if county == "knox" & issuance == 684790 & ym == ym(2016,4)
-drop if county == "total" & issuance == 131918895 & ym == ym(2016,4)
+assert inlist(dup,0,1)
+gsort county ym -source_ym 
+by county ym: drop if _n >= 2 & dup == 1
 drop dup 
 
 // assert no more duplicates

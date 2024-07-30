@@ -2,11 +2,12 @@
 // Kelsey Pukelis 
 
 local ym_start_state			= ym(2005,9)
-local ym_end_state				= ym(2023,1)
+local ym_end_state				= ym(2024,6)
 local ym_start 					= ym(2014,1)
-local ym_end 					= ym(2023,1)
+local ym_end 					= ym(2024,6)
 local ym_start_apps				= ym(2014,1)
-local ym_end_apps 				= ym(2023,1)
+local ym_end_apps 				= ym(2024,6)
+
 local prefix_2014 				"SNAP-Enrollment-"
 local prefix_2015 				"SNAP-Enrollment-"
 local prefix_2016 				"snap-enrollment-"
@@ -16,7 +17,8 @@ local prefix_2019 				"snap-case-eligible-county-"
 local prefix_2020 				"snap-case-eligible-county-"
 local prefix_2021 				"snap-case-eligible-county-"
 local prefix_2022 				"snap-case-eligible-county-"
-local prefix_2023 				"snap-case-eligible-county-"
+local prefix_2023 				"snap-cases-eligible-ind-by-county-"
+local prefix_2024 				"snap-cases-eligible-ind-by-county-"
 local prefix_apps_2014 			"SNAP-"
 local prefix_apps_2015			"SNAP-"
 local prefix_apps_2016			"SNAP-"
@@ -27,6 +29,7 @@ local prefix_apps_2020			"timeliness-snap-"
 local prefix_apps_2021			"timeliness-snap-"
 local prefix_apps_2022			"timeliness-snap-"
 local prefix_apps_2023			"timeliness-snap-"
+local prefix_apps_2024			"timeliness-snap-"
 local yearname_2014				"-2014"
 local yearname_2015				"-2015"
 local yearname_2016				"-2016"
@@ -37,6 +40,8 @@ local yearname_2020 			"-2020"
 local yearname_2021 			"-2021"
 local yearname_2022 			"-2022"
 local yearname_2023 			"-2023"
+local yearname_2024 			"-2024"
+
 
 
 *********************************************************************
@@ -73,7 +78,7 @@ forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 		replace monthname = "December" 	if month == "12"
 		local monthname = monthname
 	}
-	else if inlist(`year',2017,2018,2019,2020,2021,2022,2023) {
+	else if inlist(`year',2017,2018,2019,2020,2021,2022,2023,2024) {
 		gen monthname = ""
 		replace monthname = "jan" 	if month == "01"
 		replace monthname = "feb" 	if month == "02"
@@ -183,9 +188,9 @@ forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 		tempfile _`ym'
 		save `_`ym''
 	}
-	else if inrange(`ym',ym(2018,8),ym(2019,6)) | inrange(`ym',ym(2019,8),ym(2023,1)) {
+	else if inrange(`ym',ym(2018,8),ym(2019,6)) | inrange(`ym',ym(2019,8),ym(2024,6)) {
 		
-		if inrange(`ym',ym(2020,1),ym(2020,3)) {
+		if inrange(`ym',ym(2020,1),ym(2020,3)) | inrange(`ym',ym(2023,12),ym(2024,6)) {
 			local total = 38
 		}
 		else {
@@ -227,6 +232,9 @@ forvalues ym = `ym_start_apps'(1)`ym_end_apps' {
 		drop if strpos(v1,"Case = designated group of people determined eligible to ")
 		drop if strpos(v1,"Eligible Individual = individual determined eligible for ")
 		drop if strpos(v1,"Average Payment / Case = average dollar benefit available ")
+		drop if strpos(v1,"SNAP") & strpos(v1,"TIMELINESS")
+		drop if strpos(v1,"July") & strpos(v1,"2023")
+		drop if strpos(v1,"revised/June 2024 (ab)")
 		dropmiss, force 
 		dropmiss, obs force 
 	
@@ -313,7 +321,7 @@ sort region ym
 
 // drop missing obs 
 count if missing(region)
-assert `r(N)' == 2
+assert `r(N)' <= 2 
 drop if missing(region) 
 
 // drop all region level data for now 
@@ -375,6 +383,7 @@ drop if strpos(v2,"Case = designated group of people certified to receive the be
 drop if strpos(v2,"Average Payment / Case = average dollar benefit available to the case (shared by the recipients on that case)")
 drop if v1 == "Average"
 drop if v1 == "Year-To-Date"
+drop if strpos(v1,"Average Year-To-Date")
 
 // rename 
 dropmiss, force 
@@ -494,7 +503,7 @@ forvalues ym = `ym_start'(1)`ym_end' {
 		replace monthname = "december" 	if month == "12"
 		local monthname = monthname
 	}
-	else if inlist(`year',2017,2018,2019,2020,2021,2022,2023) {
+	else if inlist(`year',2017,2018,2019,2020,2021,2022,2023,2024) {
 		gen monthname = ""
 		replace monthname = "jan" 	if month == "01"
 		replace monthname = "feb" 	if month == "02"
@@ -556,6 +565,13 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	drop if strpos(v1,"Total SNAP Payments = sum of dollar benefits issued in the month for the month across cases. This figure does not include supplemental or retroactively issued benefits.")
 	drop if strpos(v1,"The count of eligible individuals in Matagorda County was updated in August 2022; the state total has also been updated to reflect this change.")
 	drop if strpos(v1,"Revised:  8/16/2022")
+	drop if strpos(v1,"Filters: (mo =202404 AND (PART_STATUS_CD = 'EA' OR PART_STATUS_CD = 'EC'))")
+	drop if strpos(v1,"Filters: (mo =202405 AND (PART_STATUS_CD = 'EA' OR PART_STATUS_CD = 'EC'))")
+	drop if strpos(v1,"Prepared by Texas Health & Human Svcs. Comm./ Office of Data, Analytics, & Performance /Human Svcs. Progs. ")
+	drop if strpos(v1,"June 3, 2024 (elm)")
+	drop if strpos(v1,"Filters:") // (mo =202406 AND (PART_STATUS_CD = 'EA' OR PART_STATUS_CD = 'EC'))
+	drop if strpos(v1,"2024 (elm)")
+
 	replace v9 = "" if v9 == "`"
 	dropmiss, force 
 	dropmiss, obs force 
@@ -673,6 +689,7 @@ sort county ym
 // save 
 save "${dir_root}/data/state_data/texas/texas.dta", replace
 
+check 
 
 
 

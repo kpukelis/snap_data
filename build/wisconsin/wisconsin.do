@@ -4,15 +4,15 @@
 local files 					assistance benefits recipients
 local file_first 				assistance
 local year_start 				= 2011
-local year_end 					= 2022
-local year_end_unduplicated 	= 2019
+local year_end 					= 2024
+local year_end_unduplicated 	= 2023
 local numvars_assistance 		= 14
 local numvars_benefits 			= 15
 local numvars_recipients 		= 14
 local ym_start_oldformat 		= ym(2010,1)
 local ym_end_oldformat 			= ym(2017,3)
 local ym_start_newformat 		= ym(2017,4)
-local ym_end_newformat 			= ym(2023,1)
+local ym_end_newformat 			= ym(2024,5)
 
 *********************************************************************
 /*
@@ -50,7 +50,7 @@ order v1
 
 // rename and reshape 
 describe, varlist 
-assert r(k) == 28
+assert r(k) == 30
 assert r(N) == 81
 rename v1 county
 rename v2 _1995
@@ -80,6 +80,8 @@ rename v25 _2018
 rename v26 _2019
 rename v27 _2020
 rename v28 _2021
+rename v29 _2022 
+rename v30 _2023
 reshape long _, i(county) j(year)
 rename _ cases1 
 
@@ -206,7 +208,7 @@ save "${dir_root}/data/state_data/wisconsin/wisconsin_unduplicated-recipients.dt
 */
 *********************************************************************
 // other files 
-
+/*
 foreach file of local files {
 	forvalues year = `year_start'(1)`year_end' {
 
@@ -314,7 +316,7 @@ foreach file of local files {
 	// save 
 	save "${dir_root}/data/state_data/wisconsin/wisconsin_`file'.dta", replace
 }
- 
+ */
 *************************************************************************
 /*
 // ataglance - old format
@@ -370,7 +372,7 @@ save "${dir_root}/data/state_data/wisconsin/wisconsin_ataglance_oldformat.dta", 
 */
 *************************************************************************
 // ataglance - new format
-
+/*
 // import 
 import excel using "${dir_root}/data/state_data/wisconsin/excel_ataglance/wisconsin_ataglance.xlsx", sheet("new_format") allstring firstrow clear
 
@@ -431,7 +433,7 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/wisconsin/wisconsin_ataglance_newformat.dta", replace
-
+*/ 
 *************************************************************************
 
 // merge across data sets 
@@ -510,4 +512,4 @@ local statewide_nowaiver = ym(2015,4)
 twoway connected households ym, xline(`statewide_nowaiver')
 twoway connected individuals ym, xline(`statewide_nowaiver')
 */
-
+ 
