@@ -34,8 +34,7 @@ local states_withcounty
 	idaho
    	maryland // moved here because not all variables have a state total 	
 	michigan	
-	colorado // **KP: double check if this is okay
-	connecticut // **KP: double check if this is okays
+	colorado 
 ; 
 #delimit cr 
 
@@ -54,7 +53,7 @@ local cond_mahnomen			`"state == "minnesota" & inlist(county,"mahnomen","whiteea
 *local cond_	`"state == "" & inlist(county,)"'
 
 ***********************************************************************************
-
+/*
 // data is there already when county = "total"
 foreach state of local states_withcounty {
 	
@@ -118,11 +117,11 @@ foreach v in individuals households issuance {
 
 **TEMPORARY
 save "${dir_root}/data/state_data/county_ym_TEMP.dta", replace 
-
+*/
 ////////////////////
 // GEOGRAPHY VARS //
 ////////////////////
-
+/*
 **TEMPORARY
 use "${dir_root}/data/state_data/county_ym_TEMP.dta", clear
 
@@ -142,7 +141,7 @@ drop if multicounty_marker == 1
 drop multicounty_marker
 
 // assert county data only 
-assert county_marker == 1 | missing(county_marker)
+assert county_marker == 1 | missing(county_marker) | county == "other/virtual totals"
 
 // remove puntuation from countynames 
 replace county = ustrregexra(county," ","")
@@ -157,7 +156,7 @@ replace county = strlower(county)
 
 **TEMPORARY
 save "${dir_root}/data/state_data/county_ym_TEMP2.dta", replace 
-
+*/
 **TEMPORARY
 use "${dir_root}/data/state_data/county_ym_TEMP2.dta", clear
 
@@ -276,7 +275,13 @@ recast str32 county
 merge m:1 statefips county using "${dir_root}/data/state_data/_fips/countyfips_2019.dta", keepusing(countyfips county_og county_type)
 bysort state: tab county if _m == 1
 drop if _m == 2
-assert inlist(_m,3) | (inlist(_m,1) & state == "southdakota" & county == "shannon") // this didn't merge because of the year (only in 2014 fips data)
+#delimit ;
+assert 	inlist(_m,3) | 
+		(inlist(_m,1) & state == "southdakota" & county == "shannon") | /*this didn't merge because of the year (only in 2014 fips data)*/
+		(inlist(_m,1) & state == "louisiana" & strpos(county,"virtual")) | /*virtual counties won't match */
+		(inlist(_m,1) & state == "louisiana" & county == "other") /*other counties won't match */
+;
+#delimit cr 
 replace countyfips = 114 if state == "southdakota" & county == "shannon" 
 replace county_og = "shannon county" if state == "southdakota" & county == "shannon" 
 replace county_type = "county" if state == "southdakota" & county == "shannon" 
@@ -300,6 +305,8 @@ label var children "Children"
 // order and sort 
 order state county ym individuals households issuance adults children 
 sort state county ym 
-
+ 
 // save 
 save "${dir_root}/data/state_data/county_ym.dta", replace 
+
+check

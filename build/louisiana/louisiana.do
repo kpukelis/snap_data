@@ -1753,7 +1753,7 @@ check
 *********************************************************************************************
 *********************************************************************************************
 *********************************************************************************************
-/*
+
 forvalues year = `year_start_cases'(1)`year_end_cases' {
 	
 	display in red "`year'"
@@ -2412,6 +2412,7 @@ forvalues year = `year_start_age'(1)`year_end_age' {
     		// mark where data is a parish or not (there are also state totals and region totals)
     		gen county_marker = 1
     		replace county_marker = 0 if strpos(county,"region totals") | strpos(county,"state totals") | strpos(county,"others totals")
+    		replace county_marker = 0 if strpos(county,"other/virtual total")
 				
 			// destring 
 			foreach var in children adults individuals {
@@ -2531,7 +2532,8 @@ forvalues year = `year_start_age'(1)`year_end_age' {
     		// mark where data is a parish or not (there are also state totals and region totals)
     		gen county_marker = 1
     		replace county_marker = 0 if strpos(county,"region totals") | strpos(county,"state totals") | strpos(county,"others totals")
-	
+    		replace county_marker = 0 if strpos(county,"other/virtual total")
+
     		// date 
     		display in red "`month_num'"
     		gen month = `month_num'
@@ -2618,7 +2620,7 @@ replace county = "sabine - zwolle" if strpos(county,"sabine") & strpos(county,"z
 // drop regions 
 drop if inlist(county,"alexandria region totals","baton rouge region totals","covington region totals","lafayette region totals") | ///
 		inlist(county,"lake charles region totals","monroe region totals","orleans region totals","others totals") | ///
-		inlist(county,"shreveport region totals","thibodaux region totals")
+		inlist(county,"shreveport region totals","thibodaux region totals","other/virtual total")
 
 // drop non observations
 drop if strpos(county,"by children and adults")
@@ -3774,7 +3776,7 @@ forvalues year = `year_start_apps_county'(1)`year_end_apps_county' {
 // drop regions 
 drop if inlist(county,"alexandria region totals","baton rouge region totals","covington region totals","lafayette region totals") | ///
 		inlist(county,"lake charles region totals","monroe region totals","orleans region totals","others totals") | ///
-		inlist(county,"shreveport region totals","thibodaux region totals")
+		inlist(county,"shreveport region totals","thibodaux region totals","other/virtual totals")
 
 // rename state total 
 replace county = "total" if county == "state totals"

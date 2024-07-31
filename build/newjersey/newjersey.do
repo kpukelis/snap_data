@@ -327,8 +327,12 @@ forvalues ym = `ym_start'(1)`ym_end' {
 	}
 }
 
-// fix one county name 
+// fix some county names
 replace county = "gloucester" if county == "glouceste"
+replace county = "burlington" if county == "burlingto"
+replace county = "cumberland" if county == "cumberla"
+replace county = "gloucester" if county == "gloucest"
+replace county = "hunterdon" if county == "hunterdo"
 
 // replace njtotal = total 
 replace county = "total" if county == "njtotal"
@@ -344,4 +348,5 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/newjersey/newjersey.dta", replace 
+
 check 

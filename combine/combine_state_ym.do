@@ -48,6 +48,7 @@ local states_withtotal
 	texas
 	virginia
 	wisconsin
+	connecticut
 ; 
 #delimit cr 
 
@@ -75,7 +76,7 @@ local states_collapse
 
 // data is there already when county = "total"
 foreach state of local states_withtotal {
-	
+
 	// display
 	display in red "`state'"
 
@@ -113,6 +114,9 @@ foreach state of local states_withtotal {
 		// drop special cases
 		if "`state'" == "newyork" {
 			drop if county == "rest of state" // alternative to "new york city"			
+		}
+		else if "`state'" == "louisiana" {
+			drop if county == "other/virtual totals"
 		}
 
 		// keep total 	

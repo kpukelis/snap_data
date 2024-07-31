@@ -63,7 +63,7 @@ local michigan				= 0
 local minnesota				= 0 
 local mississippi			= 0 
 local missouri				= 0 
-local montana				= 1 
+local montana				= 0
 local nebraska				= 0
 // local nevada				= 0 fixed individual
 // local newhampshire		= 0 fixed individual
@@ -91,8 +91,8 @@ local wisconsin 			= 0
 // local districtofcolumbia	= 0 unclear clock
 
 // combine 
-local combine_state_ym 		= 0
-local combine_county_ym		= 0
+local combine_state_ym 		= 0 // DonE - reran 2024-07-31
+local combine_county_ym		= 0 // DONE - reran 2024-07-31
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04
@@ -107,7 +107,7 @@ local analyze_wisconsin 	= 0
 local newyork_southerntier 	= 0 // KEEP GOING HERE 2021-04-26
 local louisiana_analyze_closures = 0
 local california_analyze_apps = 0
-local massachusetts_analyze_apps = 0
+local massachusetts_analyze_apps = 1
 
 ***********************************************
 
