@@ -6,7 +6,8 @@
 /////////////////
 
 local ym_start_late				= ym(2017,7)
-local ym_end_late 				= ym(2022,12) 
+*local ym_end_late 				= ym(2022,12) 
+local ym_end_late				= ym(2024,6)
 local first_county 				_state_total
 #delimit ;
 local county_list 
@@ -44,7 +45,7 @@ local county_list
 	mineral           
 	missoula          
 	musselshell       
-	park              
+	park          
 	petroleum         
 	phillips          
 	pondera           
@@ -65,7 +66,7 @@ local county_list
 	treasure          
 	valley            
 	wheatland         
-	wilbaux           
+	wilbaux        
 	yellowstone      
 ; 
 #delimit cr 
@@ -227,7 +228,7 @@ foreach county of local county_list {
 	dropmiss, force obs 
 	describe, varlist
 	rename (`r(varlist)') (v#), addnumber
-	assert `r(k)' <= 67
+	assert `r(k)' <= 85 // 67
  
 	// transpose 
 	// sxpose, clear firstnames
@@ -326,7 +327,7 @@ foreach county of local county_list {
 	// save 
 	tempfile `county'
 	save ``county''
-
+ 
 }
 
 // append across counties 
@@ -363,7 +364,7 @@ save "${dir_root}/data/state_data/montana/montana_late_apps.dta", replace
 /////////////////////////////
 // LATE DATA -  ENROLLMENT //
 /////////////////////////////
-
+/*
 foreach type in Recips House Expend {
 
 foreach county of local county_list {
@@ -536,21 +537,25 @@ sort county ym
 // save 
 tempfile montana_late_`type'
 save `montana_late_`type''
-
+save "${dir_root}/data/state_data/montana/montana_late_enrollment_`type'.dta", replace
+ 
 }
 
 // merge 
-use `montana_late_Recips', clear 
-merge 1:1 county ym using `montana_late_House'
+// use `montana_late_Recips', clear 
+use "${dir_root}/data/state_data/montana/montana_late_enrollment_Recips.dta", clear
+// merge 1:1 county ym using `montana_late_House'
+merge 1:1 county ym using "${dir_root}/data/state_data/montana/montana_late_enrollment_House.dta"
 assert _m == 3
 drop _m 
-merge 1:1 county ym using `montana_late_Expend'
+// merge 1:1 county ym using `montana_late_Expend'
+merge 1:1 county ym using "${dir_root}/data/state_data/montana/montana_late_enrollment_Expend.dta"
 assert _m == 3 
 drop _m 
 
 // save 
 save "${dir_root}/data/state_data/montana/montana_late_enrollment.dta", replace
-check 
+ 
 */
 ////////////////
 // EARLY DATA //
@@ -742,15 +747,15 @@ save "${dir_root}/data/state_data/montana/montana_early.dta", replace
 ///////////////////////////
 
 // merge
-*use `montana_late_enrollment', clear 
+// use `montana_late_enrollment', clear 
 use "${dir_root}/data/state_data/montana/montana_late_enrollment.dta", clear 
-*merge 1:1 county ym using `montana_late_apps'
+// merge 1:1 county ym using `montana_late_apps'
 merge 1:1 county ym using "${dir_root}/data/state_data/montana/montana_late_apps.dta"
 assert inlist(_m,1,3)
 assert ym == ym(2019,10) if _m == 1 // data happens to be missing for some counties this month 
 drop _m 
 
-*merge 1:1 county ym using `montana_early', update 
+// merge 1:1 county ym using `montana_early', update 
 merge 1:1 county ym using "${dir_root}/data/state_data/montana/montana_early.dta", update
 assert inlist(_m,1,2,3)
 assert _m == 3 if ym == ym(2017,7)

@@ -832,7 +832,7 @@ foreach dataset of local datasets {
 
 // merge app data 
 merge 1:1 county ym using "${dir_root}/data/state_data/northcarolina/northcarolina_timeliness_app_ym.dta", update
-assert inlist(county,"total","not assigned") | inlist(ym,ym(2023,2)) if _m == 2
+assert inlist(county,"total","not assigned") | inlist(ym,ym(2024,6)) if _m == 2
 drop _m
 
 // merge recert data 
@@ -866,8 +866,17 @@ rename participants individuals
 // drop bad vars 
 dropmiss, force 
 count if !missing(m)
-assert `r(N)' == 26 // 23
+assert `r(N)' == 43 // 26 // 23
 drop m
+dropmiss, force 
+count if !missing(e)
+assert `r(N)' == 11
+drop e 
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
 
 // save 
 save "${dir_root}/data/state_data/northcarolina/northcarolina.dta", replace 

@@ -34,6 +34,8 @@ local states_withcounty
 	idaho
    	maryland // moved here because not all variables have a state total 	
 	michigan	
+	colorado // **KP: double check if this is okay
+	connecticut // **KP: double check if this is okays
 ; 
 #delimit cr 
 
