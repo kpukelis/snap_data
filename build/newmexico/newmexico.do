@@ -10,7 +10,7 @@ local ym_start_apps 			= ym(2019,1) // could get data earlier
 local ym_end_apps 				= ym(2024,4)
 
 local ym_start_apps_plus		= ym(2013,1)
-local ym_end_apps_plus			= ym(2024,4) // **KP: note: expedited apps not cleaned from 2022m9-2024m4
+local ym_end_apps_plus			= ym(2024,4) 
 
 
 // early data: 2014m2-2017m3, hand entered. Rest of the data format starts 2017m4
@@ -437,10 +437,10 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 	rename (`r(varlist)') (v#), addnumber
 
 	// number of pages
-	if inrange(`ym',ym(2017,11),ym(2022,8)) {
+	if inrange(`ym',ym(2017,11),ym(2024,4)) {
 		local num_pages = 5
 	}
-	else if inrange(`ym',ym(2013,1),ym(2017,3)) | inrange(`ym',ym(2022,9),ym(2024,4)) {
+	else if inrange(`ym',ym(2013,1),ym(2017,3)) {
 		local num_pages = 1
 	}
 	else if inrange(`ym',ym(2017,4),ym(2017,7)) {
@@ -458,7 +458,7 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 
 	// one page at a time 
 	forvalues p = 1(1)`num_pages' {
-*	local p = 2
+*	local p = 5
 
 		// preserve 
 		preserve
@@ -468,7 +468,7 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 
 		// keep the right rows
 		gen obsnum = _n
-		if inrange(`ym',ym(2017,11),ym(2022,8))  {
+		if inrange(`ym',ym(2017,11),ym(2024,4))  {
 			noisily sum obsnum if (strpos(v1,"Statewide") & strpos(v1,"Total")), detail	
 			assert `r(N)' == `num_pages' 
 			if `p' == 1 {
@@ -494,14 +494,6 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 		}
 		else if inrange(`ym',ym(2013,1),ym(2017,3)) {
 			noisily sum obsnum if strpos(v1,"SNAP Applications") | strpos(v3,"Roosevelt") //| strpos(v10,"TOTAL")
-			assert `r(N)' == `num_pages'
-			if `p' == 1 {
-				local first_obsnum = 1
-				local last_obsnum = `r(min)'
-			}
-		}
-		else if inrange(`ym',ym(2022,9),ym(2024,4)) {
-			noisily sum obsnum if (strpos(v1,"Statewide") & strpos(v1,"Total")), detail	
 			assert `r(N)' == `num_pages'
 			if `p' == 1 {
 				local first_obsnum = 1
@@ -667,7 +659,7 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 			rename numuntimely 				apps_expedited_untimely
 			rename percentagetimely			apps_expedited_timely_perc
 		}
-		else if `p' == 4 & !inlist(`ym',ym(2017,9),ym(2017,10)) {
+		else if `p' == 4 & !inlist(`ym',ym(2017,9),ym(2017,10),ym(2022,11)) {
 			describe, varlist 
 			assert `r(k)' == 5
 			rename office 					county
@@ -676,7 +668,7 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 			rename needbasedclosures		recert_denied_needbased
 			rename proceduralclosures 		recert_denied_procedural
 		}
-		else if `p' == 5 | (`p' == 4 & inlist(`ym',ym(2017,9),ym(2017,10))) {
+		else if `p' == 5 | (`p' == 4 & inlist(`ym',ym(2017,9),ym(2017,10),ym(2022,11))) {
 			describe, varlist 
 			assert `r(k)' == 5
 			rename office 					county
@@ -686,7 +678,7 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 			capture rename needbasedclosurerate 	recert_denied_needbased_rate
 			capture rename needbaseddenialrate 		recert_denied_needbased_rate // inlist(`ym',ym(2017,9),ym(2017,10))
 			capture rename proceduralclosurerate	recert_denied_procedural_rate		
-			capture rename proceduraldenialrate		recert_denied_procedural_rate // inlist(`ym',ym(2017,9),ym(2017,10))		
+			capture rename proceduraldenialrate		recert_denied_procedural_rate // inlist(`ym',ym(2017,9),ym(2017,10))	 	
 		}
 		else {
 			stop 
@@ -720,10 +712,10 @@ if !inrange(`ym',ym(2013,7),ym(2013,12)) & !inlist(`ym',ym(2014,1)) & !inrange(`
 		else if `p' == 3 | (`p' == 2 & inrange(`ym',ym(2017,4),ym(2017,7))) {
 			local destring_vars apps_expedited apps_expedited_timely apps_expedited_untimely apps_expedited_timely_perc
 		}
-		else if `p' == 4 & !inlist(`ym',ym(2017,9),ym(2017,10)) {
+		else if `p' == 4 & !inlist(`ym',ym(2017,9),ym(2017,10),ym(2022,11)) {
 			local destring_vars recert_approved recert_denied recert_denied_needbased recert_denied_procedural
 		}
-		else if `p' == 5 | (`p' == 4 & inlist(`ym',ym(2017,9),ym(2017,10))) {
+		else if `p' == 5 | (`p' == 4 & inlist(`ym',ym(2017,9),ym(2017,10),ym(2022,11))) {
 			local destring_vars recert_approved_rate recert_denied_rate recert_denied_needbased_rate recert_denied_procedural_rate
 		}
 		else {
@@ -793,30 +785,45 @@ gen county = county_og
 	// eddy = eddy + eddy artesia + eddy carlsbad
 	replace county = "eddy" if county == "eddy artesia" | county == "eddy carlsbad"
 
+**KP: okay at this point
+ 
 // drop vars which I could always just recalculate 
 // this vars would also be hard to work with the collapse 
-drop recert_approved_rate
-drop recert_denied_rate
-drop recert_denied_needbased_rate
-drop recert_denied_procedural_rate
+*drop recert_approved_rate
+*drop recert_denied_rate
+*drop recert_denied_needbased_rate
+*drop recert_denied_procedural_rate
 drop apps_expedited_timely_perc
 *drop apps_approved_rate
 *drop apps_denied_rate
+
+// calculate total recerts 
+egen recert_calc = rowtotal(recert_approved recert_denied)
 
 // generate counts where there are rates 
 // this is to make the data collapse-friendly
 foreach type in approved denied denied_needbased denied_procedural {
 	gen apps_`type'_calc = apps_received * apps_`type'_rate
 	drop apps_`type'_rate
+	gen recert_`type'_calc = recert_calc * recert_`type'_rate 
+	drop recert_`type'_rate
 }
 
 // for variables where there is a recorded version, make sure they are "close", for validity (< X% error rate)
 foreach type in approved denied {
+	// 
 	gen perc_error_apps_`type'_rate = abs(apps_`type'_calc - apps_`type') / apps_`type' * 100
 	sum perc_error_apps_`type'_rate, detail 
 	*order *apps_`type'*
 	*assert perc_error_apps_`type'_rate < 5 if !missing(apps_approved_rate)
 	drop perc_error_apps_`type'_rate
+	// 
+	gen perc_error_recert_`type'_rate = abs(recert_`type'_calc - recert_`type') / recert_`type' * 100
+	sum perc_error_recert_`type'_rate, detail 
+	*order *recert_`type'*
+	*assert perc_error_recert_`type'_rate < 5 if !missing(recert_approved_rate)
+	drop perc_error_recert_`type'_rate
+	
 }
 
 // collapse counties with multiple offices into a single county  
@@ -828,6 +835,8 @@ collapse (sum)
 	recert_approved recert_denied recert_denied_needbased recert_denied_procedural
 	apps_approved_calc apps_denied_calc
 	apps_denied_needbased_calc apps_denied_procedural_calc
+	recert_approved_calc recert_denied_calc
+	recert_denied_needbased_calc recert_denied_procedural_calc
 	(count)
 	n_apps_approved = apps_approved
 	n_apps_denied = apps_denied
@@ -844,6 +853,10 @@ collapse (sum)
 	n_apps_denied_calc = apps_denied_calc
 	n_apps_denied_needbased_calc = apps_denied_needbased_calc
 	n_apps_denied_procedural_calc = apps_denied_procedural_calc
+	n_recert_approved_calc = recert_approved_calc
+	n_recert_denied_calc = recert_denied_calc
+	n_recert_denied_needbased_calc = recert_denied_needbased_calc
+	n_recert_denied_procedural_calc = recert_denied_procedural_calc
 	, by(county ym)
 ;
 #delimit cr 
@@ -855,6 +868,8 @@ foreach var in apps_approved apps_denied apps_withdrawn apps_received
 	recert_approved recert_denied recert_denied_needbased recert_denied_procedural
 	apps_approved_calc apps_denied_calc
 	apps_denied_needbased_calc apps_denied_procedural_cal
+	recert_approved_calc recert_denied_calc
+	recert_denied_needbased_calc recert_denied_procedural_cal
 	{ ;
 		replace `var' = . if n_`var' == 0 ;
 		drop n_`var' ;
@@ -870,7 +885,7 @@ drop perc_error_apps_denied
 gen perc_error_apps_denied_calc = abs(apps_denied_calc - apps_denied_needbased_calc - apps_denied_procedural_calc) / apps_denied_calc * 100
 sum perc_error_apps_denied_calc, detail
 drop perc_error_apps_denied_calc
-
+ 
 // order and sort 
 order county ym 
 sort county ym 

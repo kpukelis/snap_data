@@ -4,12 +4,485 @@
 local year_short_list			/*10 14*/ 16 17 18 19 20 21 22 23
 local first_year_short 			16
 
+local year_short_list_churn 	20 21 22 23
+local first_year_short_churn 	20 
+
 **************************************************************************
 
+////////////////
+// CHURN DATA //
+//////////////// 
+
+/*
+foreach year_short of local year_short_list_churn {
+
+	// display ym 
+	display in red "`year'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year_short = `year_short'
+	gen year_short_plus1 = `year_short' + 1
+	gen year = 2000 + `year_short'
+	local year_short = year_short
+	display in red "`year_short'"
+	local year_short_plus1 = year_short_plus1
+	display in red "`year_short_plus1'"
+	local year = year
+	display in red "`year'"
+
+	////////////////////////
+	// GET VARIABLE NAMES //
+	////////////////////////
+
+	// load data 
+	import excel "${dir_root}/data/state_data/california/excel/CF 18 - CalFresh Churn Monthly Report/CF18FY`year_short'-`year_short_plus1'.xlsx", sheet("DataDictionary") allstring case(lower) firstrow clear 		
+	
+	// rename 
+	rename thissheetcontainsadatadicti cell 
+	rename b churnmeasurement
+	rename c part 
+	rename d item 
+	rename e column 
+	drop in 1 
+
+	// clean up vars 
+	// item 
+	// split item, parse(".")
+	// drop item 
+	// drop item1
+	// rename item2 item 
+
+	// part
+	tab part 
+	// qui replace part = "" if part == "a. participation during the month"
+	// qui replace part = "issuance_" if part == "b. issuances during the month"
+	// qui replace part = "vissuance_" if part == "c. value of benefit issuances during the month"
+	// qui replace part = substr(part,1,1)
+	*tab part 
+
+	// remove parentheses
+	foreach var in part column item {
+		gen `var'_og = `var'
+		qui replace `var' = ustrregexra(`var',"Within the Prior","")
+		qui replace `var' = strlower(`var')
+		qui replace `var' = ustrregexra(`var',"\-","")
+		qui replace `var' = ustrregexra(`var',"\(","")
+		qui replace `var' = ustrregexra(`var',"\)","")
+		qui replace `var' = ustrregexra(`var',"/","")
+		qui replace `var' = ustrregexra(`var',"\:","")
+		qui replace `var' = ustrregexra(`var',"\'","")
+		qui replace `var' = ustrregexra(`var',"\_","")
+		qui replace `var' = ustrregexra(`var',"\,","")
+		qui replace `var' = ustrregexra(`var',"\.","")
+		qui replace `var' = ustrregexra(`var',"number of ","")
+		qui replace `var' = ustrregexra(`var'," the ","")
+		qui replace `var' = ustrregexra(`var',"$the ","")
+		qui replace `var' = ustrregexra(`var'," ","")
+		*qui replace `var' = ustrregexra(`var',"federalandstatepersons","fedstatepers")
+		*qui replace `var' = ustrregexra(`var',"federalstatehouseholds","fedstatehhs")
+		qui replace `var' = ustrregexra(`var',"persons","pers")
+		qui replace `var' = ustrregexra(`var',"households","hhs")
+		qui replace `var' = ustrregexra(`var',"federal","fed")
+		qui replace `var' = ustrregexra(`var',"application","app")
+		qui replace `var' = ustrregexra(`var',"priortodatacohortmonth","")
+		qui replace `var' = ustrregexra(`var',"datacohortmonth","")
+		qui replace `var' = ustrregexra(`var',"month","mth")
+		qui replace `var' = ustrregexra(`var',"sar7orrrrcorrelateddiscontinuation","closure")
+		qui replace `var' = ustrregexra(`var',"sar7orrrrrelatedrestoration","restoration")
+		qui replace `var' = ustrregexra(`var',"eligible","elig")
+		qui replace `var' = ustrregexra(`var',"expeditedservice","exp")
+		qui replace `var' = ustrregexra(`var',"initialapp","app")
+		qui replace `var' = ustrregexra(`var',"average","avg")
+		// qui replace `var' = ustrregexra(`var',"total","ttl")
+		qui replace `var' = ustrregexra(`var',"total","")
+		qui replace `var' = ustrregexra(`var',"receivedfrom","")
+		qui replace `var' = ustrregexra(`var',"thatweredisposedand","")
+		qui replace `var' = ustrregexra(`var',"thatweredisposed","")
+		qui replace `var' = ustrregexra(`var',"deemed","")
+		qui replace `var' = ustrregexra(`var',"experienced","")
+		qui replace `var' = ustrregexra(`var',"subsequently","")
+		qui replace `var' = ustrregexra(`var',"either","")
+		qui replace `var' = ustrregexra(`var',"recent","")
+		qui replace `var' = ustrregexra(`var',"lossofbenefits","loss")
+		qui replace `var' = ustrregexra(`var',"allcalfresh","")
+		qui replace `var' = ustrregexra(`var',"during","")
+		qui replace `var' = ustrregexra(`var',"calendar","")
+		qui replace `var' = ustrregexra(`var',"withinthepe","")
+		qui replace `var' = ustrregexra(`var',"with","")
+		qui replace `var' = ustrregexra(`var',"forbenefits","")
+		qui replace `var' = ustrregexra(`var',"1","")
+		qui replace `var' = ustrregexra(`var',"2","")
+		qui replace `var' = ustrregexra(`var',"3","")
+		qui replace `var' = ustrregexra(`var',"4","")
+		qui replace `var' = ustrregexra(`var',"5","")
+		qui replace `var' = ustrregexra(`var',"6","")
+		qui replace `var' = ustrregexra(`var',"7","")
+		qui replace `var' = ustrregexra(`var',"8","")
+		qui replace `var' = ustrregexra(`var',"9","")
+		qui replace `var' = ustrregexra(`var',"0","")
+		qui replace `var' = ustrregexra(`var',"four","4")
+		qui replace `var' = ustrregexra(`var',"first","1st")
+		qui replace `var' = ustrregexra(`var',"second","2nd")
+		qui replace `var' = ustrregexra(`var',"third","3rd")
+		qui replace `var' = ustrregexra(`var',"fourth","4th")
+		qui replace `var' = ustrregexra(`var',"timely","time")
+	}
+	qui replace part = ustrregexra(part,"sars&rrrs","")
+	qui replace item = ustrregexra(item,"sars&rrrs","")
+	qui replace item = ustrregexra(item,"sar&rrr","")
+
+	// manual item replacement
+	replace item = "late1stelig" if item_og == "6. The total number of late SAR 7s & RRRs received from households within the First Month Following Data Cohort Month that were disposed and deemed eligible and experienced either no loss or loss of benefits."
+	replace item = "late1stinelig" if item_og == "8. The total number of late SAR 7s & RRRs received from households within the First Month Following Data Cohort Month that were disposed and subsequently deemed ineligible"
+	//	
+	replace item = "newapp1stelig" if item_og == "9. The total number of SAR 7 & RRR households who do not renew in the Data Cohort Month, but submit a new application in the First Month Following Data Cohort Month were disposed and subsequently deemed eligible for benefits"
+	replace item = "newapp1stinelig" if item_og == "10. The total number of SAR 7 & RRR households who do not renew in the Data Cohort Month, but submit a new application in the First Month Following Data Cohort Month were disposed and subsequently deemed ineligible (include withdrawals) for benefits"
+	replace item = "newapp2ndelig" if item_og == "11. The total number of SAR 7 & RRR households who do not renew in the Data Cohort Month, but submit a new application in the Second Month Following Data Cohort Month were disposed and subsequently deemed eligible for benefits"
+	replace item = "newapp2ndinelig" if item_og == "12. The total number of SAR 7 & RRR households who do not renew in the Data Cohort Month, but submit a new application in the Second Month Following Data Cohort Month were disposed and subsequently deemed ineligible (include withdrawals) for benefits."
+	replace item = "newapp3rdelig" if item_og == "13. The total number of SAR 7 & RRR households who do not renew in the Data Cohort Month, but submit a new application in the Third Month Following Data Cohort Month were disposed and subsequently deemed eligible for benefits"
+	replace item = "newapp3rdinelig" if item_og == "14. The total number of SAR 7 & RRR households who do not renew in the Data Cohort Month, but submit a new application in the Third Month Following Data Cohort Month were disposed and subsequently deemed ineligible (include withdrawals) for benefits"
+	replace item = "newapp4thelig" if item_og == "15. The total number of SAR 7 & RRR households who do not renew in the Data Cohort Month, but submit a new application in the Fourth Month Following Data Cohort Month were disposed and subsequently deemed eligible for benefits"
+	replace item = "newapp3thinelig" if item_og == "16. The total number of SAR 7 & RRR households who do not renew in the Data Cohort Month, but submit a new application in the Fourth Month Following Data Cohort Month were disposed and subsequently deemed ineligible (include withdrawals) for benefits"
+	// 
+	replace item = "apps_rec" if item_og == "17. The total number of CalFresh and CFAP applications disposed of during the Data Cohort Month"
+	replace item = "apps_rec_churn" if item_og == "18. The total number of CalFresh and CFAP applications disposed of during the Data Cohort Month from a household who participated in CalFresh/CFAP within the prior four full calendar months"
+	replace item = "apps_exp_1_3days" if item_og == "30. The total number of initial applications with expedited service approved within one to three days"
+	replace item = "apps_exp_4_7days" if item_og == "31. The total number of initial applications with expedited service approved within four to seven days"
+	replace item = "apps_exp_8days" if item_og == "32. The total number of initial applications with expedited service approved after seven days"
+	replace item = "apps_nonexp_01_07days" if item_og == "34. The total number of initial applications non-expedited service approved within one to seven days"
+	replace item = "apps_nonexp_08_15days" if item_og == "35. The total number of initial applications with non-expedited service approved within eight to fifteen days"
+	replace item = "apps_nonexp_16_22days" if item_og == "36. The total number of initial applications with non-expedited service approved within sixteen to twenty-two days"
+	replace item = "apps_nonexp_23_30days" if item_og == "37. The total number of initial applications with non-expedited service approved within twenty-three to thirty days"
+	replace item = "apps_nonexp_31days" if item_og == "38. The total number of initial applications with non-expedited service approved over thirty days"
+
+
+	// column
+	// qui replace column = "pacf" if column == "a.publicassistance"
+	// qui replace column = "nacf" if column == "b.nonpublicassistance"
+	qui replace column = "ttl" if missing(column) // & missing(part)
+
+	// generate variable name 
+	qui gen varname = part + "_" + column + "_" + item 
+	qui replace varname = stritrim(varname)
+	qui replace varname = substr(varname,1,31)
+
+	// initial varname 
+	qui destring cell, replace 
+	confirm numeric variable cell 
+	if `year_short' == 20 {
+		qui replace cell = cell + 5 // since there are year variables to start 	
+	}
+	else {
+		qui replace cell = cell + 6 // since there are year variables to start 
+	}
+	
+	qui tostring cell, gen(v)
+	qui replace v = "v" + v 
+
+	// get text for renaming 
+	display in red "`year_short'"
+	list v varname
+
+	rename varname varname_`year_short'
+	duplicates tag varname_`year_short', gen(dup)
+	*br if dup > 0
+	assert dup == 0
+	drop dup 
+
+	// save
+	*tempfile varnames2
+	save "${dir_root}/data/state_data/california/churn_varnames2_`year_short'.dta", replace
+ 
+}
+*/
+
+// load data 
+foreach year_short of local year_short_list_churn {
+
+	// display ym 
+	display in red "`year'"
+
+	// for file names
+	clear
+	set obs 1
+	gen year_short = `year_short'
+	gen year_short_plus1 = `year_short' + 1
+	gen year = 2000 + `year_short'
+	local year_short = year_short
+	display in red "`year_short'"
+	local year_short_plus1 = year_short_plus1
+	display in red "`year_short_plus1'"
+	local year = year
+	display in red "`year'"
+	
+	/////////////////
+	// ACTUAL DATA //
+	/////////////////
+
+	if inrange(`year_short',20,24) {
+		// load data 
+		import excel "${dir_root}/data/state_data/california/excel/CF 18 - CalFresh Churn Monthly Report/CF18FY`year_short'-`year_short_plus1'.xlsx", sheet("Data_Internal") allstring case(lower) firstrow clear 		
+	}
+	else {
+		stop 
+	}
+
+	// drop empty variables
+	dropmiss, force 
+	dropmiss, obs force 
+	describe, varlist 
+	rename (`r(varlist)') (v#), addnumber
+	drop in 1
+
+	// one extra blank var in FY 2020
+	if inlist(`year_short',20,21,22,23) { 
+		drop v3 
+		describe, varlist 
+		rename (`r(varlist)') (v#), addnumber
+	}
+
+	// rename variables
+	describe, varlist
+	if inlist(`year_short',20) {
+		assert `r(k)' == 73
+		assert `r(N)' == 299	
+	}
+	else if inlist(`year_short',21) { 
+		assert `r(k)' == 74
+		assert `r(N)' == 712	
+	}
+	else if inlist(`year_short',22) { 
+		assert `r(k)' == 74
+		assert `r(N)' == 594
+	}
+	else if inlist(`year_short',23) { 
+		assert `r(k)' == 74
+		assert `r(N)' == 417
+	}
+
+	*else if `year_short' == 23 {
+		*assert `r(N)' == 181 // this will change as more data is added 
+	*}
+
+	
+	if inlist(`year_short',20) {
+		rename v1 date 
+		rename v2 county 
+		rename v3 sfy 
+		rename v4 ffy 
+		rename v5 reportmonth 
+	}
+	else if inlist(`year_short',21,22,23) {
+		rename v1 date 
+		rename v2 county
+		rename v3 countycode 
+		rename v4 sfy 
+		rename v5 ffy 
+		rename v6 reportmonth
+	}
+	
+	// rename vars 
+	renamefrom using "${dir_root}/data/state_data/california/churn_varnames2_`year_short'.dta", filetype(stata) raw(v) clean(varname_`year_short') keepx
+	
+	// drop last heading rows
+	drop in 1 
+	drop in 1 
+	drop in 1 
+	drop in 1 
+
+	// split date 
+	gen day = substr(date,1,2)
+	gen month = substr(date,3,3)
+	gen year = substr(date,6,4)
+	replace month = "1" if month == "jan"
+	replace month = "2" if month == "feb"
+	replace month = "3" if month == "mar"
+	replace month = "4" if month == "apr"
+	replace month = "5" if month == "may"
+	replace month = "6" if month == "jun"
+	replace month = "7" if month == "jul"
+	replace month = "8" if month == "aug"
+	replace month = "9" if month == "sep"
+	replace month = "10" if month == "oct"
+	replace month = "11" if month == "nov"
+	replace month = "12" if month == "dec"
+	foreach var in day month year {
+		destring `var', replace 
+		confirm numeric variable `var'
+	}
+	assert day == 1 
+	drop day 
+	gen ym = ym(year,month)
+	format ym %tm 
+	drop year
+	drop month 
+
+	// clean up date 
+	// capture confirm variable year 
+	// capture confirm variable month 
+	// if !_rc {
+	// 	display in red "month var already created"
+	// 	destring month, replace 
+	// 	destring year, replace 
+	// 	confirm numeric variable month 
+	// 	confirm numeric variable year 
+	// 	gen ym = ym(year,month)
+	// 	format ym %tm 
+	// 	drop year month 
+	// }
+	capture confirm variable ym 
+	if !_rc {
+
+	}
+	else {
+		capture confirm variable date 
+		if !_rc {
+			gen year = substr(date,6,4)
+			destring year, replace 
+			gen month = substr(reportmonth,3,3)
+			replace month = "01" if month == "jan"
+			replace month = "02" if month == "feb"
+			replace month = "03" if month == "mar"
+			replace month = "04" if month == "apr"
+			replace month = "05" if month == "may"
+			replace month = "06" if month == "jun"
+			replace month = "07" if month == "jul"
+			replace month = "08" if month == "aug"
+			replace month = "09" if month == "sep"
+			replace month = "10" if month == "oct"
+			replace month = "11" if month == "nov"
+			replace month = "12" if month == "dec"
+			destring month, replace
+			confirm numeric variable month
+			drop date
+			gen ym = ym(year,month)
+			format ym %tm 
+			drop year month 	
+		}
+		capture confirm variable ym 
+		if !_rc {
+			display in red "ym already created"
+		}
+		else {
+			capture confirm variable month 
+			if !_rc {
+				destring month, replace 
+				confirm numeric variable month
+				destring year, replace
+				confirm numeric variable year
+				gen ym = ym(year,month)
+				format ym %tm 	
+				drop year month 	
+			}
+			capture confirm variable ym 
+			if !_rc {
+				display in red "ym already created"
+			}
+			else {
+				capture confirm variable reportmonth
+				if !_rc {
+					gen year = substr(reportmonth,6,4)
+					destring year, replace 
+					confirm numeric variable year 
+					gen month = substr(reportmonth,3,3)
+					replace month = "01" if month == "jan"
+					replace month = "02" if month == "feb"
+					replace month = "03" if month == "mar"
+					replace month = "04" if month == "apr"
+					replace month = "05" if month == "may"
+					replace month = "06" if month == "jun"
+					replace month = "07" if month == "jul"
+					replace month = "08" if month == "aug"
+					replace month = "09" if month == "sep"
+					replace month = "10" if month == "oct"
+					replace month = "11" if month == "nov"
+					replace month = "12" if month == "dec"
+					destring month, replace
+					confirm numeric variable month
+					drop reportmonth
+					gen ym = ym(year,month)
+					format ym %tm 	
+					drop year month 	
+				}		
+			}
+		}
+	}
+	
+	assert !missing(ym)
+	drop sfy 
+	drop ffy 
+
+	// lowercase county 
+	replace county = strlower(county)
+	
+	// destring 
+	foreach var of varlist _all {
+	if !inlist("`var'","ym","county","date","reportmonth") {
+		replace `var' = ustrregexra(`var',"BLANK","")
+		destring `var', replace 
+		confirm numeric variable `var'
+	}
+	}
+
+	// drop statewide average 
+	drop if strpos(county,"statewide average")
+	replace county = "state totals" if county == "statewide total" | county == "statewide"
+
+	// order 
+	order county ym 
+	sort county ym 
+
+	// save 
+	tempfile _`year_short'_churn
+	save `_`year_short'_churn'
+
+}
+
+// append years 
+foreach year_short of local year_short_list_churn {
+	if `year_short' == `first_year_short' {
+		use `_`year_short'_churn', clear
+	}
+	else {
+		append using `_`year_short'_churn'
+	}
+}
+
+// drop countycode for now; it's not throughout 
+drop countycode
+
+// drop statewide totals; data is not consistent enough
+drop if county == "state totals"
+
+// drop exact duplicates 
+duplicates drop 
+
+// assert level of the data 
+duplicates tag county ym, gen(dup)
+assert dup == 0
+drop dup 
+
+// order and sort 
+order county ym 
+sort county ym 
+ 
+// drop vars I don't need 
+drop reportmonth
+drop date 
+
+// save 
+tempfile california_churn
+save `california_churn'
+save "${dir_root}/data/state_data/california/california_churn.dta", replace 
+
+
+*/
 /////////////////////
 // ENROLLMENT DATA //
 /////////////////////
-
+/*
 
 foreach year_short of local year_short_list {
 
@@ -500,6 +973,7 @@ sort county ym
 tempfile california_enrollment
 save `california_enrollment'
 save "${dir_root}/data/state_data/california/california_enrollment.dta", replace 
+*/
 
 **************************************************************************
 **************************************************************************
@@ -507,7 +981,7 @@ save "${dir_root}/data/state_data/california/california_enrollment.dta", replace
 **************************************************************************
 **************************************************************************
 */
-
+/*
 //////////////////////////
 // APPLICATION ETC DATA //
 //////////////////////////
@@ -1101,7 +1575,7 @@ assert !missing(apps_denied) if miss_all != 1
 tempfile california_detail
 save `california_detail'
 save "${dir_root}/data/state_data/california/california_detail.dta", replace 
-
+*/
 
 ****************************************************************************************
 ****************************************************************************************
@@ -1115,6 +1589,14 @@ assert inlist(_m,2,3)
 assert inrange(ym,ym(2022,1),ym(2022,6)) if _m == 2
 drop _m 
 
+// merge in churn data 
+merge 1:1 county ym using "${dir_root}/data/state_data/california/california_churn.dta", update replace
+
+// check merge 
+assert inlist(_m,1,3)
+assert inrange(ym,ym(2016,7),ym(2020,12)) | inlist(ym,ym(2021,1),ym(2023,5),ym(2023,6),ym(2024,2)) if _m == 1 
+drop _m 
+
 // order and sort 
 order county ym // issuance households individuals households_npa individuals_npa households_pa individuals_pa
 sort county ym 
@@ -1122,4 +1604,5 @@ sort county ym
 // save 
 save "${dir_root}/data/state_data/california/california.dta", replace 
 
+chgeck 
 

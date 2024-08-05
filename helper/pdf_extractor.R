@@ -168,8 +168,11 @@ months <- c(
 
 # new mexico - apps
 
-dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
-dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_apps"
+#dir_source <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
+#dir_save <- "G:/My Drive/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_apps"
+dir_source <- "G:/Harvard/research/time_limits/data/state_data/newmexico/pdfs"
+dir_save <- "G:/Harvard/research/time_limits/data/state_data/newmexico/pdfs_short_apps"
+
 
 years <- 2024:2024
 #year <- 2018
@@ -194,9 +197,9 @@ page_range <- 20:20 # for 2016m7-2017m3
 page_range <- 21:21 # for 2014m8-2016m6
 page_range <- 23:23 # for 2014m2-2014m7
 page_range <- 43:43 # for 2013m1-2013m6
-page_range <- 23:23 # for 2022m5-2022m7
-page_range <- 22:22 # for 2022m8
-page_range <- 23:23 # for 2022m9-2024m4
+#page_range <- 23:23 # for 2022m5-2022m7
+#page_range <- 22:22 # for 2022m8
+#page_range <- 23:23 # for 2022m9-2024m4
 
 for (year in years) {
 for (month in months) {

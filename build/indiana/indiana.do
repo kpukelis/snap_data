@@ -3,7 +3,7 @@
 
 *local start_ym 		= ym(2005,4)
 local start_ym 		= ym(2010,5)
-local end_ym 		= ym(2022,6)
+local end_ym 		= ym(2024,6)
 
 ***************************************************************************************
 
@@ -26,8 +26,13 @@ forvalues ym = `start_ym'(1)`end_ym' {
 	display in red "`year'"
 
 	// import file 
-	import delimited "${dir_root}/data/state_data/indiana/csvs/tabula-`year'-`month'.csv", delimiter(",") clear
-		
+	if `ym' >= ym(2024,1) {
+		import delimited "${dir_root}/data/state_data/indiana/csvs/tabula-`year'-`month'.csv", delimiter(",") clear /*bindquote(nobind)*/ bindquote(strict)
+	}
+	else {
+		import delimited "${dir_root}/data/state_data/indiana/csvs/tabula-`year'-`month'.csv", delimiter(",") clear	
+	}
+	
 	// remove title columns
 	drop if v1 == ""
 	drop if strpos(v1,"TANF - REGULAR")
@@ -41,7 +46,7 @@ forvalues ym = `start_ym'(1)`end_ym' {
 	drop if strpos(v5,"Cumulative")
 	drop if strpos(v5,"Change")
 	drop if strpos(v1,`"Change""')
-		
+
 	// remove unnecessary characters
 	foreach var in v2 v3 v4 v5 {
 		replace `var' = trim(`var')
@@ -71,6 +76,23 @@ forvalues ym = `start_ym'(1)`end_ym' {
 	drop if v1 == "Percentage HIP Members SNAP Recipients"
 	drop if v1 == "HIP Members SNAP ABAWDs"
 	drop if v1 == "Percentage HIP Members SNAP ABAWDs"
+	if `ym' ==  ym(2022,9) {
+		drop if v1 == `"2022",August 2022,"September"'
+	}
+	else if `ym' == ym(2022,10) {
+		drop if v1 == `"2022",October 2021,"Annual"'
+	}
+	drop if v1 == `"2022","November"'
+	drop if v1 == `"2022","December"'
+	drop if v1 == `"2021","Annual"'
+	drop if v1 == `"2023",August 2023,"September"'
+	drop if v1 == `"2022","Annual"'
+	drop if v1 == `"2023","November"'
+	drop if v1 == `"2023","December"'
+	drop if v1 == `"2024","December"'
+	drop if v1 == `"2023","January"'
+	drop if v1 == `"2023",Annual Change"'
+
 
 	// assert 18 variables
 	gen obsnum = _n
@@ -129,6 +151,12 @@ forvalues ym = `start_ym'(1)`end_ym' {
 		rename v2 _`ym'
 		rename v3 _`ym_lastmonth'
 		rename v4 _`ym_lastyear'
+
+		// destring 
+		foreach var of varlist _??? {
+			destring `var', replace ignore("$")
+			confirm numeric variable `var'
+		}
 		
 		// reshape 
 		drop obsnum
@@ -250,8 +278,8 @@ duplicates drop county ym households individuals issuance snap_emp snap_impact s
 *drop dup 
 duplicates drop county ym households individuals issuance snap_impact snap_inelig total_inelig apps_received, force 
 
-// remaining discrepancies are from issuance; keep the later observation if two different numbers 
-duplicates tag county ym issuance, gen(dup)
+// remaining discrepancies are from issuance or apps; keep the later observation if two different numbers 
+duplicates tag county ym issuance apps_received, gen(dup)
 assert dup == 0
 drop dup 
 gsort county ym -source 
@@ -273,4 +301,4 @@ sort county ym
 
 // save 
 save "${dir_root}/data/state_data/indiana/indiana.dta", replace 
-
+check 

@@ -12,7 +12,7 @@ local numvars_recipients 		= 14
 local ym_start_oldformat 		= ym(2010,1)
 local ym_end_oldformat 			= ym(2017,3)
 local ym_start_newformat 		= ym(2017,4)
-local ym_end_newformat 			= ym(2024,5)
+local ym_end_newformat 			= ym(2024,6)
 
 *********************************************************************
 /*
@@ -372,7 +372,7 @@ save "${dir_root}/data/state_data/wisconsin/wisconsin_ataglance_oldformat.dta", 
 */
 *************************************************************************
 // ataglance - new format
-/*
+
 // import 
 import excel using "${dir_root}/data/state_data/wisconsin/excel_ataglance/wisconsin_ataglance.xlsx", sheet("new_format") allstring firstrow clear
 
@@ -386,6 +386,8 @@ foreach var in
 	individuals
 	households_withminors_perc
 	households_withebd_perc
+	males 
+	females
 	female_00_05
 	male_00_05
 	female_06_17
@@ -505,7 +507,7 @@ drop dup
 // save 
 save "${dir_root}/data/state_data/wisconsin/wisconsin.dta", replace 
 
-
+check 
 /*
 keep if county == "total"
 local statewide_nowaiver = ym(2015,4)

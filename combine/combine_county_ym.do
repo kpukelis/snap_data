@@ -53,7 +53,7 @@ local cond_mahnomen			`"state == "minnesota" & inlist(county,"mahnomen","whiteea
 *local cond_	`"state == "" & inlist(county,)"'
 
 ***********************************************************************************
-/*
+
 // data is there already when county = "total"
 foreach state of local states_withcounty {
 	
@@ -121,7 +121,7 @@ save "${dir_root}/data/state_data/county_ym_TEMP.dta", replace
 ////////////////////
 // GEOGRAPHY VARS //
 ////////////////////
-/*
+
 **TEMPORARY
 use "${dir_root}/data/state_data/county_ym_TEMP.dta", clear
 

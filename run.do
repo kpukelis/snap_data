@@ -91,8 +91,8 @@ local wisconsin 			= 0
 // local districtofcolumbia	= 0 unclear clock
 
 // combine 
-local combine_state_ym 		= 0 // DonE - reran 2024-07-31
-local combine_county_ym		= 0 // DONE - reran 2024-07-31
+local combine_state_ym 		= 0 // DONE - reran 2024-08-04
+local combine_county_ym		= 0 // DONE - reran 2024-08-04
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04
@@ -105,9 +105,6 @@ local analyze_newyork 		= 0 // KEEP GOING HERE 2021-12-06
 local analyze_southcarolina	= 0 
 local analyze_wisconsin 	= 0
 local newyork_southerntier 	= 0 // KEEP GOING HERE 2021-04-26
-local louisiana_analyze_closures = 0
-local california_analyze_apps = 0
-local massachusetts_analyze_apps = 1
 
 ***********************************************
 
@@ -284,9 +281,6 @@ foreach step in
 	analyze_southcarolina	
 	analyze_wisconsin
 	newyork_southerntier
-	louisiana_analyze_closures
-	california_analyze_apps
-	massachusetts_analyze_apps
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/analyze/`step'.do" ;
