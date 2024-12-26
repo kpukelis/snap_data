@@ -19,6 +19,7 @@ global dir_code 		"C:/Users/kelse/OneDrive/Documents/GitHub/snap_data"
 *global dir_graphs 		"C:/Users/Kelsey/Google Drive/Harvard/research/time_limits/data/state_data/_graphs"
 *global dir_graphs 		"G:/My Drive/Harvard/research/time_limits/data/state_data/_graphs"
 global dir_graphs 		"G:/Harvard/research/time_limits/data/state_data/_graphs"
+global dir_logs 		"G:/Harvard/research/time_limits/data/state_data/_logs"
 
 // run globals
 *do "${dir_code}/0_utility/globals.do"
@@ -93,6 +94,7 @@ local wisconsin 			= 0
 // combine 
 local combine_state_ym 		= 0 // DONE - reran 2024-08-04
 local combine_county_ym		= 0 // DONE - reran 2024-08-04
+local combine_county_ym_public = 1
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04
@@ -261,6 +263,7 @@ foreach step in
 foreach step in 
 	combine_state_ym
 	combine_county_ym
+	combine_county_ym_public
 	{ ;
 		if ``step'' == 1 { ;
 			do "${dir_code}/combine/`step'.do" ;
