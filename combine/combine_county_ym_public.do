@@ -8,7 +8,7 @@
 // Kelsey Pukelis
 // 2022-05-17
 
-// keep varlist -- copied from combine_state_ym.do
+// keep varlist -- copied from combine_state_ym.do, with modifications
 #delimit ;
     local keep_varlist_abridged
     households
@@ -99,18 +99,6 @@
 // load data
 use "${dir_root}/data/state_data/county_ym.dta", clear
 
-// keep only vars I want 
-keep state statefips county countyfips ym `keep_varlist_abridged'
-// individuals households issuance adults children apps_received apps_approved apps_denied infants elderly disabled gender_* ethnicity_* race_*
-
-// drop observations that don't have info 
-dropmiss `keep_varlist_abridged', force obs 
-// adults children apps_received apps_approved apps_denied infants elderly disabled gender_* ethnicity_* race_*, force obs 
-
-// rename to shorten 
-rename recerts_denied_procedural recerts_denied_proc
-rename recerts_denied_needbased recerts_denied_need 
-
 // replace state with proper capitalization
 replace state = "new hampshire" if state == "newhampshire"
 replace state = "new jersey" if state == "newjersey"
@@ -123,6 +111,29 @@ replace state = "south carolina" if state == "southcarolina"
 replace state = "south dakota" if state == "southdakota"
 replace state = "west virginia" if state == "westvirginia"
 replace state = proper(state)
+
+// merge in state abbreviation
+statastates, name(state)
+assert inlist(_m,2,3)
+drop if _m == 2
+drop _m 
+replace state = proper(state)
+replace state = "District of Columbia" if state == "District Of Columbia"
+assert state_fips == statefips 
+drop state_fips 
+order state state_abbrev statefips 
+
+// keep only vars I want 
+keep state state_abbrev statefips county countyfips ym `keep_varlist_abridged'
+// individuals households issuance adults children apps_received apps_approved apps_denied infants elderly disabled gender_* ethnicity_* race_*
+
+// drop observations that don't have info 
+dropmiss `keep_varlist_abridged', force obs 
+// adults children apps_received apps_approved apps_denied infants elderly disabled gender_* ethnicity_* race_*, force obs 
+
+// rename to shorten 
+rename recerts_denied_procedural recerts_denied_proc
+rename recerts_denied_needbased recerts_denied_need 
 
 // statecountyfips
 gen statecountyfips = statefips*1000 + countyfips 
@@ -141,6 +152,7 @@ gen month = month(dofm(ym))
 
 // make sure variables are not missing
 assert !missing(state)
+assert !missing(state_abbrev)
 assert !missing(statefips)
 assert !missing(county)
 assert !missing(countyfips)
@@ -149,11 +161,12 @@ assert !missing(year)
 assert !missing(month)
 
 // order and sort 
-order state statefips county countyfips statecountyfips ym year month `keep_varlist_abridged'
+order state state_abbrev statefips county countyfips statecountyfips ym year month `keep_varlist_abridged'
 sort statecountyfips ym 
 
 // label vars
 label var state "State name"
+label var state_abbrev "State abbreviation"
 label var statefips "State FIPS code"
 label var county "County name"
 label var countyfips "County FIPS code"
@@ -217,17 +230,24 @@ label var medicaid_apps_approved "Medicaid applications approved"
 // label var households_new_reinstated ""
 // label var households_new_other ""
 
-**KP: make sure 2019 is not imputed
-
 // save 
-*check 
-
-
-// save "${dir_root}/data/clean/county_ym_enrollment_detail_applications.dta", replace
-
+save "${dir_root}/data/state_data/county_ym_public.dta", replace 
+check 
 
 ***************************************************************************************************
-/*
+
+// log which vars are covered 
+set linesize 200
+capture log close 
+log using "${dir_logs}/county_variable_coverage_public.log", replace 
+foreach var of varlist _all {
+  display in red "`var'"
+  tab state if !missing(`var')
+}
+log close 
+
+*/
+
 // log which time periods are covered
 set linesize 200
 capture log close 
@@ -263,8 +283,13 @@ foreach state of local states {
 }
 log close 
 */
+
+
+// KP: not including this section for now 
+/*
 // accounting for missingness
-**KP: ideally, should do this for each variable individually
+// Note: doing this across variables, but, ideally, should do this for each variable individually
+// The notes in the data documentation should substitute for doing this at the individual level
 gen missingness_code = 0 // 0 = not accounted for yet 
 replace missingness_code = 1 if !missing(households) & households != 0 // 1 = not missing
 replace missingness_code = 1 if !missing(individuals) & individuals != 0 & state_abbrev == "ID" // 1 = not missing
@@ -343,29 +368,25 @@ replace missingness_code = 2 if missingness_code == 0 & state_abbrev == "TN" & (
 replace missingness_code = 2 if missingness_code == 0 & state_abbrev == "TX" & (ym < ym(2014,1) | ym > ym(2024,6))
 replace missingness_code = 2 if missingness_code == 0 & state_abbrev == "VA" & (ym < ym(2001,9) | ym > ym(2001,9))
 replace missingness_code = 2 if missingness_code == 0 & state_abbrev == "WI" & (ym < ym(2011,1) | ym > ym(2024,4))
-    
 
-
+// label missingness
+#delimit ; 
+label define missingness_code 
+  0 "0. Missingness not accounted for"
+  1 "1. Key variables are not missing"
+  2 "2. Date falls outside of state's available range"
+;
+#delimit cr 
+label values missingness_code missingness_code 
 tab missingness_code
-br if missingness_code == 0
-**KP: keep going here
 
+*br if missingness_code == 0
+// **KP: could continue doing more work to figure this out
+// There are few observations, so it probably doesn't matter
+// NM several counties: 2013m2, 2013m3
+// NC 2024m6    
+// OH 2012m7
+*/
 
-**KP: I should check when values are 0, which could be instead of missing
-
-
-check 
-
-// log which vars are covered 
-set linesize 200
-capture log close 
-log using "${dir_logs}/county_variable_coverage_public.log", replace 
-foreach var of varlist _all {
-  display in red "`var'"
-  tab state if !missing(`var')
-}
-log close 
-
-
-check
+*/
 

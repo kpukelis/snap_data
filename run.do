@@ -94,7 +94,8 @@ local wisconsin 			= 0
 // combine 
 local combine_state_ym 		= 0 // DONE - reran 2024-08-04
 local combine_county_ym		= 0 // DONE - reran 2024-08-04
-local combine_county_ym_public = 1
+local combine_state_ym_public = 1 
+local combine_county_ym_public = 0 // DONE - reran 2024-12-26
 
 // analyze
 local shortlist 			= 0 // KEEP GOING HERE 2021-02-04
@@ -263,6 +264,7 @@ foreach step in
 foreach step in 
 	combine_state_ym
 	combine_county_ym
+	combine_state_ym_public
 	combine_county_ym_public
 	{ ;
 		if ``step'' == 1 { ;
